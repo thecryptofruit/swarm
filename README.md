@@ -6,11 +6,12 @@
 - https://bitcoinmagazine.com/17956/swarm-1-rick-falkvinges-swarmops-project/
 - http://www.amazon.co.uk/Swarmwise-Tactical-Manual-Changing-World/dp/1463533152/
 
-## Self
+## Docs & specs
 - our private repo: https://github.com/ethersphere/swarm 
 - drafts (private): https://github.com/ethersphere/swarm/doc 
 - wiki (private): https://github.com/ethersphere/swarm/wiki
 - Dani & Viktor on public wiki: https://github.com/ethereum/wiki/wiki/Distributed-Preimage-Archive
+- Multi-protocol peer selection https://github.com/ethereum/go-ethereum/wiki/Multi-protocol-peer-selection
 - Gav on public wiki: https://github.com/ethereum/cpp-ethereum/wiki/Swarm
 - on kademlia: https://github.com/ethereum/wiki/wiki/Cademlia-Peer-Selection
 - Ethereum node discovery protocol on UDP: https://github.com/ethereum/go-ethereum/wiki/RLPx-----Node-Discovery-Protocol
@@ -35,7 +36,7 @@
 - ethereum p2p: https://github.com/ethereum/go-ethereum/p2p
 - peer selection, peer pool: https://github.com/ethereum/go-ethereum/pull/253 
 - p2p cademlia branch (discontinued): https://github.com/ethersphere/go-ethereum/tree/kademlia
-- Felix's node discovery code:
+- Felix's node discovery code: https://github.com/fjl/go-ethereum/blob/udp-kademlia/p2p/discover (will be merged)
 
 # Alternatives
 
@@ -46,7 +47,7 @@
 - permacoin - https://www.cs.umd.edu/~elaine/docs/permacoin.pdf, https://bitcointalk.org/index.php?topic=640410.0, http://blog.dshr.org/2014/06/permacoin.html
 - siacoin - http://www.siacoin.com/
 - riak - http://basho.com/riak/
-- BitTorrent http://www.bittorrent.com/
-
+- BitTorrent http://www.bittorrent.com/ maelstrom http://blog.bittorrent.com/2014/12/10/project-maelstrom-the-internet-we-build-next/
+- Tahoe-LAFS https://www.tahoe-lafs.org/trac/tahoe-lafs
 
 
