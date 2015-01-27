@@ -19,6 +19,7 @@
 
 ## peer selection, routing table
 - migrate all from kademlia branch
+- reuse felix's implementation
 - redo cademlia as swarm peer pool
 
 ## CLI 
@@ -35,6 +36,7 @@ I suggest we each pick 2/3 and read up on their project status, features, useabi
 # Brainstorming
 
 - storage economy, incentivisation
+- dht  - chain interaction
 - nonoutsourceable proofs of storage as mining criteria 
 - proof of storage capacity directly rewarded by contract
 - streaming, hash chains 
