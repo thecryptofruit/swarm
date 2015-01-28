@@ -1,5 +1,8 @@
 # Sprint plan
 
+# scope
+- forwarding only (no recursive lookup and no connecting to new nodes, only working with active peers)
+
 ## code status
 - merge bzz-fefe into bzz
 - tests for memstore and db store should run again
@@ -10,6 +13,7 @@
 
 ## DPA
 - reconsider homogeneity of chunk stores: mem, disk/db, and dht are fundamentally different, DPA should know about these individually not just a random chain of stores
+- consider cases when individual stores should know about each other, e.g., memstore updating dbstore not to expire frequently retrieved entries 
 - API for local storage requests by client (self)
 
 ## dht store
@@ -26,9 +30,13 @@
 - hooking into DPA local API
 - running as a daemon accepting request via socket?
 
+## APIs
+- DAPP API - js integration (Fabian, Alex)
+- mist dapp storage scheme, url->hash mapping (Fabian, Alex) 
+
 # Discuss alternatives 
 
-I suggest we each pick 2/3 and read up on their project status, features, useability, objectives, etc
+I suggest we each pick 2/3 and read up on their project status, features, useability, objectives, etc 
 - Is it even worth it to reinvent/reimplement the wheel?
 - what features do we want now and in future
 - roadmap 

@@ -49,5 +49,6 @@
 - riak - http://basho.com/riak/
 - BitTorrent http://www.bittorrent.com/ maelstrom http://blog.bittorrent.com/2014/12/10/project-maelstrom-the-internet-we-build-next/
 - Tahoe-LAFS https://www.tahoe-lafs.org/trac/tahoe-lafs
+- retroshare http://retroshare.sourceforge.net/
 
 
