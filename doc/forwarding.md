@@ -3,6 +3,12 @@
 # 
 bzz protocol request handling, forwarding response strategies 
 
+## Prerequisites
+
+In package p2p, there is already a kademlia-based peer discovery protocol that makes sure that
+* In each row of the node table up to a certain (known) row, there is at least one node that supports Swarm.
+* At least one of each such node is actually connected as a peer.
+
 ## Retrieval 
 
 A retrieval request for a key arrives with a key recently unseen.
