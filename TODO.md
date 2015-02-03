@@ -45,6 +45,7 @@ I suggest we each pick 2/3 and read up on their project status, features, useabi
 
 - storage economy, incentivisation
 - dht  - chain interaction
+- proof of custody https://docs.google.com/document/d/1F81ulKEZFPIGNEVRsx0H1gl2YRtf0mUMsX011BzSjnY/edit
 - nonoutsourceable proofs of storage as mining criteria 
 - proof of storage capacity directly rewarded by contract
 - streaming, hash chains 
