@@ -3,28 +3,18 @@
 # scope
 - forwarding only (no recursive lookup and no connecting to new nodes, only working with active peers)
 
-## code status
-- merge bzz-fefe into bzz
-- tests for memstore and db store should run again
+## TODO
 
-## chunker 
-- benchmark for other than binary trees
-- parallelise join 
-
-## DPA
-- reconsider homogeneity of chunk stores: mem, disk/db, and dht are fundamentally different, DPA should know about these individually not just a random chain of stores
-- consider cases when individual stores should know about each other, e.g., memstore updating dbstore not to expire frequently retrieved entries 
-- API for local storage requests by client (self)
-
-## dht store
-- https://github.com/ethersphere/swarm/blob/master/doc/forwarding.md
-- implement simple request pool 
-- forwarding strategy, timeout estimation
-
-## peer selection, routing table
-- migrate all from kademlia branch
-- reuse felix's implementation
-- redo cademlia as swarm peer pool
+- put Data -> Reader logic to chunker
+- lazy reader timeout and reader errors over nil reader (chunk not found) the same?
+- chunker tests with missing chunks
+- parallelize join with benchmarks
+- test localstore , fallback to db, 0 capacity stores etc
+- integrate new p2p
+- test protocol 
+- test netstore (without protocol)
+- rework protocol errors using errs after PR merged
+- integrate cademlia into hive / peer pool
 
 ## CLI 
 - hooking into DPA local API
