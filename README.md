@@ -7,9 +7,7 @@
 - http://www.amazon.co.uk/Swarmwise-Tactical-Manual-Changing-World/dp/1463533152/
 
 ## Docs & specs
-- our private repo: https://github.com/ethersphere/swarm 
-- drafts (private): https://github.com/ethersphere/swarm/doc 
-- wiki (private): https://github.com/ethersphere/swarm/wiki
+- URL scheme: https://github.com/ethereum/go-ethereum/wiki/URL-Scheme
 - Dani & Viktor on public wiki: https://github.com/ethereum/wiki/wiki/Distributed-Preimage-Archive
 - Multi-protocol peer selection https://github.com/ethereum/go-ethereum/wiki/Multi-protocol-peer-selection
 - Gav on public wiki: https://github.com/ethereum/cpp-ethereum/wiki/Swarm
