@@ -13,6 +13,7 @@
 - Gav on public wiki: https://github.com/ethereum/cpp-ethereum/wiki/Swarm
 - on kademlia: https://github.com/ethereum/wiki/wiki/Cademlia-Peer-Selection
 - Ethereum node discovery protocol on UDP: https://github.com/ethereum/go-ethereum/wiki/RLPx-----Node-Discovery-Protocol
+- Dani's writup of incentives: https://github.com/ethersphere/swarm/blob/master/doc/incentives.md
 
 ## Talks
 - https://twitter.com/ethereumproject/status/538030376858693633
