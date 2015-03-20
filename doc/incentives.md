@@ -94,6 +94,12 @@ a node that is twice as likely to be queried for it. When a node's storage
 is filled to capacity, it can still accept new chunks, using the rest of Swarm
 as a backup storage of less profitable chunks.
 
+Note, furthermore, that if a chunk does not reach the nearest Swarm nodes before
+being requested, the chances of it being reported as lost increase, which poses a burden
+on all Swarm nodes that have ever issued receipts for it. They can avoid this by
+timely forwarding. It can be further encouraged by offering discounts for Swarm
+participants that themselves committed to storing that chunk.
+
 # References
 
 1. https://github.com/ethereum/go-ethereum/wiki/Swarm-Contract
