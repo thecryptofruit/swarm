@@ -28,11 +28,11 @@ satisfies the following constraints:
 There are two important messages in swarm:
 
 1. Request the preimage of a hash
-
 2. Chunk payload
+3. Acknowledge the receipt of payload
 
-The latter can be either a response to the latter, or constituting a request
-to store that chunk. Both the sender and the recipient node know which is
+Chunk payload can be either a response to a previous request or constituting
+a request to store that chunk. Both the sender and the recipient node know which is
 which.
 
 Responding to a request and accepting a request to store is a service 
@@ -41,6 +41,9 @@ but wheter it is the sender or the recipient that is rendering the
 valuable service to the other party depends on whether it is a store 
 request or a response to a lookup.
 
+If a payload message is a request to store the chunk, it must be acknowledged by
+a signed receipt. These receipts are used to enforce penalties for loss of content
+through a special Swarm Contract on the block chain.
 
 ## Accounting
 
@@ -66,12 +69,10 @@ Lookup results are worth caching, because repeated requests to the same
 chunk can be served from cache, without the need to "purchase" the chunk
 again.
 
-Store requests are worth storing, because of the possibility that this
-information may be profitably "sold" by serving lookups in the future. Note,
-however, that the risk of them never being requested is quite high, especially
-if the price for the service is low enough for people to push information
-that they do not want to retrieve in the future. This is why store requests
-need to be expensive.
+One reason store requests are worth storing, because of the possibility that this
+information may be profitably "sold" by serving lookups in the future and because
+the whole swarm losing the chunk makes nodes that have received it liable through
+Swarm Contract.
 
 In general, it is expected that a certain chunk is going to be looked up
 much more often than it is stored. From a certain node's perspective, the
@@ -81,10 +82,7 @@ determines the risk of it not being requested. Hence, the rational pricing
 for store requests should increase in proportion to the distance from the
 chunk key.
 
-
 ## Why would anyone forward store requests?
-
-_Requires further work_
 
 Forwarding store requests costs as much as originating them and half as
 much as can be earned by receiving them from nodes that want it forwarded.
@@ -92,11 +90,10 @@ However, it still costs more than doing nothing, so it is not
 immediately clear that it is worth doing.
 
 What forwarding actually accomplishes is that it transfers the chunk to
-a node that is twice as likely to be queried for it. Thus, there is value to
-be created from the transfer, but it is not clear how much. Such situations
-are commonly solved by revenue sharing arrangements (see DARPA's Red Balloon
-Challenge), but in this case, detecting cheating needs to be solved.
+a node that is twice as likely to be queried for it. When a node's storage
+is filled to capacity, it can still accept new chunks, using the rest of Swarm
+as a backup storage of less profitable chunks.
 
-## References
+# References
 
-1. http://en.wikipedia.org/wiki/DARPA_Network_Challenge
+1. https://github.com/ethereum/go-ethereum/wiki/Swarm-Contract
