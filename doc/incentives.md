@@ -45,6 +45,11 @@ If a payload message is a request to store the chunk, it must be acknowledged by
 a signed receipt. These receipts are used to enforce penalties for loss of content
 through a special Swarm Contract on the block chain.
 
+In order to prevent DoS by querying non-existent content, in the accounting for
+requested chunks, both the request and the response are charged on the initiator,
+in proportion to their length in bytes; a request is roughly two orders of magnitude
+cheaper than the response.
+
 ## Accounting
 
 The proposal is to simply account on both ends of each direct network 
@@ -62,6 +67,8 @@ be accounted for equivalent service rendered. Note that it is not
 necessary for both ends to agree on prices in order to successfully 
 cooperate.
 
+In practice, it may be sufficient to implement disconnects of heavily
+indebted nodes.
 
 ## Why would anyone store chunks?
 
@@ -99,6 +106,14 @@ being requested, the chances of it being reported as lost increase, which poses 
 on all Swarm nodes that have ever issued receipts for it. They can avoid this by
 timely forwarding. It can be further encouraged by offering discounts for Swarm
 participants that themselves committed to storing that chunk.
+
+If receipts originating from a node at least one bit closer to the hash of the chunk
+than the previous receipt are also paid for, it actually costs nothing for the
+forwarding node, while the costs of the originator node grow with the logarithm of
+the size of the network. At the same time, forwarding spreads around and reduces the
+risk of losing the chunk. Thus, it is the trade in receipts that ultimately
+encurages forwarding to a single node at least one bit closer to the "destination"
+(the closest node in the whole network).
 
 # References
 
