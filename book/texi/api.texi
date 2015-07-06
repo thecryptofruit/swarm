@@ -1,0 +1,17 @@
+@node API, Usage, Running a Node, Top
+@chapter API
+
+@menu
+* Command-line API::
+* JavaScript API::
+* HTTP API::
+@end menu
+
+@node Command-line API
+@section Command-line API
+
+@node JavaScript API
+@section JavaScripte API
+
+@node HTTP API
+@section HTTP API

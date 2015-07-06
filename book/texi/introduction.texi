@@ -1,0 +1,56 @@
+@node Introduction, Background, Top, Top
+@chapter Introduction
+
+This document presents @value{SWARM} which is being developed as part
+of the crypto 2.0 vision for web 3.0.
+@value{ETHDEV}
+@value{ETHEREUM}
+@value{ETHERSPHERE}
+
+@quindex What is Swarm?
+
+Swarm is a decentralised document storage solution. It is deeply integrated within
+ethereum and provides one of the most prominent base layer services: data storage
+and content distribution. It is free and self-sustaining via its incentive structure
+implemented as ethereum smart contracts.
+
+* censorship resistant
+* attack resilient
+* zero downtime
+* self-regulating
+* fluid trading among computational resources (memory, cpu, bandwidth, disk)
+
+@cindex swarm
+
+# Purpose
+
+Synopsis:
+
+This document provides you with:
+@enumerate
+
+@item
+The compulsory tedium about @ref{License}, @ref{Credits}, @ref{Status}, @ref{Reporting a bug}, etc. @xref{About}.
+
+@item
+A not too technical presentation of what is offered here and the background, motivation and history behind it.
+@xref{Background}.
+
+@item
+ Installation instructions, @pxref{Installation}.
+
+@item
+A bit about @ref{Running a Node}.
+
+@item
+The formal specifications of relevant standards, APIs and Protocols (@pxref{Specifications});
+
+@item
+The description of the design and @pxref{Architecture} of the reference implementation.
+
+@item
+Discussion and comparison to @ref{Related Projects}.
+
+@item
+
+@end enumerate

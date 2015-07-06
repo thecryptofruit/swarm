@@ -1,0 +1,97 @@
+@node About, Background, Installation, Top
+@chapter About
+
+
+@menu
+* Status::
+* License::
+* Credits::
+* Community::
+* Reporting a bug::
+* Contributing::
+* Roadmap::
+@end menu
+
+
+@node Status
+@section Status
+
+The status of swarm is proof of concept vanilla prototype tested on toy network.
+
+@node License
+@section License
+
+
+@quindex Under what restrictions can I use this software?
+@quindex Under what restrictions can I modify this software?
+
+@cindex license
+@cindex LGPL
+
+Swarm is free software.
+
+It is licensed under @dfn{LGPL}, which roughly means the following.
+
+There are @i{no restrictions on downloading} it other than
+your bandwidth and our slothful ways of making things available.
+
+There are @i{no restrictions on use} either other than its deficiencies,
+clumsy features and outragous bugs. However, this can be amended,
+because there are @i{no restrictions on modifying} it either.
+See also @ref{Contributing}.
+
+@quindex Under what copyright restrictions can I distribute material on swarm.
+
+Freedom of use implies that anything goes.
+
+@quindex Under what copyright restrictions can I redistribute this software?
+
+What is more, there are @i{no restrictions on redistributing} this software or
+any modified version of it.
+
+@quindex What is the License of this software?
+
+For some legalese telling you the same, read the License @c
+@uref{http://creativecommons.org/licenses/LGPL/2.1/}
+
+@c Creative Commons.
+
+@quotation
+@strong{Todo:}
+Shall we not include the License?
+@end quotation
+@c @ref{Creative Commons}.
+
+@quindex I am using swarm for commercial purposes to make money. Is this OK?
+
+@quindex I am selling this product to people for money. Is this OK?
+
+
+@node Credits
+@section Credits
+
+
+@node Community
+@section Community
+
+@node Reporting a bug
+@section Reporting a bug
+
+@node Contributing
+@section Contributing
+
+
+
+@node Roadmap
+@section Roadmap
+
+
+@enumerate
+@item
+Incentive integration, network stress testing, viability, scalability
+Encryption,
+proveable prefix array for full text search,
+swarm db, swarm fs via fuse,
+ethereum on swarm
+
+@end enumerate

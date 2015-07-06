@@ -1,0 +1,73 @@
+@node Installation, Running a Node, About, Top
+@chapter Installation
+
+@quindex What do I want to install?
+
+@quindex What is Swarm?
+
+@menu
+* Download::
+* Supported Platforms::
+* Prerequisites::
+* Install::
+* Uninstall and Reinstall::
+* Installed Files::
+@end menu
+
+@node Download
+@section Download
+
+@quindex Where can I find the sources?
+
+@node Supported Platforms
+@section Supported Platforms
+
+@quindex What platforms are supported by Swarm?
+
+@quotation
+@strong{Warning:}
+This package has not been tested on platforms other than ...
+@end quotation
+
+@node Prerequisites
+@section Prerequisites
+
+@quindex What do I need if I want to install this package?
+
+@deffn Prerequisite {go}
+@cindex go
+@end deffn
+
+Swarm reference implementation is written in the @dfn{go} programming language
+@uref{http://golang.org/}.
+@cindex make, GNU
+
+@node Install
+@section Install
+
+@quindex How do I install the swarm?
+@cindex make, swarm installation
+@cindex Makefile, swarm installation
+
+@example
+$ make && sudo make install
+@end example
+
+in the toplevel directory of the unpacked distribution.
+Read no further if you know what I am talking about or if you trust some God.
+
+@node Installed Files
+@section Installed Files
+
+@quindex What gets installed when I install swarm?
+
+The following files and directories are installed, paths are relative to
+the @i{install prefix} (@pxref{Install}):
+
+@itemize
+
+@item
+
+@end itemize
+
+

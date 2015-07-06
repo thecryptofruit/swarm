@@ -1,0 +1,19 @@
+
+@node Background, About, Introduction, Top
+@chapter Background
+
+The motivation behind Swarm
+
+@enumerate
+@item distributed storage, inclusivity, long tail of power law
+@item flexible expansion of space without hardware investment decisions, unlimited growth
+@item zero downtime
+@item immutable unforgeable verifiable yet plausibly deniable
+@item no single point of failure, fault and attack resilience
+@item censorship resistance, permanent public record
+@item self-managed sustainability via incentive system
+@item efficient market driven pricing. tradeable trade off of memory, persistent storage, bandwidth (and later computation)
+@item efficient use of the blockchain by swarm accounting protocol
+@item deposit-challenge based implementation of a trustless trust network
+
+@end enumerate

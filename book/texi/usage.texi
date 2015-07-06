@@ -1,0 +1,412 @@
+@node Usage, Incentivisation, API, Top
+@chapter Usage
+
+
+@menu
+* Upload directory, upload file::
+* Download directory, download file::
+* On demand partial reads::
+* Auto restart::
+* Register and resolve domain names::
+* Versioning by block number::
+* Modifying content::
+* Expiry::
+* Manifest::
+@end menu
+
+
+
+run your client
+
+    rm -rf /tmp/BZZ/01
+    ./geth --password <(echo -n 01) account new
+    ./geth --datadir /tmp/BZZ/01   --port 30301   --unlock primary   --password <(echo -n 01)   --logfile /tmp/BZZ/01.00.log --logtostderr --verbosity 6    --rpc --rpcport 8101 --rpccorsdomain '*' --bzz --networkid 322 --nodiscover --maxpeers 0 console   2>> /tmp/BZZ/01.00.glog
+
+upload a file or directory
+
+    bash bzz/bzzup/bzzup.sh /path/to/myfileordirectory
+    // 65b2a32ab2230d7d2bad2616e804d374921be68758009491cd52c727e37b4979
+
+on console:
+
+    hash = bzz.upload("/path/to/myfileordirectory", "index.html")
+
+The second parameter to the basename of the file or a file under the dir which should be mapped onto the empty path (well '/').
+
+
+see in browser
+
+    http://localhost:8500/65b2a32ab2230d7d2bad2616e804d374921be68758009491cd52c727e37b4979
+
+command line:
+
+    wget -O - "http://localhost:8500/65b2a32ab2230d7d2bad2616e804d374921be68758009491cd52c727e37b4979"
+
+console:
+
+    bzz.get(hash)
+
+# Manifests:
+
+Manifests declare a list of paths associated with swarm entries.
+Urls can be matched on these paths effectively making the manifest a routing table and
+the manifest swarm entry is logically equivalent to a host.
+
+* check manifest,  raw call
+* path matching, fallback, status
+* recursive resolution
+* insert/delete
+* downloadable
+
+check manifest,  raw call
+
+    wget -O - "http://localhost:8500/raw/65b2a32ab2230d7d2bad2616e804d374921be68758009491cd52c727e37b4979"
+
+
+# Paths
+
+* forced content type
+* html assets with relative paths in the browser
+* fallback to existing parent path with url preserved
+    * dynamic paths, resourceful routing, restful apis
+    * error pages
+
+# The bzz scheme
+
+* rewrite and proxy
+* bzz fully functional in console http url fetcher
+
+##  http module for urls on the console
+
+the console http module is a very simple http client, that understands the bzz scheme is bzz is enabled.
+
+* `http.get(url)`
+* `http.loadScript(url)` should be same as JSRE.loadScript
+
+# domain name registration
+
+Any hash can be registered with a domain name, that can be used in the host part of the bzz scheme.
+So it is exactly analogous to DNS, domain names and IP addresses.
+
+* name registration
+* name resolution in the browser
+* mimicking mutability by namereg (latest)
+* versioning by blockheight
+
+
+
+# Bzz console API
+
+* `bzz.upload(localfspath, indexfile)` returns content hash
+* `bzz.download(bzzpath, localdirpath)` returns error
+* `bzz.put(content, contentType)` returns content hash
+* `bzz.get(bzzpath)` returns object with content, mime type, status code and content size
+* `bzz.register(address, hash, domain)` returns error
+* `bzz.resolve(domain)` returns content hash
+
+```js
+hash = bzz.upload("/path/to/my/directory")
+
+hash = bzz.put("console.log(\"hello from console\")", "application/javascript")
+
+bzz.get(hash)
+{
+  content: 'console.log("hello");',
+  contentType: 'application/javascript',
+  status: '0'
+  size: '21',
+}
+
+http.get("bzz://"+hash)
+'console.log("hello from console")'
+
+http.loadScript("bzz://"+hash)
+hello from console
+true
+
+bzz.register(primary, hash, "hello")
+```
+
+# Using swarm for contract info
+
+## Prerequisites
+
+* globalRegistrar contract deployed
+* HashReg, UrlHint deployed and registered with globalRegistrar
+
+These need to be done only once for every chain. See appendix.
+
+If this was successful, you will see these commands respond with addresses.
+
+```js
+registrar.owner("HashReg");
+registrar.owner("UrlHint");
+registrar.addr("HashReg");
+registrar.addr("UrlHint");
+```
+
+and these commands will respond with code:
+
+```js
+eth.getCode(globalRegistrarAddr);
+eth.getCode(hashRegAddr);
+eth.getCode(urlHintAddr);
+```
+
+If these checks are ok, you are all set up.
+
+## Creating and deploying a contract
+
+### Create contract and deploy compiled code to the blockchain
+
+```js
+admin.contractInfo.stop();
+
+source = "contract test {\n" +
+"   /// @@notice will multiply `a` by 7.\n" +
+"   function multiply(uint a) returns(uint d) {\n" +
+"      return a * 7;\n" +
+"   }\n" +
+"} ";
+contract = eth.compile.solidity(source).test;
+contractaddress = eth.sendTransaction({from: primary, data: contract.code});
+```
+
+Check if they arrived on the blockchain and that they execute your calls by:
+
+```js
+code = eth.getCode(contractaddress);
+abiDef = contract.info.abiDefinition;
+multiply7 = eth.contract(abiDef).at(contractaddress);
+multiply7.multiply.call(6);
+```
+
+### Deploying off-chain contract info
+
+The contract.info substructure given back from the solidity compiler can be deployed with swarm.
+The resulting contenthash is registered in the HashReg.
+
+```js
+contenthash = bzz.put(JSON.stringify(contract.info), "application/eth-contractinfo+json");
+admin.contractInfo.register(primary, contractaddress, contenthash);
+```
+
+You need to wait till it is mined and confirmed.
+
+### Contract usage from dapp (or user-side case)
+
+`admin.contractInfo.get` will magically work. If the url fetcher has the bzz protocol scheme enabled, then it tries to fetch it with the registered contenthash. (If there is no swarm or the content is not (yet) uploaded there, it gracefully falls back to the UrlHint, ie., it looks up the url hint for the contentHash, fetches its content, and verifies it against the contentHash for protection.)
+
+Note that the user needs the contractaddress but nothing else.
+
+```js
+info = admin.contractInfo.get(contractaddress);
+multiply7 = eth.contract(info.abiDefinition).at(contractaddress);
+```
+
+Now that we  switch on natspec and try:
+
+```js
+admin.contractInfo.start();
+multiply7.multiply.sendTransaction(6, { from: primary });
+```
+
+The following custom confirmation message should appear on the console and 6 shall be multiplied by seven:
+
+```js
+> myMultiply7.multiply.sendTransaction(6)
+NatSpec: Will multiply 6 by 7.
+Confirm? [y/n] y
+```
+
+## Using name registrar for contracts
+
+And now we can go one step further and use the globalRegistrar name registry for contracts:
+
+```js
+admin.contractInfo.stop();
+registrar.reserve.sendTransaction("multiply7", {from:primary})
+registrar.setAddress.sendTransaction("multiply7", contractaddress, true, {from:primary})
+```
+
+You need to wait for these 2 transactions to be confirmed. You can check if arrived:
+
+```js
+registrar.owner("multiply7")
+```
+
+Now the contract name is sufficient to use this contract from a Dapp.
+
+```js
+contractaddress = registrar.addr("multiply7")
+info = admin.contractInfo.get(contractaddress);
+multiply7 = eth.contract(info.abiDefinition).at(contractaddress);
+```
+
+If info is only needed because of the Abi, then one could define this function:
+
+```js
+getContract = function(name) {
+  contractaddress = registrar.addr(name)
+  info = admin.contractInfo.get(contractaddress);
+  return eth.contract(info.abiDefinition).at(contractaddress);
+}
+```
+
+#
+
+
+```js
+web3.sha3(eth.getCode(registrar.addr("multiply7")))
+51b68b0f44e8c6ef096797efbed04185fd4c4a639cd5ffe52e96076519c1385d
+```
+
+# bzz domain names, registration, resolution
+
+```js
+bzz.upload("/Users/tron/Work/ethereum/go-ethereum/bzz.demo/luzhany/")
+'51b68b0f44e8c6ef096797efbed04185fd4c4a639cd5ffe52e96076519c1385d'
+bzz.register(primary, "album", "0x51b68b0f44e8c6ef096797efbed04185fd4c4a639cd5ffe52e96076519c1385d")
+true
+bzz.resolve("album")
+unable to resolve 'album': content hash not found for '0x3ae883aa85e0554e92a3ab951b5cf9f7e045e742618560ec3fe62d80800e8673'
+undefined
+```
+
+oops you need to mine it or wait for concensus.
+
+```js
+admin.miner.start(); admin.debug.waitForBlocks(eth.blockNumber+1); admin.miner.stop();
+true
+bzz.resolve("album")
+'0x51b68b0f44e8c6ef096797efbed04185fd4c4a639cd5ffe52e96076519c1385d'
+```
+
+homomorphic:
+
+```js
+bzz.download("/album", "/tmp/album")
+undefined
+bzz.upload("/tmp/album")
+'51b68b0f44e8c6ef096797efbed04185fd4c4a639cd5ffe52e96076519c1385d'
+```
+
+Open a page via path (matching, fallbacks errors)
+
+```js
+http.get("bzz://51b68b0f44e8c6ef096797efbed04185fd4c4a639cd5ffe52e96076519c1385d/index.html")
+http.get("bzz://album/index.html")
+http.get("bzz://album/index.css")
+```
+
+# t get raw content, override these
+```js
+http.get("http://raw/album/?content_type=\"text/plain\"")
+'{"entries":[{"path":"add.png","hash":"8fbac5d742128d4a2cd1c453201c9300280b9ea7f132eac66c0bb9e9dedeb3ff","contentType":"image/png","status":0},{"path":"back.png","hash":"f7ef5a708262258cc59b261849d1794dcafa9319848990dda05b1cf814ffe7c8","contentType":"image/png","status":0},{"path":"cut-","hash":"c1710a9cd0cd34261d80288f1b694fcf9ce814788457bd74bbaf5e1c08eab26e","contentType":"application/bzz-manifest+json","status":0},{"path":"d","hash":"b69bd4600643c2563934e36260b7f7b91e59cf6ab130854882833b922da639a9","contentType":"application/bzz-manifest+json","status":0},{"path":"eye.png","hash":"bc3fc186c7c02a7841acfb1de3e61bcef870e8d81588dd05827d028b5b310536","contentType":"image/png","status":0},{"path":"i","hash":"4ae40ee14730629c12937ccd732eef1e3b0ffb8df1b759ea9946aba5296c0bef","contentType":"application/bzz-manifest+json","status":0},{"path":"left.png","hash":"a6093a7b7b8fae95fee097125e90c4d1477d8948f1f24ac241cc4e2ff55872e1","contentType":"image/png","status":0},{"path":"mootools-","hash":"ebf08b45f54021e764c163b2b7083cb7a05ae4c88cce1986e0599e79036c16ad","contentType":"application/bzz-manifest+json","status":0},{"path":"noise.png","hash":"90254e6274ef150f5ccb7c61fd6bd9c0614abf18306d43b9e79a7f738f84831f","contentType":"image/png","status":0},{"path":"right.png","hash":"88a26306bd909a3bc34201a1e18c3f1767069a48019caedfb4fd64c8556521b9","contentType":"image/png","status":0},{"path":"throbber.gif","hash":"583bd22d262b2192399d97f5daf04516b620b95b607c94f5051f515fb4137d9d","contentType":"image/gif","status":0}]}'
+```
+
+## Changes, versions, rollback
+
+```js
+bzz.register(primary, "swarm", bzz.upload("bzz.demo/swarm-inside.png", "swarm-inside.png"))
+```
+
+after some mining or wait, take a look at http://localhost:8500/swarm/
+Now resolver should work too:
+
+```js
+bzz.resolve("swarm")
+'0x58c604de89bf3ecbbbfc90948b273ae3f956e6106babd5e8bacb3615213d3c2e'
+```
+
+lets remember this version, just record the current block.
+
+```js
+v1 = eth.blockNumber
+31
+```
+
+[http://localhost:8500/swarm/]
+Now i realise i left out the logo, so
+
+```js
+bzz.register(primary, "swarm", bzz.upload("bzz.demo/MSTR-Swarm-Logo.jpg", "MSTR-Swarm-Logo.jpg"))
+true
+miner.start(); admin.sleepBlocks(1); miner.stop();
+true
+bzz.resolve("swarm")
+'0x8232b8259393019920d57737c1073c78a6cee18ffa8bfcfdc0cd378a732415a8'
+v2 = eth.blockNumber
+33
+```
+
+the full historical record is addressable:
+
+[http://localhost:8500/swarm@@31/] vs [http://localhost:8500/swarm@@32/]
+
+Finally you can see it with the bzz-aware http client:
+
+```js
+> http.get("bzz://raw/swarm:"+v1+"?content_type=text/json")
+'{"entries":[{"path":"swarm-inside.png","hash":"a41a826e6dae90816e432993576d2418c33f40f4e6774df457706e2890202228","contentType":"image/png","status":0},{"path":"","hash":"a41a826e6dae90816e432993576d2418c33f40f4e6774df457706e2890202228","contentType":"image/png","status":0}]}'
+> http.get("bzz://raw/swarm:"+v2+"?content_type=text/json")
+'{"entries":[{"path":"MSTR-Swarm-Logo.jpg","hash":"35e6a17fab09d7f84f1feacfe629a2c0660d6c3ca70db5c8ff2c7ac2c537ce1d","contentType":"image/jpeg","status":0},{"path":"","hash":"35e6a17fab09d7f84f1feacfe629a2c0660d6c3ca70db5c8ff2c7ac2c537ce1d","contentType":"image/jpeg","status":0}]}'
+```
+
+# Appendix
+
+## mine some ether on a private chain
+
+```js
+primary = eth.accounts[0];
+balance = web3.fromWei(eth.getBalance(primary), "ether");
+
+admin.miner.start(8);
+admin.sleepBlocks(10);
+admin.miner.stop()  ;
+```
+
+## mine transactions on a private chain
+
+```js
+eth.getBlockTransactionCount("pending");
+eth.getBlock("pending", true).transactions;
+
+miner.start(1);
+admin.sleepBlocks(eth.blockNumber+1);
+miner.stop();
+
+eth.getBlockTransactionCount("pending");
+```
+
+## create and deploy GlobalRegistrar, HashReg and UrlHint
+
+```
+primary = eth.accounts[0];
+globalRegistrarAddr = admin.setGlobalRegistrar(primary);
+hashRegAddr = admin.setHashReg(primary);
+urlHintAddr = admin.setUrlHint(primary);
+```
+
+You need to mine or wait till the txs are all picked up.
+Initialise the registrar on the new address and check if the other registars are registered:
+
+```js
+registrar = GlobalRegistrar.at(globalRegistrarAddr);
+registrar.owner("HashReg");
+registrar.owner("UrlHint");
+registrar.addr("HashReg");
+registrar.addr("UrlHint");
+```
+
+Next time you only need to specify the address of the GlobalRegistrar (for the live chain it is encoded in the code)
+
+```
+admin.setGlobalRegistrar("0x6e332ff2d38e8d6f21bee5ab9a1073166382ce33")
+registrar = GlobalRegistrar.at(GlobalRegistrarAddr);
+registrar.owner("HashReg");
+registrar.owner("UrlHint");
+registrar.addr("HashReg");
+registrar.addr("UrlHint");
+```
+
