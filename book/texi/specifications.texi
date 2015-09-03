@@ -99,6 +99,8 @@ Finally metadata can hold accounting info relevant to incentivisation scheme
 @node Bzz url scheme
 @section Bzz url scheme
 
+
+
 @node Bzz Manifest
 @section Bzz Manifest
 

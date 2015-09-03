@@ -11,7 +11,7 @@
 @paragraphindent none
 @c @firstparagraphindent none
 @documentlanguage en
-@documentencoding UTF-8
+@c @documentencoding utf-8
 @c %**end of header
 
 @tex
@@ -41,15 +41,14 @@
 @copying
 Copyright @copyright{} 2015 ΞTHΞЯSPHΞЯΞ
 
-This document is licensed under the @i{Creative Commons Attribution License}. To
+This document is licensed under the @emph{Creative Commons Attribution License}. To
 view a copy of this license, visit
 @uref{http://creativecommons.org/licenses/by/2.0/} or send a letter to
 Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305,
 USA.
 
 @ifclear publish
-Printed copies of this manual can be purchased from the ΞTHΞЯSPHΞЯΞ
-at@* @value{ETHERSPHERE}
+Printable copies of this manual can be obtained from the texinfo source.
 @end ifclear
 @end copying
 @end ignore
@@ -68,8 +67,8 @@ at@* @value{ETHERSPHERE}
 @value{ZFEMAIL}
 @sp 1
 
-This file documents @value{SWARM} (Swarm). It corresponds to release
-@value{VERSION} of the the Swarm distribution.
+This file documents @value{SWARM}. It corresponds to release
+@value{VERSION}.
 
 More information about Swarm can be found at the Ethereum homepage,
 @value{ETHEREUM}.

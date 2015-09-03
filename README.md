@@ -1,10 +1,8 @@
 # Resources
 
-## Swarm, the name
-- https://www.facebook.com/swarmcorp, http://swarm.fund/
-- https://bitcointalk.org/index.php?topic=650143.0
-- https://bitcoinmagazine.com/17956/swarm-1-rick-falkvinges-swarmops-project/
-- http://www.amazon.co.uk/Swarmwise-Tactical-Manual-Changing-World/dp/1463533152/
+## Code 
+- repo https://github.com/ethersphere/go-ethereum/tree/bzz/
+- ethereum p2p: https://github.com/ethereum/go-ethereum/p2p
 
 ## Docs & specs
 - URL scheme: https://github.com/ethereum/go-ethereum/wiki/URL-Scheme
@@ -23,6 +21,7 @@
 - empty as of 01/2015: https://forum.ethereum.org/categories/swarm
 
 ## Mentions, discussions
+- https://www.reddit.com/r/ethereum/comments/3hbqbv/ipfs_vs_swarm/
 - http://www.reddit.com/r/ethereum/comments/2d4uyw/swarm_and_whisper/
 - http://www.reddit.com/r/ethereum/comments/2ityfz/ethereum_swarm/
 - https://www.maidsafe.org/t/ethereums-swarm-p2p-storage-and-whisper-p2p-messaging/1528
@@ -30,13 +29,23 @@
 - Vitalik: 'Swarm is out-of-scope': https://www.reddit.com/r/ethereum/comments/2phvml/constructive_criticism_of_ethereum_project_not/cmwtfqq
 - Vitalik on eth components, swarm at 4:00 http://www.naation.com/2015/02/02/ethereum-explained-with-vitalik-buterin-inventor-and-leader-of-the-ethereum-project/5764/
 
-## Code 
-- bzz PR: https://github.com/ethereum/go-ethereum/pull/255, 
-- repo https://github.com/ethersphere/go-ethereum/tree/bzz/
-- ethereum p2p: https://github.com/ethereum/go-ethereum/p2p
-- peer selection, peer pool: https://github.com/ethereum/go-ethereum/pull/253 
-- p2p cademlia branch (discontinued): https://github.com/ethersphere/go-ethereum/tree/kademlia
-- Felix's node discovery code: https://github.com/fjl/go-ethereum/blob/udp-kademlia/p2p/discover (will be merged)
+## Swarm, the name
+- https://www.facebook.com/swarmcorp, http://swarm.fund/
+- https://bitcointalk.org/index.php?topic=650143.0
+- https://bitcoinmagazine.com/17956/swarm-1-rick-falkvinges-swarmops-project/
+- http://www.amazon.co.uk/Swarmwise-Tactical-Manual-Changing-World/dp/1463533152/
+
+### How far does the analogy go?
+    
+swarm of bees | a decentralised network of peers
+-------|------------
+living in a hive | form a distributed preimage archive
+where they | where they
+gather pollen | gather data chunks which they 
+to produce honey | transform into a longer data stream (document)
+they consume and store |  they serve and store  
+buzzing bzz | using bzz as their communications protocol
+
 
 # Alternatives
 

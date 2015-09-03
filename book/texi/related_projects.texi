@@ -1,4 +1,16 @@
 @node Related Projects, Frequently Asked Questions, Specifications, Top
 @chapter Related Projects
 
+@enumerate
 
+@item storj @item http://storj.io/
+@item maidsafe @item http://maidsafe.net/
+@item ipfs @item http://ipfs.io/, https://www.youtube.com/watch?v=Fa4pckodM9g, http://static.benet.ai/t/ipfs.pdf, https://github.com/jbenet/go-ipfs, https://www.youtube.com/watch?v=8CMxDNuuAiQ, https://www.reddit.com/r/ethereum/comments/2wot2i/ipfs_alpha_demo/
+@item filecoin @item http://filecoin.io/
+@item permacoin @item https://www.cs.umd.edu/~elaine/docs/permacoin.pdf, https://bitcointalk.org/index.php?topic=640410.0, http://blog.dshr.org/2014/06/permacoin.html
+@item siacoin @item http://www.siacoin.com/
+@item riak @item http://basho.com/riak/
+@item BitTorrent http://www.bittorrent.com/ maelstrom http://blog.bittorrent.com/2014/12/10/project-maelstrom-the-internet-we-build-next/
+@item Tahoe-LAFS https://www.tahoe-lafs.org/trac/tahoe-lafs
+@item retroshare http://retroshare.sourceforge.net/
+@end enumerate

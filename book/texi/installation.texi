@@ -14,19 +14,25 @@
 * Installed Files::
 @end menu
 
+Swarm is part of the Ethereum stack and currently only supports running on the ethereum network as a subprotocol of the client nodes.
+Installation instruction are identical to those for the ethereum go implementation.
+
 @node Download
 @section Download
 
 @quindex Where can I find the sources?
+The source code is found on github: https://github.com/ethersphere/go-ethereum/tree/bzz/
+
 
 @node Supported Platforms
 @section Supported Platforms
 
 @quindex What platforms are supported by Swarm?
+Geth runs on all major platforms (linux, MacOSX, Windows, also raspberry pie, android OS).
 
 @quotation
 @strong{Warning:}
-This package has not been tested on platforms other than ...
+This package has not been tested on platforms other than linux and OSX.
 @end quotation
 
 @node Prerequisites
@@ -54,7 +60,6 @@ $ make && sudo make install
 @end example
 
 in the toplevel directory of the unpacked distribution.
-Read no further if you know what I am talking about or if you trust some God.
 
 @node Installed Files
 @section Installed Files

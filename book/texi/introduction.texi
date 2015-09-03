@@ -24,6 +24,8 @@ implemented as ethereum smart contracts.
 
 # Purpose
 
+
+
 Synopsis:
 
 This document provides you with:
@@ -54,3 +56,10 @@ Discussion and comparison to @ref{Related Projects}.
 @item
 
 @end enumerate
+
+@node Resources
+@section Resources
+
+Dr. Daniel A. Nagy: Ethereum ÐΞVcon-0: Keeping the Public Record Safe and Accessible - @url{https://www.youtube.com/watch?v=QzYZQ03ON2o}
+
+

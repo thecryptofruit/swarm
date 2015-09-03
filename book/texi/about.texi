@@ -74,13 +74,22 @@ Shall we not include the License?
 @node Community
 @section Community
 
+
+@enumerate
+@item Forum: https://forum.ethereum.org/categories/swarm
+@item Reddit: http://www.reddit.com/r/ethereum
+@item Gitter: https://gitter.im/ethereum/go-ethereum/swarm
+@end enumerate
+
 @node Reporting a bug
 @section Reporting a bug
+
+Issues are tracked on github and github only: https://github.com/ethereum/go-ethereum/issues
 
 @node Contributing
 @section Contributing
 
-
+See the ethereum developer's guide for how to contribute to the project.
 
 @node Roadmap
 @section Roadmap

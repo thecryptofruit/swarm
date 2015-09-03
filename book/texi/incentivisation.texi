@@ -1,103 +1,202 @@
 @node Incentivisation, Architecture, Usage, Top
 @chapter Incentivisation
 
-A simple and robust incentive system for Swarm
-Goals
+The objective of an incentive system is to encourage cooperative behavior and discourage freeriding: the uncompensated depletion of limited resources. In the context of swarm, storage and bandwidth are the two most important limited resources.
+In what follows we present our current thinking for a comprehensive incentive system for swarm implemented through a smart contract. Swarm leverages the ethereum infrastructure and the underlying value asset, Ether.
 
-The objective of an incentive system is most generally to encourage cooperative behavior and discourage freeriding: the uncompensated depletion of limited resources. In the context of swarm, storage and bandwidth are the two most important limited resources. It is not immediately obvious, however, what actions benefit whom to what extent.
+@node Preliminaries
+@section Preliminaries
 
-In this proposal, a very simple strategy is outlined that satisfies the following constraints:
+The ultimate goal of swarm is that end users are served content in a safe and speedy fashion. The underlying unit of accounting must be a chunk since this is the delivery unit that is sourced from a single independent entity. We start from the simplest assumption that delivery of a chunk is a valueable service which is directly chargeable as part of the transaction where a chunk is delivered to a node that sent a retrieve request.
 
-    It is in the node's interest irrespective of whether other nodes follow it or not.
+From a certain node's perspective, the probability of it being ever requested is proportional to the inverse of its distance from it, which, in turn, determines the risk of it not being requested. In other words, following the underlying routing protocol itself incentivises nodes to prefer chunks that are closer to their own address.
 
-    It makes it expensive to hog other nodes' resources.
+In the first iteration, we further assume that nodes have no preference as to which chunks to store other than their access count which is a reasonable predictor of their profitability. As a corollary, this entails that store requests are accepted by nodes irrespective of the chunk they try to store.
 
-    It does not impose unreasonable overhead.
+@node Accounting
+@section Accounting
 
-    It plays nice with "naive" nodes
+The idea is that nodes can trade services for services or services for tokens in a flexible way so that in normal operation a zero balance is maintained between any pair of nodes in the swarm.
+This is done with the @emph{Swarm Accounting Protocol (SWAP)}, a scheme of pairwise accounting with negotiable prices.
 
-    It rewards those that play nice, including those following this strategy
+@subsection Triggers for payment and disconnect
 
-Preliminaries
+Each swarm node keeps a tally of offered and received services with each peer. In the simplest form, the service is the delivery of a chunk (or more generally an attempt to serve a retrieve request, see later), so we coulduse that as a discreet integer unit of accounting. The tally is independently maintained on both ends of each direct connection in the p2p network for both self and the remote peer separately. Since disconnects can be arbitrary, it is not necessary to  negotiate and consent on pairwise balances.
 
-There are two important messages in swarm:
+Each chunk delivery on the peer connection is accounted and exhcanged at a rate of p_a/p_b where p_a, p_b are offered prices. On top of this, there is a possibility to compensate for services with ether (or other blockchain token) at a price agreed on in advance. Receiving of payment should be accounted for equivalent service rendered, using the price offered.
 
-    Request the preimage of a hash
-    Chunk payload
-    Acknowledge the receipt of payload
+In the ideal scenario of compliant use, the balance is kept around zero. For simplicity we assume that a node tries to keep the same constant credit level with each peer.
 
-Chunk payload can be either a response to a previous request or constituting a request to store that chunk. Both the sender and the recipient node know which is which.
+When the mutual balance on a given connection is tilted in favor of one peer, that peer should be compensated with a direct transfer of ether in order to bring the balance back to zero.
 
-Responding to a request and accepting a request to store is a service rendered. Thus, it is sufficient to account for chunk payload messeges, but wheter it is the sender or the recipient that is rendering the valuable service to the other party depends on whether it is a store request or a response to a lookup.
+If the balance tilts heavily in the other direction, the peer should be throttled and eventually choked and disconnected. In practice, it is sufficient to implement disconnects of heavily indebted nodes.
 
-If a payload message is a request to store the chunk, it must be acknowledged by a signed receipt. These receipts are used to enforce penalties for loss of content through a special Swarm Contract on the block chain.
+In stage one, therefore, we introduce two parameters that represent threshold triggers for action. @emph{Payment threshold} is the limit on self balance which when reached triggers signing an ether transfer transaction to the remote peers address in the amount of  (target credit level - balance unit) * unit price offered. The
+@emph{Disconnect threshold} is the limit which when reached triggers disconnect from the peer. Note that remote peer's balance is calculated on "confirmed" transactions.
 
-In order to prevent DoS by querying non-existent content, in the accounting for requested chunks, both the request and the response are charged on the initiator, in proportion to their length in bytes; a request is roughly two orders of magnitude cheaper than the response.
-Accounting
+If confirmation blocklevel is set to high and payments are only tracked after the first time a peer is connected during a session. This means that when a node A connects with peer B the very first time during one session, the balance will be zero. Since payment is only watched (and safe) if connection is on, B needs to either (i) wait till A's balance reaches a target credit level or (ii) allow A to incur debt.
 
-The proposal is to simply account on both ends of each direct network connection for these two types of traffic, with store request traffic being possibly more expensive than lookup service traffic, accounting for the higher cost it imposes on the network (to be discussed later).
+In its simplest form, balances are not persisted between sessions (of the swarm node), but are preserved between subsequent connections to the same remote peer.
+Therefore balances can be stored in memory only. Freeriding is already very difficult with this scheme since each peer a malicious node is exploiting, will provide free service only up to @emph{Disconnect threshold}. While the node is running no reconnect is allowed unless compensation is paid to bring a balance above @emph{Disconnect threshold}.
 
-When the mutual balance on a given connection is too heavily tilted in favor of the peer, the peer should be compensated with a direct transfer of payment tokens. Whether ETH or a special-purpose token is the best solution depends on many considerations, discussed later. If the balance tilts heavily in the other direction, the peer should be throttled and eventually choked and disconnected. Receiving of payment tokens should be accounted for equivalent service rendered. Note that it is not necessary for both ends to agree on prices in order to successfully cooperate.
+@subsection Negotiating chunk price
 
-In practice, it may be sufficient to implement disconnects of heavily indebted nodes.
-Why would anyone store chunks?
+Prices are communicated in the protocol handshake as @emph{highest accepted chunk price} and @emph{offered chunk price}. The handshake involves checking if the highest accepted chunkprice of one peer is less than the offered chunkprice of the other. If this is the case no business is possible and the other peer can only be compensated on a service for service basis. If payment is not possible either way, the peers will try keep a balance until one peer's disconnect limit is reached.
+There is also the possibility that when A and B connect, payment is only possible in one direction, from B to A, but A cannot pay B for services. In this case if A reaches past the payment limit, it does nothing. Since this is clearly a risk for B, it may make sense to keep the connection only if the other node stays predominantly in red (i.e., continually downloads more), otherwise disconnect.
+All in all, it is not necessary for both ends to agree on the same price (or even agree on any price) in order to successfully cooperate.
 
-Lookup results are worth caching, because repeated requests to the same chunk can be served from cache, without the need to "purchase" the chunk again.
+Setting highest accepted chunk price of 0 could also be used to communicate that one is unable or unwilling to pay with tokens.
 
-One reason store requests are worth storing, because of the possibility that this information may be profitably "sold" by serving lookups in the future and because the whole swarm losing the chunk makes nodes that have received it liable through Swarm Contract.
+@subsection Modes of payment
 
-In general, it is expected that a certain chunk is going to be looked up much more often than it is stored. From a certain node's perspective, the probability of it being ever requested from this particular node is proportional to the inverse of its distance from it, which, in turn, determines the risk of it not being requested. Hence, the rational pricing for store requests should increase in proportion to the distance from the chunk key.
-Why would anyone forward store requests?
+Since transfer of ether is constrained by blocktime, actual transactions sent via the blockchain can effectively rate-limit a peer, moreover various delays in transaction inclusion might interfere with the timing requirements of accounting compensation.
+
+To avoid this problem, the implementation could send ethereum transactions directly within the bzz protocol. Unfortunately, barring basic verification, no guarantees can be gained from such a node hosting the raw transaction (execution may fail on incorrect nonce or insufficient balance, etc). So by the time this is recognised by the creditor node, the offending indebted node is already more in debt. Whether the balance is restored after this can only be verified by checking the canonical chain after sending the transactions, the solution is equivalent to one where transactions are sent to and executed on the blockchain and the receiver node watches the balance of their account.
+
+Smart contracts however, make it easy to implement more secure payment process.
+Instead of a simple account, the receiver address for a peer would host a smart contract for Swap. This wallet contract would hold a(n optional) deposit secured until a fixed date. The contract provide accessor(s) to check the amount and expiry of the deposit.
+The swarm wallet would accept ethereum transactions with a signed swap transaction as input data.
+The swap transaction which is sent as compensation can be verified by the receiving node. The following scheme defines the swap:
+
+@dfn{swap transaction}:
+@math{sign(<to,index,amount>)}
+
+@itemize
+@item the contract keeps track of the current index as well as total amount sent during the time of the connection.
+@item sender makes sure each new swap sent increments the index by one
+@item the first swap after connection is established has index 0
+@end itemize
+
+the swap is valid if:
+
+@itemize
+@item the swap is signed by the receiver (NodeId = public key sent in handshake)
+@item the signed data is a valid encoding of @math{<to,index,amount>} where
+to is the receiver's receiver address
+@item the first swap after connection is established has index 0
+@item the index of any subsequent swap needs to be greater than the index of the preceding swap.
+@item the amount is greater than the amount of the previous swap sent during the same session.
+@end itemize
+
+Receiver may only keep the last swap transaction and periodically send it to the swap contract. The scheme allows trusted peers to save on transaction costs.
+Peers watch their receiving address and all payments from the peers sending address and when they are considered confirmed, the tally is adjusted.
+
+@node Charging for Retrieval
+@section Charging for Retrieval
+
+When a retrieve request is received the peer responds with delivery if the preimage chunk is found or a peers message if further search is initiated.
+Each of these provides a valuable service to the initiator and therefore is charged on them.
+[Due to their size in bytes, a peers message is roughly two orders of magnitude cheaper than delivery of the chunk payload. This should be reflected in their respective accounting weight. Given that each retrieval request thus immediately triggers a chargeable response, accounting is sufficient to prevent denial of service attacks: when a node is spammed with retrieve requests (querying either existing or non-existing content) it is charged for each response so network integrity is protected by the fact that the attacker can only ever freeride for upto a value of @emph{Disconnect limit}.
+
+By default nodes will store all chunks forwarded as the response to a retrieve requests.
+These lookup results are worth storing because repeated requests for the same chunk can be served from the node's local storage without the need to "purchase" the chunk again from others. This strategy implicitly takes care of auto-scaling the network. Chunks originating from retrieval traffic will fill up the local storage adjusting redundancy to use maximum dedicated disk/memory capacity of all nodes.
+A preference to store frequently retrieved chunks results in higher redundancy aligning with more current usage. All else being equal, the more redundant a chunk, the fewer forwarding hops are expected for their retrieval, thereby reducing expected latency as well as network traffic for popular content.
+
+@node Storage receipts
+@section Storage receipts
+
+While retrieval compensation may prove sufficient for keeping the network in a relatively healthy state in terms of latency, from a resilience point of view,
+extra incentives are likely needed.
+
+Requests to store a chunk can be acknowledged with a signed receipt. These receipts are promises for storing and serving a particular chunk up till a particular date and therefore are charged on the initiator. Receipts are used to enforce penalties for loss of content through the @emph{Swarm Contract} on the blockchain.
+
+To guarantee successful enforcement, swarm needs to make sure that sufficient funds are available.
+The swarm contract allows nodes to register their public key to become accountable participants in the swarm by putting up a deposit.
+
+Registration in swarm is not compulsory, it is only necessary if the node wishes to sell promises of storage.
+Nodes that charge only for retrieval can operate unregistered.
+When a peer connection is established, the contract is invoked to check if the remote peer is a registered node. Only registered nodes are allowed to issue valid receipts.
+If an unregistered node sends a receipt, it is considered breach of protocol and the peer is disconnected.
+
+Registration is done by sending a deposit to the swarm contract, which serves as colleteral if terms are violated and nodes do not keep their promise to store.
+Registration is valid maximum for a set period, at the end of which a swarm node is entitled to their deposit.
+
+Users of Swarm should be able to count on the loss of deposit as a disincentive, so it should not be refunded before the term of Swarm membership expires. If penalites were paid out as compensation to holders of receipts of lost chunks, it would provide an avenue of early exit for a Swarm member by "losing" chunks deposited by colluding users. Since users of Swarm are interested in their information being reliably stored, their primary incentive for keeping the receipts is to keep the Swarm motivated, not the potential compensation.
+
+The swarm contract provides a method to pay the deposit and register the node id (private key). An accessor is available for checking that a node is registered.
+
+@node Storing chunks
+@section Storing chunks
+
+One reason store requests are worth storing is because of the possibility that this information may be profitably "sold" by serving lookups in the future.
+
+Hence, the rational pricing for store requests should increase in proportion to the distance from the chunk key.
 
 Forwarding store requests costs as much as originating them and half as much as can be earned by receiving them from nodes that want it forwarded. However, it still costs more than doing nothing, so it is not immediately clear that it is worth doing.
 
 What forwarding actually accomplishes is that it transfers the chunk to a node that is twice as likely to be queried for it. When a node's storage is filled to capacity, it can still accept new chunks, using the rest of Swarm as a backup storage of less profitable chunks.
 
-Note, furthermore, that if a chunk does not reach the nearest Swarm nodes before being requested, the chances of it being reported as lost increase, which poses a burden on all Swarm nodes that have ever issued receipts for it. They can avoid this by timely forwarding. It can be further encouraged by offering discounts for Swarm participants that themselves committed to storing that chunk.
+Note, furthermore, that if a chunk does not reach the nearest Swarm nodes before being requested, the chances of it being reported as lost increase, which poses a burden on all Swarm nodes that have ever issued receipts for it. They can avoid this by timely forwarding.
 
-If receipts originating from a node at least one bit closer to the hash of the chunk than the previous receipt are also paid for, it actually costs nothing for the forwarding node, while the costs of the originator node grow with the logarithm of the size of the network. At the same time, forwarding spreads around and reduces the risk of losing the chunk. Thus, it is the trade in receipts that ultimately encurages forwarding to a single node at least one bit closer to the "destination" (the closest node in the whole network).
-References
+If receipts originating from a node at least one bit closer to the hash of the chunk than the previous receipt are also paid for, it actually costs nothing for the forwarding node, while the costs of the originator node grow with the logarithm of the size of the network. At the same time, forwarding spreads around and reduces the risk of losing the chunk. Thus, it is the trade in receipts that ultimately encourages forwarding to a single node at least one bit closer to the "destination" (the closest node in the whole network).
 
-    https://github.com/ethereum/go-ethereum/wiki/Swarm-Contract
+Swarm nodes that use the rest of Swarm as a backup will propagate the receipts in the opposite direction of storage requests, so that the cost of storing receipts is eventually paid by the end user either in the form of allocated storage space or as a direct payment to Swarm. This is the default behaviour of any node that chooses not to commit to storing or serving. Due to flexible accounting, any node that serves retrieve requests will be able to initiate store reuqests from their balance. This makes it really easy, smooth and fair to participate in the swarm without commitment even for completely naive nodes.
+
+@node Litigation on loss of content
+@section Litigation on loss of content
+
+The Swarm Contract regulates the incentive structure of Swarm.
+The corresponding solidity code can be browsed @ref{https://github.com/ethersphere/go-ethereum/blob/bzz/bzz/bzzcontract/swarm.sol, here}.
+
+@subsection Submitting a demand/challenge
+
+The swarm promise incentive is based on a litigation pattern.
+Nodes provide signed receipts for stored chunks which they are allowed to charge arbitrary amounts for. If a promise is not kept and a chunk is not found in the swarm anyone can report the loss by presenting the receipt to the swarm contract, called a @emph{challange} or @emph{demand}.
+This is analogous to a court case, where the charge is considered valid unless refuted by anyone presenting the chunk.
+Note that the solution is based on the idea that refuting a challange is easily provable by the contract since it only involves verifying the hash of the chunk.
+
+The challange is set up by any node sending a signed receipt in a trasaction to the swarm contract. The same transaction also sends a deposit covering the upload of a chunk. The contract verifies if the receipt is valid, ie.,
+
+@itemize
+@item receipt was signed with the public key of a registered node
+@item the expiry date of the receipt has not passed
+@end itemize
+
+and the challange is now open for a fixed amount of time, the end of which essentially is the deadline to refute the challange. The challenge is refuted if the chunk is presented.
+
+@subsection The outcome of a demand/challenge
+
+Successful refutation of the challange is done by anyone sending the chunk as a transaction to the blockchain. Upon receiving a refutation transaction, the contract checks its validity by verifying the hash of the chunk payload. If the refutation is valid, the cost of uploading the chunk is compensated  from the demand's deposit, with the remainder refunded.
+
+In order to prevent DoS attacks, the deposit for compensating the swarm node for uploading the chunk into the blockchain should be substantially higher than (e.g. a small integer multiple of) the corresponding gas price used to upload the demand.
+This will make sure that spamming the blockchain with false accusations is costly.
+If a challange is refuted, no deposit of any node is touched.
+The contract also comes with an accessor for checking that a given node is challanged (potentially liable for penalty), so the node is notified to present the chunk in a timely fashion.
+
+Upon successful refutation the challange is cleared from the blockchain state.
+
+When the deadline passed without successful refutation of the challenge, the demand is regarded as a proven charge and the case enters into enforcement stage. Nodes that
+are proven guilty of losing a chunk lose their entire deposit.
+Enforcement is guaranteed by the fact that deposits are locked up in the swarm contract.
+Upon losing their deposit, the node is no loger considered a registered swarm node.
+
+Playing nice may be further incentivized if a challange allowed extending the risk of loss to all nodes giving a promise to store the lost chunk.
+
+The swarm contract comes with an accessor for checking that a given chunk has been reported lost, so that holders of receipts by other swarm nodes can punish them as well for losing the chunk, which, in turn, incentivizes whoever may hold the chunk to present it. Without the promise of positive compensation it is unclear if nodes have enough intrinsic motivation to actively prosecute their offenders purely to seek punishment.
+
+Note that the chunk is sent to the blockchain therefore is included in the block. While this is meant to be a very rare event, it might end up unnecessarily bloating the state database.
 
 
-This one contract regulates the incentive structure of Swarm.
+@node Receipt storage and consumer litigation
+@section Receipt storage and consumer litigation
 
-The corresponding solidity code can be browsed [here](https://github.com/ethersphere/go-ethereum/blob/bzz/bzz/bzzcontract/swarm.sol).
+End-users that store important information in the swarm have an obvious interest in keeping as many receipts of it as possible available for "litigation". The storage space required for storing a receipt is a sizable fraction of that used for storing the information itself, so end users can reduce their storage requirement further by storing the receipts in Swarm as well. Doing this recursively would result in end users only having to store a single receipt, the @emph{root receipt}, yet being able to penalize quite a few Swarm nodes, in case only a small part of their stored information is lost.
 
-# Methods
+This is supported by implementing the process of collecting receipts and putting them together in a format which allows for the easy pairing of chunks and receipts for an entire document. Storing this document-level receipt collection in the swarm has a non-trivial added benefit. If such a pairing is public and accessible, then consumers/downloaders (not only creators/uploaders) of content are able to litigate in case a chunk is missing. On the other hand, if the likely outcome of this process is punishment for the false promise (burning the deposit), motivation to litigate for any particular bit lost is slim.
+A typical usecase is when content producers would like to make sure their content is available.
 
-## Sign up as a node
+This pattern can be further extended to apply to a document collection (Dapp/website level). Here all document-level root receipts (of the sort just discussed) can simply be included as metadata in the manifest entry alongside its root hash.
+Therefore presenting a manifest file itself can store its own warranty.
 
-Pay a deposit in Ether and register public key. Comes with an accessor for checking that a node is signed up.
+While the potential of losing your entire deposit may act as a serious disincentive to cheat in any form, it may not act as sufficient guarantee for nodes wanting to store  important private content that is rarely used.
+These scenarios are likely taken care of by third party insurers which will find further motivators to secure availability and speedy delivery for a premium.
 
-## Demand penalty for loss of chunk
+Thr incentive strategy outlined above satisfies the following constraints:
 
-Present a signed receipt by a signed up node and a deposit covering the upload of a chunk. After a given deadline, the signer node's deposit is taken and the presenting node's deposit refunded, unless the chunk is presented. Comes with an accessor for checking that a given chunk has been reported lost, so that holders of receipts by other swarm nodes can punish them as well for losing the chunk, which, in turn, incentivizes whoever holds the chunk to present it.
-
-## Present chunk to avoid penalty
-
-No penalty is paid for lost chunks, if chunk is presented within the deadline. The cost of uploading the chunk is compensated exactly from the demand's deposit, with the remainder refunded. Comes with an accessor for checking that a given node is liable for penalty, so the node is notified to present the chunk in a timely fashion.
-
-# Price considerations
-
-For the price of accepting a chunk for storing, see [Incentives](https://github.com/ethersphere/swarm/blob/master/doc/incentives.md)
-
-This price should be proportional to the sign-up deposit of the swarm node.
-
-The deposit for compensating the swarm node for uploading the chunk into the block chain should be substantially higher (e.g. a small integer multiple) of the corresponding upload measured with the gas price used to upload the demand to prevent DoS attacks.
-
-# Termination
-
-Users of Swarm should be able to count on the loss of deposit as a disincentive, so it should not be refunded before the term of Swarm membership expires. If penalites were paid out as compensation to holders of receipts of lost chunks, it would provide an avenue of early exit for a Swarm member by "losing" chunks deposited by colluding users. Since users of Swarm are interested in their information being reliably stored, their primary incentive for keeping the receipts is to keep the Swarm motivated, not the potential compensation.
-
-# Receipt circulation
-
-End-users of Swarm keeping important information in it are obviously interested in keeping as many receipts of it as possible available for "litigation". The storage space required for storing a receipt is a sizable fraction of that used for storing the information itself, so end users can reduce their storage requirement further by storing the receipts in Swarm as well. Doing this recursively would result in end users only having to store a single receipt, yet being
-able to penalize quite a few Swarm nodes, in case only a small part of their stored information
-is lost.
-
-Swarm nodes that use the rest of Swarm as a backup may want to propagate the receipts in the opposite direction of storage requests, so that the cost of storing receipts is eventually paid by the end user either in the form of allocated storage space or as a direct payment to Swarm.
-
-
-
+@itemize
+@item It is in the node's interest irrespective of whether other nodes follow it or not.
+@item It makes it expensive to hog other nodes' resources.
+@item It does not impose unreasonable overhead.
+@item It plays nice with "naive" nodes.
+@item It rewards those that play nice, including those following this strategy.
+@end itemize
