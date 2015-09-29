@@ -1,8 +1,16 @@
-
 @node Background, About, Introduction, Top
 @chapter Background
 
-The motivation behind Swarm
+The primary objective of Swarm is to provide a sufficiently 
+decentralized and redundant store of Ethereum's public record, in 
+particular to store and distribute Đapp code and data as well as 
+block chain data.
+
+From an economic point of view, it allows participants to efficiently
+pool their storage and bandwidth resources in order to provide the
+aforementioned services to all participants.
+
+These objectives entails the following design requirements:
 
 @enumerate
 @item distributed storage, inclusivity, long tail of power law
