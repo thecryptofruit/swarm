@@ -20,12 +20,6 @@
 \hbadness=1000000
 @end tex
 
-@dircategory Swarm examples
-@direntry
-* texinfo: (Swarm)                  Swarm Reference
-@end direntry
-
-
 @set SWARM @i{Swarm}
 @set VERSION 0.1
 @set EDITION draft for vanilla POC @value{VERSION}
@@ -37,7 +31,8 @@
 @set DNEMAIL @email{nagydani@@gmail.com}
 @set ZFEMAIL @email{zsfelfoldi@@gmail.com}
 
-@ignore
+@dircategory Swarm {viktor.tron@@gmail.com}
+
 @copying
 Copyright @copyright{} 2015 ΞTHΞЯSPHΞЯΞ
 
@@ -51,14 +46,14 @@ USA.
 Printable copies of this manual can be obtained from the texinfo source.
 @end ifclear
 @end copying
-@end ignore
 
 @titlepage
 @title Swarm
-@subtitle Plan Bee For Document Storage and Content Distribution on Web 3.0
-@subtitle
+@subtitle Plan Bee For Content Storage and Distribution on Web 3.0
 @subtitle Reference Manual
 @subtitle Edition @value{EDITION}
+
+@center @image{swarm-logo,300px,300px,Swarm Logo,png}
 
 @author Viktor Trón, Dániel A. Nagy, Zsolt Felföldi
 
@@ -67,11 +62,11 @@ Printable copies of this manual can be obtained from the texinfo source.
 @value{ZFEMAIL}
 @sp 1
 
-This file documents @value{SWARM}. It corresponds to release
-@value{VERSION}.
 
-More information about Swarm can be found at the Ethereum homepage,
-@value{ETHEREUM}.
+@value{SWARM} documentation for version @value{VERSION}.
+This document source code is found at @url{https://github.com/ethersphere/swarm/tree/master/book}
+The most uptodate swarm book in various formats is available on the old web
+@url{http://ethersphere.org/swarm/docs} as well as on swarm @url{bzz://swarm/docs}
 
 @page
 @vskip 0pt plus 1filll
@@ -93,17 +88,14 @@ More information about Swarm can be found at the Ethereum homepage,
 @defindex kw
 @c files
 @defindex fi
-@c options, not vr
-@defindex op
+@c options
+@defindex vr
 @c questions for the FAQ
 @defindex qu
 
 @menu
 * Introduction::
-* Background::
-* About::
-* Installation::
-* Running a Node::
+* Running a node::
 * API::
 * Usage::
 * Incentivisation::
@@ -116,23 +108,25 @@ More information about Swarm can be found at the Ethereum homepage,
 @end menu
 
 @include introduction.texi
-@include background.texi
-@include about.texi
-@include installation.texi
 @include runninganode.texi
-
 @include api.texi
 @include usage.texi
 @include incentivisation.texi
-
 @include architecture.texi
 @include specifications.texi
-
 @include related_projects.texi
 
-@include quindex.texi
-@include vrindex.texi
-@include cpindex.texi
+@node Frequently Asked Questions, Options Index, Related Projects, Top
+@unnumbered Frequently Asked Questions
+@printindex qu
+
+@node Options Index, Concept Index, Frequently Asked Questions, Top
+@unnumbered Options Index
+@printindex vr
+
+@node Concept Index, , Options Index, Top
+@unnumbered Concept Index
+@printindex cp
 
 @ifclear frontcontents
 @comment Use @setchapternewpage odd to ensure that the contents starts
@@ -141,5 +135,6 @@ More information about Swarm can be found at the Ethereum homepage,
 @setchapternewpage odd
 @contents
 @end ifclear
+
 
 @bye

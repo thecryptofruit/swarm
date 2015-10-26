@@ -1,102 +1,101 @@
 @node Architecture, Specifications, Incentivisation, Top
 @chapter Architecture
 
-@node Components and layers,,Architecture
+This chapter is aimed at developers who want to understand the underlying concepts and design of swarm
+
+@menu
+* Components and layers::
+@end menu
+
+@node Components and layers,  , Architecture, Architecture
 @section Components and layers
+
+
+@menu
+* Bzzhash::
+* DPA::
+* Syncing::
+* Hive::
+* The bzz protocol::
+* Manifests::
+* Domain Registrar::
+@end menu
 
 @float Figure,fig:ex1
 @image{swarm-inside, , ,Swarm Inside,png}
-@caption{Internal architecure: components of swarm}
+@caption{Internal architecture: components of swarm}
 @end float
 
-@enumerate
+@itemize
 @item  MEM memStore
 @item  DBS dbStore
 @item  NET net store
+@item  HASH chunker for bzzhash
 @item  DPA distributed preimage archive
 @item  API the integrated manifest api
 @item  MAN manifest
-@item  REG registrar: registry + resolver
+@item  DNS registrar: registry + resolver
 @item  BZZ bzz protocol
 @item  BEE a peer that understands the bzz protocol
 @item  KAD kademlia
 @item  HIVE hive
 @item  SWAP the swarm accounting protocol
 @item  SYNC content syncronisation
-@end enumerate
+@end itemize
 
 
 There are 4 different layers of data units relevant to swarm:
 
-@enumerate
-@item  packet : p2p RLPx network layer
-@item  chunk : fixed size data unit of storage, content-addressing, request/delivery and accounting: this is the level relevant to the entire storage layer (including localStore, net store, bzz protocol)
-@item  document : in want of a better word, we call the smallest unit semantic to the user that is associated with a mime-type and not guaranteed to have integrity unless it is complete. Basically a file on a filesystem.
-@item  collection: a mapping of paths to documents is represented by the swarm manifest. This layer has mapping to file system directory trees. Given trivial routing conventions, url can be mapped to documents in a standardised way, allowing manifests to mimic webservers on swarm. This layer is relevant to high level apis: the go API, HTTP proxy API, console and web3 JS APIs.
-@end enumerate
+@itemize
+@item  @emph{message}: p2p RLPx network layer. Messages are relevant for the bzz wire protocol @ref{BZZ}.
+@item @emph{chunk}: fixed size data unit of storage, content-addressing, request/delivery and accounting: this is the level relevant to the entire storage layer (including localStore, DHT/netstore, bzz protocol, accounting protocol)
+@item  @dfn{document}: in want of a better word, we call the smallest unit that is associated with a mime-type and not guaranteed to have integrity unless it is complete. This is the smallest unit semantic to the user, basically a file on a filesystem. This layer is handled by the DPA and its Chunker.
+@item  @dfn{collection}: a mapping of paths to documents is represented by the @dfn{swarm manifest}. This layer has mapping to file system directory tree. Given trivial routing conventions, url can be mapped to documents in a standardised way, allowing manifests to mimic webservers on swarm. This layer is relevant to high level apis: the go API, HTTP proxy API, console and web3 JS APIs.
+@end itemize
+@cindex manifest
+@cindex chunk
+@cindex message
+@cindex storage layer
 
-
-The actual storage layer of swarm consists of two main components, the localStore and the netStore. The localStore provides the interface to local computing resources utilised for storage. In particular we explicitly delineate an in-memory fast cache and a persistent disk storage (possibly with its own cache system). The reason for this is that we can optimise the system by relying on certain properties of the memory store specific for our purpose, e.g., that keys are hashes, so no further hashing is needed, the keys can be directly mapped in a tree/trie structure.
+The actual storage layer of swarm consists of two main components, the \@dfn{localstore (LOC)} and the @dfn{netstore (NET)}. The local store provides the interface to local computing resources utilised for storage. In particular we explicitly delineate an in-memory fast cache (@dfn{memory store (MEM)}) and a persistent disk storage (@dfn{dbstore (DBS)} possibly with its own cache system). The reason for this is that we can optimise the system by relying on certain properties of the memory store specific for our purpose, e.g., that keys are hashes, so no further hashing is needed, the keys can be directly mapped in a tree/trie structure.
 
 For disk storage, leveldb is used. Both components can easily be swapped by alternative solutions with minimal work.
 
 The netStore is the actual DHT (distributed hash table) implementation. It interacts with the bzz protocol as well as the hive, the network peer logistic manager. The netStore is really where the network storage logic is implemented and should be considered the heart of swarm.
 
-The DPA, distributed preimage archive is the local interface for storage and retrieval of documents. When a document is handed to the DPA for storage, it chunks the document into a merkle hashtree and hands back its root key to the caller. This key can later be used to retrieve the document in question in part or whole.
+The DPA, distributed preimage archive is the local interface for storage and retrieval of documents. When a document is handed to the DPA for storage, it chunks the document into a merkle hashtree and hands back its root key to the caller (DPA). This key can later be used to retrieve the document in question in part or whole.
 
-The component that chunks the documents into the merkle tree is called a chunker. Our chunker implements the bzzhash algorithm which is parallelizable tree hash based on Sha3.
+The component that chunks the documents into the merkle tree is called the @dfn{chunker}. Our chunker implements the @dfn{bzzhash} algorithm which is parallelizable tree hash based on Sha3. The DPA runs a storage loop which receives the chunks back from the chunker and dispatches them to the chunkstore for storage. This entry point is the netStore.
 
-The DPA runs a storage loop which receives the chunks back from the chunker and dispatches them to the chunkstore for storage. This entry point is the netStore.
-
-When a root key is handed to the DPA for document retrieval, the DPA calls the Chunker which hands back a seekable document reader to the caller. This is a lazy reader in the sense that it retrieves relevant parts of the underlying document only if it is actually read. This entails that partial reads (e.g., range requests on video) are supported on the lowest level.
-
-The DPA runs a retrieve loop which received hashes (chunk requests) from the chunker which it dispatches to the chunkstore for retrieval. This entry point is the net Store.
-
-@node Manifest API
-@section Manifest API
+When a root key is handed to the DPA for document retrieval, the DPA calls the Chunker which hands back a seekable document reader to the caller. This is a @dfn{lazy reader} in the sense that it retrieves relevant parts of the underlying document only as they are actually read. This entails that partial reads (e.g., range requests on video) are supported on the lowest level.
 
 The swarm manifest is a structure that defines a mapping between arbitrary paths and documents to handle document collections. It also includes various metadata associated with the collection and the documents therein.
 
-The high level API to the manifests provides functionality to upload and download individual documents as files, collections (manifests) as directories. It also provides an interface to add documents to a collection on a path, delete a document from a collection. Finally it provides a name registrar interface allowing for versioned (archival) resolution of domain names, as well as registration using ethereum transactions.
+The high level API to the manifests provides functionality to upload and download individual documents as files, collections (manifests) as directories. It also provides an interface to add documents to a collection on a path, delete a document from a collection. Additionally, it provides an API for the @dfn{swarm DNS} and @dfn{Swarm Accounting Protocol (SWAP)} and a light http client aware of the . The Swarm DNS is @dfn{name registrar} interface allowing for versioned (archival) resolution of domain names as well as registration using ethereum transactions.
 
 API is the go implementation (and go API) for these high level functions. There is an http proxy interface as well as a JS api for these functions. These all differ in there exact functionality due to inherent privilege differences, etc. or interface limitations.
 These are described in detail in @xref{API}.
+@cindex API
+@cindex HTTP proxy
 
-Dox is a simple go HTTP client which can handle the bzz url scheme, it is also exposed  in the bzz module (http.get, http.loadScript)
+Dox is a simple go HTTP client which can handle the bzz url scheme, it is also exposed  in the bzz module (@command{admin.httpGet})
 
-@node Swarm Accounting Protocol
-@section Swarm Accounting Protocol
+The Swarm Accounting Protocol (SWAP)
+ component keeps track of requests between peers and implements the accounting protocol as a response to the @emph{swarm incentive system}. It is described in detail in @ref{Incentivisation}.
 
-The component that keeps track of requests between peers and responsible for conforming to the accounting protocol as a response to the @xref{swarm incentive system}.
-
-@node Chunker
-@section Chunker
-
-Chunker is the interface to a component that is responsible for disassembling and assembling larger data and indended to be the dependency of a DPA storage system with fixed maximum chunksize. It relies on the underlying chunking model. When calling Split, the caller provides a channel (chan *Chunk) on which it receives chunks to store. The DPA delegates to storage layers (implementing ChunkStore interface). NewChunkstore(DB) is a convenience wrapper with which all DBs (conforming to DB interface) can serve as ChunkStores. See chunkStore.
-
-After getting notified that all the data has been split (the error channel is closed), the caller can safely read or save the root key. Optionally it times out if not all chunks get stored or not the entire stream of data has been processed. By inspecting the errc channel the caller can check if any explicit errors (typically IO read/write failures) occured during splitting.
-
-When calling Join with a root key, the caller gets returned a lazy reader. The caller again provides a channel and receives an error channel. The chunk channel is the one on which the caller receives placeholder chunks with missing data. The DPA is supposed to forward this to the chunk stores and notify the chunker if the data has been delivered (i.e. retrieved from memory cache, disk-persisted db or cloud based swarm delivery). The chunker then puts these togetheron demand as and where the reader is read.
-
-The chunker works in a simple way, it builds a tree out of the document so that each node either represents a chunk of real data or a chunk of data representing an branching non-leaf node of the tree. In particular each such non-leaf chunk will represent is a concatenation of the hashes of its respective children. This scheme simultaneously guarantees data integrity as well as self addressing. The maximum chunk size is currently 4096 bytes. In addition to the data, the chunk contains the size of the subtree it encodes. Abstract nodes are transparent since their represented size component is strictly greater than their maximum data size, since they encode a subtree.
-
-In fact the DPA will never know when presented with a key whether that key is an intermediate node that happens to be a child of another node, it is retrieved the same way. This allows us to do full subtree retrieval for chunk requests and that means that there is potential for acceleration of document retrieval over the scheme where only the chunks hashing to our address space are kept. Storage requests can be sent so that a subtree is rooted using the address of its root node, towards the peers to which the root would be routed. The peer can accept and download the request and store it. Note that it is guaranteed that anyone requesting the roothash will likely want the entire subtree. So this presents an incentive to diverge from a fixed blockchunk.
-
-It is possible to implement chunking by simply composing readers so that no extra allocation or buffering is necessary for the data splitting. This means that in principle there can be direct IO between : memory, file system, network socket (bzz peers storage request is read from the socket ). In practice there may be need for several stages of internal buffering. Unfortunately the hashing itself does use extra copies and allocates though since it does need it.
+In what follows we describe the components in more detail.
 
 
-@node Bzzhash
-@section Bzzhash
+@node Bzzhash, DPA, Components and layers, Components and layers
+@subsection Bzzhash and chunks
+@cindex hash
+@cindex bzzhash
 
-@subsection Introduction
-
-Swarm Hash (a.k.a. [`bzzhash`](https://github.com/ethersphere/go-ethereum/tree/bzz/bzz/bzzhash)) is a Merkle tree hash designed for the purpose of efficient storage and retrieval in content-addressed storage, both local and networked. While it is used in [Swarm](https://github.com/ethereum/go-ethereum/wiki/Swarm---distributed-preimage-archive), there is nothing Swarm-specific in it and the authors recommend it as a drop-in substitute of sequential-iterative hash functions (like SHA3) whenever one is used for referencing integrity-sensitive content, as it constitutes an improvement in terms of performance and usability without compromising security.
+@dfn{Swarm Hash} (a.k.a. @dfn{bzzhash}, https://github.com/ethersphere/go-ethereum/tree/bzz/bzz/bzzhash) is a Merkle tree hash designed for the purpose of efficient storage and retrieval in content-addressed storage, both local and networked.
 
 In particular, it can take advantage of parallelisms (including SMP and massively-parallel architectures such as GPU's) for faster calculation and verification, can be used to verify the integrity of partial content without having to transmit all of it. Proofs of security to the underlying hash function carry over to Swarm Hash.
 
-@subsection Description
-
-Swarm Hash is constructed using a regular hash function (in our case, SHA3) with a generalization of Merkle's tree hash scheme. The basic unit of hashing is a _chunk_, that can be either a _leaf chunk_ containing a section of the content to be hashed or an _inner chunk_ containing hashes of its children, which can be of either variety.
+Swarm Hash is constructed using a regular hash function (in our case, SHA3) with a generalization of Merkle's tree hash scheme. The basic unit of hashing is a @dfn{chunk} that can be either a @dfn{leaf chunk} containing a section of the content to be hashed or an @dfn{inner chunk} (non-leaf chunk) containing hashes of its children, which can be of either variety.
 
 Hashes of leaf chunks are defined as the hashes of the concatenation of the 64-bit length (in LSB-first order) of the content and the content itself. Because of the inclusion of the length, it is resistant to length extension attacks, even if the underlying hash function is not. Note that this "safety belt" measure is extensively used in the latest edition of OpenPGP standard. It is, however, important to emphasize that Swarm Hash is obviously vulnerable to length extension attacks, but can be easily protected against them, when necessary, using similar measures in a higher layer. A possibly very profitable performance optimization (not currently implemented) is to initialize the hash calculation with the length of the standard chunk size (e.g. 4096 bytes), thus saving the repeated hashing thereof.
 
@@ -104,47 +103,61 @@ Hashes of inner chunks are defined as the hashes of the concatenation of the 64-
 
 To distinguish between the two, one should compare the length of the chunk to the 64-bit number with which every chunk begins. If the chunk is exactly 8 bytes longer than this number, it is a leaf chunk. If it is shorter than that, it is an inner chunk. Otherwise, it is not a valid Swarm Hash chunk.
 
-@subsection Strict interpretation
+@subsubsection Strict interpretation
 
 A strict Swarm Hash is one where every chunk with the possible exception of those on the rightmost branch is of a specified length, i.e. 4 kilobytes. Those on the rightmost branch are no longer, but possibly shorter than this length. The hash tree must be balanced, meaning that all root-to-leaf branches are of the same length.
 
-The strict interpretation is unique in that only one hash value matches a particular content. The strict interpretation is only vulnerable to length extension attacks if the length of the content is a multiple of the chunk size, and the number of leaf chunks is an integer power of branching size (the fix maximum chunk size divided by hash length).
+The strict interpretation is unique in that only one hash value matches a particular content. The strict interpretation is only vulnerable to length extension attacks if the length of the content is a multiple of the chunk size, and the number of leaf chunks is an integer power of branching size (the fix maximum chunk size divided by hash length).@footnote{Swarm Hash interpreted less strictly may allow for different tree structures, imposing fewer restrictions or none at all. In this way, different hash values can resolve to the same content, which might have some adverse security implications.
 
-A [parallelized implementation in Go](https://github.com/ethersphere/go-ethereum/tree/bzz/bzz) is available as well as [a command-line tool](https://github.com/ethersphere/go-ethereum/tree/bzz/bzz/bzzhash) for hashing files on the local filesystem using the strict interpretation.
+However, it might open the door for different applications where this does not constitute a vulnerability. For example, accepting single-leaf hashes in addition to strict Swarm hashes allows for referencing files without having to implement the whole thing.}
 
-@subsection Loose interpretations
+@menu
+* Chunker::
+@end menu
 
-Swarm Hash interpreted less strictly may allow for different tree structures, imposing fewer restrictions or none at all. In this way, different hash values can resolve to the same content, which might have some adverse security implications.
+@node Chunker,  , Bzzhash, Bzzhash
+@subsubsection Chunker
+@cindex chunker
 
-However, it might open the door for different applications where this does not constitute a vulnerability. For example, accepting single-leaf hashes in addition to strict Swarm hashes allows for referencing files without having to implement the whole thing.
+@dfn{Chunker} is the interface to a component that is responsible for disassembling and assembling larger data. It relies on the underlying chunking model. This module is pluggable, the current implementation uses the Treechunker which implements @dfn{bzzhash}.
 
-@subsection References
+When @dfn{splitting} a document, the chunker pushes the resulting chunks to the DPA that delegates them to storage layers (implementing ChunkStore interface) and returns the @dfn{root hash} of the document. After getting notified that all the data has been split (the error channel is closed), the caller can safely read or save the root key. Otherwise it times out if not all chunks get stored or not the entire stream of data has been processed. By inspecting the errc channel the caller can check if any explicit errors (typically IO read/write failures) occured during splitting.
 
-- [Merkle tree](http://en.wikipedia.org/wiki/Merkle_tree)
-- [Length extension attack on wikipedia](http://en.wikipedia.org/wiki/Length_extension_attack)
-- [IETF RFC4880](https://tools.ietf.org/html/rfc4880)
-- [bzzhash code](https://github.com/ethersphere/go-ethereum/tree/bzz/bzz/bzzhash)
-- [Swarm documentation and draft specs](https://github.com/ethereum/go-ethereum/wiki/Swarm---distributed-preimage-archive)
+When @dfn{joining} a document, the chunker needs the root key abd returns a @dfn{lazy reader}. While joining, the chunker pushes chunk requests to the DPA that delegates them to chunk stores and notify the chunker if the data has been delivered (i.e. retrieved from memory cache, disk-persisted db or cloud based swarm delivery). The chunker then puts these together on demand as and where the reader is read.
 
+The chunker works in a simple way, it builds a tree out of the document so that each node either represents a chunk of real data or a chunk of data representing an branching non-leaf node of the tree. In particular each such non-leaf chunk will represent is a concatenation of the hashes of its respective children. This scheme simultaneously guarantees data integrity as well as self addressing. The @dfn{maximum chunk size} is currently 4096  which comes from the multiple of configurable parameters @var{Branches} and @var{ByteSize(Hash)}. In addition to the data, the chunk contains the size of the subtree it encodes. Abstract nodes are transparent since their represented size component is strictly greater than their maximum data size, since they encode a subtree.
+@cindex chunk size
+@cindex merkle tree
+@cindex joining
+@cindex splitting
 
-@node DPA
-@section DPA
+@node DPA, Syncing, Bzzhash, Components and layers
+@subsection Distributed Preimage Archive
+@cindex DPA
 
-@subsection Introduction
+@dfn{DPA (distributed preimage archive)} stores small pieces of information (preimage objects, arbitrary strings of bytes of limited length) retrievable by their (cryptographic) hash value. Thus, preimage objects stored in DPA have implicit integrity protection. The hash function used for key assignment is assumed to be collision-free, meaning that colliding keys for different preimage objects are assumed to be practically impossible.
 
-DPA (distributed preimage archive) stores small pieces of information (preimage objects, arbitrary strings of bytes of limited length) retrievable by their (cryptographic) hash value. Thus, preimage objects stored in DPA have implicit integrity protection. The hash function used for key assignment is assumed to be collision-free, meaning that colliding keys for different preimage objects are assumed to be practically impossible.
+DPA serves as a fast, redundant store optimized for speedy retrieval and long-term reliability. Since the key is derived from the preimage, there is no sense in which we can talk about multiple or alternative values for keys, the store is immutable.
 
-DPA serves as a fast, redundant store optimized for speedy retrieval and long-term reliability. Its most frequent use within Ethereum is to cache objects that can be retrieved and/or re-constructed by other means only at significant cost. Since the key is derived from the preimage, there is no sense in which we can talk about multiple or alternative values for keys, the store is immutable.
+@menu
+* High-level design::
+* Requests::
+* Store::
+@end menu
 
-@subsection High-level design
+@node High-level design, , DPA, DPA
+@subsubsection High-level design
 
-DPA is organized as a DHT (Distributed Hash Table): each participating node has an address (resolved into a network address by the p2p layer) coming from the same value set as the range of the hash function. In particular it is the hash of the public key (NodeID field of the DEVP2P handshake).
+DPA is organized as a @dfn{DHT (Distributed Hash Table)}: each participating node has an address (resolved into a network address by the p2p layer) coming from the same value set as the range of the hash function. In particular it is the hash of the public key of the swarm node's base account (an ethereum address given as a command line parameter, defaulting to the first account or coinbase).
+@cindex DHT
+@vrindex BzzKey
 
-There is a distance measure defined over this value set that is a proper metric satisfying the triangle inequality. It is always possible to tell how far another node or another preimage object is from a given address or hash value. The distance from self is zero.
+There is a @dfn{distance measure} defined over this value set that is a proper metric satisfying the triangle inequality. It is always possible to tell how far another node or another preimage object is from a given address or hash value. The distance from self is zero.
+@dfn{distance measure}
 
-Each node is interested in being able to find preimages to hash values as fast as possible and therefore stores as many preimages as it can itself. Whenever it must decide which preimage object to store and which to discard, preference is given to objects with an address that is closer. In practical terms, it is always the farthest preimage object that is discarded when a node runs short of storage capacity. Thus, each node ends up storing preimage objects within a given radius limited by available storage capacity. The cryptographic hash function takes care of randomization and fair load balancing.
+Each node is interested in being able to find preimages to hash values as fast as possible and therefore stores as many preimages as it can itself. Each node ends up storing preimage objects within a given radius limited by available storage capacity. The cryptographic hash function takes care of randomization and fair load balancing.
 
-Nodes provide the following services through a public network API:
+On a high level, nodes should provide the following services through a public network protocol:
 
 @itemize
 @item Inserting new preimages into DPA
@@ -152,29 +165,22 @@ Nodes provide the following services through a public network API:
 @item Sharing routing information to a given node address
 @end itemize
 
-Locally, in addition to the above, nodes also provide the service of storing and retrieving documents (here, data of any size). When storing, the data is disassembled into a tree of blocks according to a scheme resulting in the key corresponding to the root block. Given the key of the root block the data can then can be reassembled with the help of recursively retrieving the blocks in the tree.
+Locally, in addition to the above, nodes also provide the service of storing and retrieving documents (here, data of any size). When storing, the data is disassembled into a tree of chunks according to the bzzhash scheme. Given the key of the root chunk the data can then can be reassembled with the help of recursively retrieving chunks in the tree.
 
-@subsection Requests
-
-@subsubsection Store
+@node Requests, , High-level design, DPA
+@subsubsection Requests
 
 When receiving a preimage that is not already present in its local storage, the node stores it locally. If the storage allocated by the node for the archive is full, the object accessed the longest time ago is discarded. Note that this policy implicitly results in storing the objects closer to the node's address, as - all else being equal - those are the ones which are most likely to be requested from this particular node, due to the lookup strategy detailed below.
+@cindex expiry
+@cindex storage radius
 
 After storing the preimage, the store request is also forwarded to all the nodes in the corresponding row of the routing table. Note that the kademlia routing makes sure that the row in the close proximity of a node actually contains nodes further out than self thereby taking care of storage redundancy.
 However, in order to mitigate against node drop out, the preimages, especially those with hashes in the node's proximity, need to be re-broadcast, albeit with a very low frequency.
 
 When a node received a store request, it remembers it for a while and does not forward the same request. This is needed to avoid redundant network traffic.
 
-@subsubsection Retrieve
-
-Retrieval requests have the following parameters:
-
-@enumerate
-@item The hash of the queried pre-image
-@item Timeout value for routed retrieval, zero if routing is not required
-@end enumerate
-
-If the node has the pre-image, it is returned, called a delivery. Otherwise, the following happens:
+Upon receiving a retrieve request if the node has the pre-image, it is returned, called a @dfn{delivery}. Otherwise, the following happens:
+@cindex delivery
 
 @enumerate
 @item The entire row in the Kademlia table corresponding to the queried hash is returned.
@@ -184,116 +190,171 @@ If the node has the pre-image, it is returned, called a delivery. Otherwise, the
 
 Successfully found pre-images are automatically re-inserted into DPA.
 
-A default time estimate for retrieval is calculated in proportion to the expected hop-distance from the node closest to the queried preimage. If this time is outside of the timeout parameter in the request, the request is not routed/forwarded.
-
-Each node in the row corresponding to the queried preimage is sequentially queried in order of increasing distance from the target hash. The query is forwarded with a timeout value set to the maximum of the above estimate and the total timeout divided by the number of nodes in the row. If the preimage is found or the time elapsed is in excess of the received timeout value, processing of the query is aborted with timeout.
-
-From the set up of the first forward onwards, all retrieval requests of the same target are remembered in a request pool. If the data results in successful retrieval and the preimage is stored, the requests are answered by returning the preimage object to each requesting node whether forwarding or originator. The pool of requesting nodes then can be forgotten, since all further queries can be responded with chunk delivery.
-
-@subsection Forwarding
-
-@subsubsection Retrieval
-
 A retrieval request for a key arrives with a key recently unseen. It is looked up in local store and if not found, it is assessed if it is worth having, or if its proximity warrants its storage with us or not. If deemed too distant it can be forgotten, if within our storage radius then we open a request entry in the request pool. Further requests in the near future asking for the same key will check its status with this entry.
 
 Immediately upon receiving the request, the target is mapped to its kademlia proximity bin and the peers in the bin are ordered by proximity to the target. We immediately send a response to the initiator containing the first n best peers. The response also indicates if we forward the query and our suggested update to the request timeout.
 
 Simultaneously, take the first connected peer and forward the request with timeout t.
 
-If we do not receive the data within that window we move on to the next peer. If we receive no delivery within the lifecycle of the request (it is kept alive by the live timeouts of the incoming requests for the content), we consider the item nonexistent and may even keep a record of that. Surely we can keep forwarding the request (to new peers or repeated queries (renewals)). This can be a result of the frequency of a request or any other form of transaction fee incentive or own need.
+A default time estimate for retrieval is calculated in proportion to the expected hop-distance from the node closest to the queried preimage. If this time is outside of the timeout parameter in the request, the request is not routed/forwarded.
 
-If we get a delivery we forward to all those who are active in the request pool (in terms of being alive connected as well as interested based on their timeout). These peers will typically be further from the target than where we are.
+Each node in the row corresponding to the queried preimage is sequentially queried in order of increasing distance from the target hash. The query is forwarded with a timeout value set to the maximum of the above estimate and the total timeout divided by the number of nodes in the row. If the preimage is found or the time elapsed is in excess of the received timeout value, processing of the query is aborted with timeout.
 
-@subsubsection Store requests
+From the set up of the first forward onwards, all retrieval requests of the same target are remembered in a request pool.
+If we do not receive the data within that window we move on to the next peer. If we receive no delivery within the lifecycle of the request (it is kept alive by the live timeouts of the incoming requests for the content), we consider the item nonexistent and may even keep a record of that.
+
+After successful retrieval, the preimage is stored and the requests are answered by returning the preimage object to all requesting nodes that are active (in terms of being alive connected as well as interested based on their timeout) both forwarding or originator.
+
+The pool of requesting nodes then can be forgotten, since all further queries can be responded with chunk delivery.
+
+@node Store,  , Requests, DPA
+@subsubsection Store
 
 Deliveries that are unexpected can be considered storage requests.
 
 If a storage request appears for the first time we assess the key for proximity and if deemed too distant may be forgotten. If we want to keep it (which is probably 100% (we just do not forward) then we save it to persistent storage. If the key is found in the database, its expiry may be updated. Storage requests are forwarded to the peers in the same kademlia proximity bin. If we are sufficiently close, the bin might include peers more distant from the peer than we are.
 
-@node Syncing
-@section Syncing
+@node Syncing, Hive, DPA, Components and layers
+@subsection Syncing
 
 This is not implemented yet
 
+@node Hive, The bzz protocol, Syncing, Components and layers
+@subsection Peer management (hive, kademlia)
+@cindex hive
 
-@node Hive
-@section Hive
+Hive is the logistic manager of the swarm. It uses a generic kademlia nodetable to find best peer list for any target. This is used by the netstore to search for content in the swarm.
+When the node receives peer suggestions (bzz protocol peersMsgData exchange), the hive relays the peer addresses obtained from the message to the Kademlia table for db storage and filtering.
+Hive also manages connections and disconnections that allows for bootstapping as well as keeping the routing table uptodate.
+When the p2p server connects with a node capable of bzz protocol, the hive registers the node in the kademlia table and sends a @dfn{self lookup}. A self lookup is basically just a retrieve request with intended target correspinding to the node's base address (self lookup can be encoded with nil/zero key since peers addr known, and having no request id.
+The receiving node does not record self lookups as request or forward it, just reply with peers.
+@cindex self lookup
 
+@menu
+* Peer addresses::
+* Logarithmic distance and network topology::
+* Peer table format::
+* Backwards compatibility mode and DoS safety::
+* Peer table update::
+@end menu
 
-@subsection Peer addresses
+@node Peer addresses, , Hive, Hive
+@subsubsection Peer addresses
 
-Nodes in the P2P network are identified by 256-bit cryptographic hashes of the nodes' public keys.
-
+Nodes in the P2P network are identified by 256-bit cryptographic hashes of the public key of the base account.
 The distance between two addresses is the MSB first numerical value of their XOR.
 
-@subsection Peer table format
 
-The peer table consists of rows, initially only one, at most 255 (typically much less). Each row contains at most _k_ peers (data structures containing information about said peer such as their peer address, network address, a timestamp, signature by the peer and possibly various other metadata), where _k_ is a parameter (not necessarily global) with typical values between 5 and 20.
 
-This parameter, _k_, determines the redundancy of the network: the peer selection algorithm described in this page aims to maintain exactly _k_ peers in each row.
+@node Logarithmic distance and network topology, , Peer addresses, Hive
+@subsubsection Logarithmic distance and network topology
 
-Row numbering starts with 0. Each row number _i_ contains peers whose address matches the first _i_ bits of this node's address. The _i_+1st bit of the address must differ from this node's address in all rows except the last one.
+Proximity(x, y) returns the proximity order of the MSB distance between x and y
 
-As a matter of implementation, it might be worth internally representing all 255 rows from the outset (requiring that the _i_+1st bit be different from our node in all rows); but then considering all of the rows at the end as if they were one row. That is, we look at non empty rows at the end and treat the elements in them as if they belonged to row _i_ where _i_ is the lowest index such that the total number of all elements in row _i_ and in all higher rows, together is at most _k_.
+The distance metric MSB(x, y) of two equal length byte sequences x an y is the
+value of the binary integer cast of the x^y, ie., x and y bitwise xor-ed.
+the binary cast is big endian: most significant bit first (=MSB).
 
-Note: there is a difference here to the original Kedemlia paper http://pdos.csail.mit.edu/~petar/papers/maymounkov-kademlia-lncs.pdf The rows with a high _i_ for us here are the rows with a low _i_ in the paper. For us, high _i_ means high number of bits agreeing, for them high _i_ mean high xor distance.
+Proximity(x, y) is a discrete logarithmic scaling of the MSB distance.
+It is defined as the reverse rank of the integer part of the base 2
+logarithm of the distance.
+It is calculated by counting the number of common leading zeros in the (MSB)
+binary representation of the x^y.
 
-@subsection Adding a new peer
+(0 farthest, 255 closest, 256 self)
 
-A peer is added to the row to which it belongs according to the length of address prefix in common with this node. If that would increase the length of the row in question beyond _k_, the **worst** peer (according to some, not necessarily global, peer quality metric) is dropped from the row, except if it is the last row, in which case a new row _i_ + 1 is added and the elements in the old last row are split between the two rows according to the bit at the corresponding position. Note: If we followed the implementation suggestion in the previous section, then we do not need to make an exception for the last row, nor do we have to worry about splitting the last row on the implementation level.
+Taking the proximity order relative to a fix point x classifies the points in
+the space (n byte long byte sequences) into bins. Items in each are at
+most half as distant from x as items in the previous bin. Given a sample of
+uniformly distributed items (a hash function over arbitrary sequence) the
+proximity scale maps onto series of subsets with cardinalities on a negative
+exponential scale.
 
-@subsection Joining the network
+It also has the property that any two item belonging to the same bin are at
+most half as distant from each other as they are from x.
 
-Requires only one bootstrap peer, to which the new node sends an _add_me_ message and subsequently adds every node from the response to its own peer table.
+If we think of random sample of items in the bins as connections in a network of interconnected nodes than relative proximity can serve as the basis for local
+decisions for graph traversal where the task is to find a route between two
+points. Since in every hop, the finite distance halves, there is
+a guaranteed constant maximum limit on the number of hops needed to reach one
+node from the other.
 
-Thereafter, it performs a lookup of a synthetic random address from the address range corresponding to rows with indices that are smaller than the row in which the bootstrap node ended up.
+@node Peer table format, , Logarithmic distance and network topology, Hive
+@subsubsection Peer table format
 
-@subsection Backwards compatibility mode and DoS safety
+The peer table consists of rows, initially only one, at most 255 (typically much less). Each row contains at most @math{k} peers (data structures containing information about said peer such as their peer address, network address, a timestamp, etc). The parameter @math{k} is called @dfn{bucket size} and specified as part of the node configuration.
+@vrindex bucket size (@code{BucketSize})
 
-Nodes can still safely dump their full peer table and accept connections from naive nodes. Overwriting the entire peer table of a node requires significant computational effort even with relatively low _k_. DoS attacks against non-naive nodes (as described in this page) require generating addresses with corresponding key pairs for each row, requiring quite a bit of hashing power.
+Row numbering starts with 0. Each row number @math{i} contains peers whose address matches the first @math{i} bits of this node's address. The @math{i+1} bit of the address must differ from this node's address in all rows except the last one.
 
-@subsection Multi protocol peer selection
+As a matter of implementation, it might be worth internally representing all 255 rows from the outset (requiring that the @math{i+1} bit be different from our node in all rows); but then considering all of the rows at the end as if they were one row. That is, we look at non empty rows at the end and treat the elements in them as if they belonged to row @math{i} where @math{i} is the lowest index such that the total number of all elements in row @math{i} and in all higher rows, together is at most @math{k}.@footnote{there is a difference here to the original Kademlia paper @ref{http://pdos.csail.mit.edu/~petar/papers/maymounkov-kademlia-lncs.pdf}. The rows with a high @math{i} for us here are the rows with a low @math{i} in the paper. For us, high @math{i} means high number of bits agreeing, for them high @math{i} mean high xor distance.}
 
-In order for the network emerging from the peer selection algorithm in p2p package to support multiple protocols that might require routing, such as Swarm, the known node set must satisfy the following properties:
+A peer is added to the row to which it belongs according to the length of address prefix in common with this node. If that would increase the length of the row in question beyond the bucket size, the @emph{worst} peer (according to some, not necessarily global, peer quality metric) is dropped from the row, except if it is the last row.
 
-@itemize
-@item Peers should make it known which protocols they support (as a list of identifiers)
-@item In each row of the Kademlia table, there should be a sufficient number (as defined by the redundancy requirement _k_, which might be distinct for each protocol) of node supporting _each_ of the protocols which the host itself supports.
-@end itemize
+Joining the network requires only one bootstrap peer, all nodes from its table are included in the node's peer table. Thereafter, it performs a lookup of a synthetic random address from the address range corresponding to rows with indices that are smaller than the row in which the bootstrap node ended up.
+@cindex network bootstrapping
 
-The second requirement is achieved by maintaining distinct redundancy limits _k_<sub>_p_</sub> for each protocol _p_, with nodes supporting multiple protocols counting towards the corresponding limits for each of them.
+@node Backwards compatibility mode and DoS safety, Peer table update, Peer table format, Hive
+@subsubsection Backwards compatibility mode and DoS safety
 
-Thus, even nodes that do not support a specific protocol can help other nodes in search of peers that do support it.
+Nodes can still safely dump their full peer table and accept connections from naive nodes. Overwriting the entire peer table of a node requires significant computational effort even with relatively low bucket size. DoS attacks against non-naive nodes (as described in this page) require generating addresses with corresponding key pairs for each row, requiring quite a bit of hashing power.
 
-@node BZZ
-@section BZZ
+@node Peer table update,  , Backwards compatibility mode and DoS safety, Hive
+@subsubsection Peer table update
 
-BZZ implements the bzz wire protocol of swarm
-the protocol instance is launched on each peer by the network layer if the
+GetNodeRecord return one node record with the highest priority for desired
+connection.
+This is used to pick candidates for live nodes that are most wanted for
+a higly connected low centrality network structure for Swarm which best suits
+for a Kademlia-style routing.
+
+The candidate is chosen using the following strategy.
+We check for missing online nodes in the buckets for 1 upto Max BucketSize rounds.
+On each round we proceed from the low to high proximity order buckets.
+If the number of active nodes (=connected peers) is < rounds, then start looking
+for a known candidate. To determine if there is a candidate to recommend the
+node record database row corresponding to the bucket is checked.
+If the row cursor is on position i, the ith element in the row is chosen.
+If the record is scheduled not to be retried before NOW, the next element is taken.
+If the record is scheduled can be retried, it is set as checked, scheduled for
+checking and is returned. The time of the next check is in X (duration) such that
+X = ConnRetryExp * delta where delta is the time past since the last check and
+ConnRetryExp is constant obsoletion factor. (Note that when node records are added
+from peer messages, they are marked as checked and placed at the cursor, ie.
+given priority over older entries). Entries which were checked more than
+purgeInterval ago are deleted from the kaddb row. If no candidate is found after
+a full round of checking the next bucket up is considered. If no candidate is
+found when we reach the maximum-proximity bucket, the next round starts.
+
+node record a is more favoured to b a > b iff a is a passive node (record of
+offline past peer)
+|proxBin(a)| < |proxBin(b)|
+|| (proxBin(a) < proxBin(b) && |proxBin(a)| == |proxBin(b)|)
+|| (proxBin(a) == proxBin(b) && lastChecked(a) < lastChecked(b))
+
+This has double role. Starting as naive node with empty db, this implements
+Kademlia bootstrapping
+As a mature node, it fills short lines. All on demand.
+
+The second argument returned names the first missing slot found
+
+
+@node  The bzz protocol, Manifests, Hive, Components and layers
+@subsection The bzz protocol
+
+BZZ implements the bzz subprotocol, the wire protocol of swarm. The bzz protocol is implemented as a subprotocol of the ethereum devp2p system.
+The protocol instance is launched on each peer by the network layer if the
 BZZ protocol handler is registered on the p2p server.
 
 The protocol takes care of actually communicating the bzz protocol
-encoding and decoding requests for storage and retrieval
-handling the protocol handshake
-dispaching to netstore for handling the DHT logic
-registering peers in the KΛÐΞMLIΛ table via the hive logistic manager
+encoding and decoding requests for storage and retrieval, handling the protocol handshake
+dispaching to netstore for handling the DHT logic, registering peers in the Kademlia  table via the hive logistic manager.
 
+The routing implemented by the netstore and communicated via bzz is described in detail in @ref{Retrieval}. The formal specification of the protocol is given in @ref{The bzz wire protocol}.
 
-@subsection Hive
+@node Manifests, Domain Registrar, The bzz protocol, Components and layers
+@subsection Manifests
 
-Hive is the logistic manager of the swarm
-it uses a generic kademlia nodetable to find best peer list
-for any target
-this is used by the netstore to search for content in the swarm
-the bzz protocol peersMsgData exchange is relayed to Kademlia
-for db storage and filtering
-connections and disconnections are reported and relayed
-to keep the nodetable uptodate
-
-self lookup (can be encoded as nil/zero key since peers addr known) + no id ()
-  the most common way of saying hi in bzz is initiation of gossip
-  let me know about anyone new from my hood , here is the storageradius
-  to send the 6 byte self lookup
-  we do not record as request or forward it, just reply with peers
-
+@node Domain Registrar,  , Manifests, Components and layers
+@subsection Domain Registrar
 

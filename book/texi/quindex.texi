@@ -1,4 +1,0 @@
-@node Frequently Asked Questions, Options Index, Related Projects, Top
-@unnumbered Frequently Asked Questions
-
-@printindex qu

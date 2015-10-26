@@ -1,5 +1,12 @@
-@node Introduction, Background, Top, Top
+@node Introduction, Running a node, Top, Top
 @chapter Introduction
+
+@menu
+* Background::
+* About::
+* Resources::
+@end menu
+
 
 This document presents @value{SWARM} which is being developed as part
 of the crypto 2.0 vision for web 3.0.
@@ -13,20 +20,6 @@ Swarm is a decentralised document storage solution. It is deeply integrated with
 ethereum and provides one of the most prominent base layer services: data storage
 and content distribution. It is free and self-sustaining via its incentive structure
 implemented as ethereum smart contracts.
-
-* censorship resistant
-* attack resilient
-* zero downtime
-* self-regulating
-* fluid trading among computational resources (memory, cpu, bandwidth, disk)
-
-@cindex swarm
-
-# Purpose
-
-
-
-Synopsis:
 
 This document provides you with:
 @enumerate
@@ -57,7 +50,153 @@ Discussion and comparison to @ref{Related Projects}.
 
 @end enumerate
 
-@node Resources
+@node Background, About, Introduction, Introduction
+@section Background
+
+The primary objective of Swarm is to provide a sufficiently
+decentralized and redundant store of Ethereum's public record, in
+particular to store and distribute Đapp code and data as well as
+block chain data.
+
+From an economic point of view, it allows participants to efficiently
+pool their storage and bandwidth resources in order to provide the
+aforementioned services to all participants.
+
+These objectives entail the following design requirements:
+
+@enumerate
+@item distributed storage, inclusivity, long tail of power law
+@item flexible expansion of space without hardware investment decisions, unlimited growth
+@item zero downtime
+@item immutable unforgeable verifiable yet plausibly deniable
+@item no single point of failure, fault and attack resilience
+@item censorship resistance, permanent public record
+@item self-managed sustainability via incentive system
+@item efficient market driven pricing. tradeable trade off of memory, persistent storage, bandwidth (and later computation)
+@item efficient use of the blockchain by swarm accounting protocol
+@item deposit-challenge based implementation of a trustless trust network
+
+@end enumerate
+
+
+@node About, Resources, Background, Introduction
+@section About
+
+
+@menu
+* Status::
+* License::
+* Credits::
+* Community::
+* Reporting a bug::
+* Contributing::
+* Roadmap::
+@end menu
+
+
+@node Status, License, About, About
+@subsection Status
+
+The status of swarm is proof of concept vanilla prototype tested on toy network.
+
+@node License, Credits, Status, About
+@subsection License
+
+
+@quindex Under what restrictions can I use this software?
+@quindex Under what restrictions can I modify this software?
+
+@cindex license
+@cindex LGPL
+
+Swarm is free software.
+
+It is licensed under @dfn{LGPL}, which roughly means the following.
+
+There are @emph{no restrictions on downloading} it other than
+your bandwidth and our slothful ways of making things available.
+
+There are @emph{no restrictions on use} either other than its deficiencies,
+clumsy features and outragous bugs. However, this can be amended,
+because there are @i{no restrictions on modifying} it either.
+See also @ref{Contributing}.
+
+@quindex Under what copyright restrictions can I distribute material on swarm.
+
+Freedom of use implies that anything goes.
+
+@quindex Under what copyright restrictions can I redistribute this software?
+
+What is more, there are @i{no restrictions on redistributing} this software or
+any modified version of it.
+
+@quindex What is the License of this software?
+
+For some legalese telling you the same, read the License @c
+@uref{http://creativecommons.org/licenses/LGPL/2.1/}
+
+@c Creative Commons.
+
+@c @ref{Creative Commons}.
+
+@quindex I am using swarm for commercial purposes to make money. Is this OK?
+
+@quindex I am selling this product to people for money. Is this OK?
+
+
+@node Credits, Community, License, About
+@subsection Credits
+
+Swarm is code by Ethersphere (ΞTHΞЯSPHΞЯΞ), an alliance of ethdev developers: Viktor Trón, Dániel A. Nagy and Zsolt Felföldi.
+Swarm is a project funded by the Ethereum Foundation, no longer.
+
+Special thanks to
+@itemize
+@item Felix Lange, Alex Leverington for inventing and implementing devp2p/rlpx.
+@item Jeffrey Wilcke for continued support
+@item Gavin Wood and Vitalik Buterin for the vision
+@item Alex Van der Sande and Fabian Vogelsteller for shaping ideas early on.
+@item Roman Mandeleil and Anton Nashatyrev for the java implementation
+@end itemize
+
+
+@node Community, Reporting a bug, Credits, About
+@subsection Community
+
+
+@itemize
+@item Gitter: https://gitter.im/ethereum/swarm
+@item Reddit: http://www.reddit.com/r/ethereum
+@item Forum: https://forum.ethereum.org/categories/swarm
+@end itemize
+
+@node Reporting a bug, Contributing, Community, About
+@subsection Reporting a bug
+
+Issues are tracked on github and github only: @url{https://github.com/ethereum/go-ethereum/issues}
+See the ethereum developer's guide for how to submit a bug report, feature request or fix: @url{https://github.com/ethereum/go-ethereum/wiki/Developers'-Guide}
+
+@node Contributing, Roadmap, Reporting a bug, About
+@subsection Contributing
+
+See the ethereum developer's guide for how to contribute to the project. @url{https://github.com/ethereum/go-ethereum/wiki/Developers'-Guide}
+
+@node Roadmap,  , Contributing, About
+@subsection Roadmap
+
+@itemize
+@item SWAP^3: swarm accounting protocol stage 3 adding debt swap (accreditation)
+@item storage incentives: receipts and litigation
+@item ethereum blockchain on swarm
+@item network stress testing, viability, scalability
+@item latency and traffic simulations for routing
+@item encryption
+@item proveable prefix array for full text search,
+@item swarm db, swarm fs via fuse
+@end itemize
+
+
+@node Resources,  , About, Introduction
 @section Resources
 
 Dr. Daniel A. Nagy: Ethereum ÐΞVcon-0: Keeping the Public Record Safe and Accessible - @url{https://www.youtube.com/watch?v=QzYZQ03ON2o}

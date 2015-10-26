@@ -8,12 +8,8 @@
 * SWAP - swarm accounting protocol::
 @end menu
 
-@node Bzz wire protocol
+@node Bzz wire protocol, Bzz url scheme, Specifications, Specifications
 @section Bzz wire protocol
-
-
-## BZZ protocol spec
-
 
  Handshake
 
@@ -96,13 +92,23 @@ Finally metadata can hold accounting info relevant to incentivisation scheme
 
 
 
-@node Bzz url scheme
+@node Bzz url scheme, Bzz Manifest, Bzz wire protocol, Specifications
 @section Bzz url scheme
 
 
 
-@node Bzz Manifest
+@node Bzz Manifest, SWAP - swarm accounting protocol, Bzz url scheme, Specifications
 @section Bzz Manifest
 
-@node SWAP - swarm accounting protocol
+@node SWAP - swarm accounting protocol,  , Bzz Manifest, Specifications
 @section SWAP - swarm accounting protocol
+
+
+
+
+
+
+
+
+
+

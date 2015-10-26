@@ -4,6 +4,8 @@
 
 @menu
 * Upload directory, upload file::
+* Setting up your chequebook::
+* Configure
 * Download directory, download file::
 * On demand partial reads::
 * Auto restart::
