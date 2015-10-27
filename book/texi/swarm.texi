@@ -96,8 +96,8 @@ The most uptodate swarm book in various formats is available on the old web
 @menu
 * Introduction::
 * Running a node::
-* API::
 * Usage::
+* API::
 * Incentivisation::
 * Architecture::
 * Specifications::
@@ -109,8 +109,8 @@ The most uptodate swarm book in various formats is available on the old web
 
 @include introduction.texi
 @include runninganode.texi
-@include api.texi
 @include usage.texi
+@include api.texi
 @include incentivisation.texi
 @include architecture.texi
 @include specifications.texi

@@ -1,4 +1,4 @@
-@node API, Usage, Running a Node, Top
+@node API, Incentivisation, Usage, Top
 @chapter API
 
 @menu

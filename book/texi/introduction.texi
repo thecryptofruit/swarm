@@ -152,17 +152,17 @@ Swarm is a project funded by the Ethereum Foundation, no longer.
 
 Special thanks to
 @itemize
-@item Felix Lange, Alex Leverington for inventing and implementing devp2p/rlpx.
-@item Jeffrey Wilcke for continued support
-@item Gavin Wood and Vitalik Buterin for the vision
-@item Alex Van der Sande and Fabian Vogelsteller for shaping ideas early on.
-@item Roman Mandeleil and Anton Nashatyrev for the java implementation
+@item Felix Lange, Alex Leverington for inventing and implementing devp2p/rlpx;
+@item Jeffrey Wilcke and the go team for continued support, testing and direction;
+@item Gavin Wood and Vitalik Buterin for the vision;
+@item Alex Van der Sande, Fabian Vogelsteller and Dániel Varga for a lot of inspiring discussions and ideas, shaping design from early on;
+@item Aron Fischer for his ideas and hands-on help with analysis, documentation and testing;
+@item Roman Mandeleil and Anton Nashatyrev for the java implementation;
 @end itemize
 
 
 @node Community, Reporting a bug, Credits, About
 @subsection Community
-
 
 @itemize
 @item Gitter: https://gitter.im/ethereum/swarm
@@ -194,7 +194,6 @@ See the ethereum developer's guide for how to contribute to the project. @url{ht
 @item proveable prefix array for full text search,
 @item swarm db, swarm fs via fuse
 @end itemize
-
 
 @node Resources,  , About, Introduction
 @section Resources
