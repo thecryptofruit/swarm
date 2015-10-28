@@ -17,38 +17,85 @@
 @end menu
 
 
+@subheading Using a local Swarm Instance
 
-run your client
+@subsubheading Running your client
+To start a swarm node we must start geth with an empty data directory on a private network. First set aside an empty temporary directory to be the data store
 
-    rm -rf /tmp/BZZ/01
-    ./geth --password <(echo -n 01) account new
-    ./geth --datadir /tmp/BZZ/01   --port 30301   --unlock primary   --password <(echo -n 01)   --logfile /tmp/BZZ/01.00.log --logtostderr --verbosity 6    --rpc --rpcport 8101 --rpccorsdomain '*' --bzz --networkid 322 --nodiscover --maxpeers 0 console   2>> /tmp/BZZ/01.00.glog
+@example
+ DATADIR=/tmp/BZZ/`date +%s`
+@end example
+ 
+then make a new account using this directory 
 
-upload a file or directory
+@example
+ PASSWORD="mypassword"
+ /geth --datadir $DATADIR --password  `echo -n $PASSWORD` account new
+@end example
 
-    bash bzz/bzzup/bzzup.sh /path/to/myfileordirectory
-    // 65b2a32ab2230d7d2bad2616e804d374921be68758009491cd52c727e37b4979
+and finally, launch geth on a private network (id 322)
 
-on console:
+@example
+    ./geth --datadir $DATADIR \
+           --port 30301 \
+           --unlock primary \
+           --password `echo $PASSWORD` \
+           --logfile $DATADIR/bzz.log \
+           --logtostderr \
+           --verbosity 6 \
+           --rpc \
+           --rpcport 8101 \
+           --rpccorsdomain '*' \
+           --bzz \
+           --networkid 322 \
+           --nodiscover \
+           --maxpeers 0 \
+           console   2>> $DATADIR/bzz.glog
+@end example
 
+At this verbosity level you should see plenty of output accumulating in the logfile. You can keep en eye on it using the command @command{tail -f $DATADIR/bzz.glog}.
+
+
+@subsubheading Uploading a file or directory to your local swarm instance
+
+Included in the swarm repository is a shell script that makes it easy to upload a file to a local swarm node using http port 8500.
+
+@example
+    bash bzz/bzzup/bzzup.sh /path/to/myFileOrDirectory
+@end example
+
+If this command is successful, the output will be a hash
+@example
+   65b2a32ab2230d7d2bad2616e804d374921be68758009491cd52c727e37b4979
+@end example
+
+If unsuccessful (for example if no local node is running) the output will simply be blank.
+
+It is also possible to upload a file or directory from the console like this
+
+@example
     hash = bzz.upload("/path/to/myfileordirectory", "index.html")
+@end example
 
-The second parameter to the basename of the file or a file under the dir which should be mapped onto the empty path (well '/').
+Here the second parameter (index.html) is to be mapped to the root path '/'.
 
+@subsubheading Downloading a file from your local swarm instance
 
-see in browser
+Your local swarm instance has an http interface running on port 8500 (by default). To download a file is thus a simple matter of pointing your browser to
 
+@example
     http://localhost:8500/65b2a32ab2230d7d2bad2616e804d374921be68758009491cd52c727e37b4979
+@end example
 
-command line:
-
-    wget -O - "http://localhost:8500/65b2a32ab2230d7d2bad2616e804d374921be68758009491cd52c727e37b4979"
-
-console:
-
+or, if you prefer, you can use the console 
+@example
     bzz.get(hash)
+@end example
 
-# Manifests:
+
+
+
+@subheading Manifests:
 
 Manifests declare a list of paths associated with swarm entries.
 Urls can be matched on these paths effectively making the manifest a routing table and
