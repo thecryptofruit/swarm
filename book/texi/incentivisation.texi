@@ -1,4 +1,4 @@
-@node Incentivisation, Architecture, Usage, Top
+@node Incentivisation, Architecture, API, Top
 @chapter Incentivisation
 
 @cindex incentives
@@ -14,6 +14,18 @@ The incentive strategy outlined here aspires to satisfy the following constraint
 @item It plays nice with "naive" nodes.
 @item It rewards those that play nice, including those following this strategy.
 @end itemize
+
+@menu
+* Preliminaries::
+* Accounting::
+* Charging for Retrieval::
+* Storage receipts::
+* Storing chunks::
+* Litigation on loss of content::
+* Potential caveats::
+* Receipt storage and consumer litigation::
+* Swap - Swarm Accounting Protocol::
+@end menu
 
 @node Preliminaries, Accounting, Incentivisation, Incentivisation
 @section Preliminaries
@@ -33,6 +45,13 @@ This is done with the @emph{Swarm Accounting Protocol (SWAP)}, a scheme of pairw
 
 @cindex Swarm Accounting Protocol (SWAP)
 
+@menu
+* Triggers for payment and disconnect::
+* Negotiating chunk price::
+* Modes of payment::
+@end menu
+
+@node  Triggers for payment and disconnect, Negotiating chunk price, Accounting, Accounting
 @subsection Triggers for payment and disconnect
 
 Each swarm node keeps a tally of offered and received services with each peer. In the simplest form, the service is the delivery of a chunk or more generally an attempt to serve a retrieve request, see later. We use the number of chunks requested and retrieved as a discreet integer unit of accounting. The tally is independently maintained on both ends of each direct connection in the peer-to-peer network for both self and the remote peer. Since disconnects can be arbitrary, it is not necessary to communicate and consent on the exact pairwise balances.
@@ -65,6 +84,7 @@ Since putting one node in positive credit is equivalent to the other incurring d
 In its simplest form, balances are not persisted between sessions (of the swarm node), but are preserved between subsequent connections to the same remote peer.
 Therefore balances can be stored in memory only. Freeriding is already very difficult with this scheme since each peer that a malicious node is exploiting, will provide free service only up to the value of @emph{Disconnect threshold} times unit price. While the node is running no reconnect is allowed unless compensation is paid to bring a balance above @emph{Disconnect threshold}.
 
+@node Negotiating chunk price, Modes of payment, Triggers for payment and disconnect, Accounting
 @subsection Negotiating chunk price
 
 @vrindex highest accepted chunk price
@@ -74,6 +94,7 @@ There is also the possibility that when A and B connect, payment is only possibl
 
 All in all, it is not necessary for both ends to agree on the same price (or even agree on any price) in order to successfully cooperate. Potentially different pricing of retrievals is meant to reflect varying bandwidth costs. Setting highest accepted chunk price as 0 can also be used to communicate that one is unable or unwilling to pay with tokens.
 
+@node Modes of payment,  , Negotiating chunk price, Accounting
 @subsection Modes of payment
 
 Since transfer of ether is constrained by blocktime, actual transactions sent via the blockchain can effectively rate-limit a peer, moreover various delays in transaction inclusion might interfere with the timing requirements of accounting compensation.
@@ -170,8 +191,14 @@ Swarm nodes that use the rest of Swarm as a backup will propagate the receipts i
 @cindex litigation
 
 The Swarm Contract regulates the incentive structure of Swarm.
-The corresponding solidity code can be browsed @ref{https://github.com/ethersphere/go-ethereum/blob/bzz/bzz/bzzcontract/swarm.sol, here}.
+The corresponding solidity code: @url{https://github.com/ethersphere/go-ethereum/blob/bzz/bzz/bzzcontract/swarm.sol}.
 
+@menu
+* Submitting a demand/challenge::
+* The outcome of a demand/challenge::
+@end menu
+
+@node  Submitting a demand/challenge, The outcome of a demand/challenge, Litigation on loss of content, Litigation on loss of content
 @subsection Submitting a demand/challenge
 @cindex challenge
 @cindex demand
@@ -191,6 +218,7 @@ The challange is set up by any node sending a signed receipt in a trasaction to 
 
 A challange is open for a fixed amount of time, the end of which essentially is the deadline to refute the challange. The challenge is refuted if the chunk is presented.
 
+@node The outcome of a demand/challenge,  , Submitting a demand/challenge, Litigation on loss of content
 @subsection The outcome of a demand/challenge
 
 Successful refutation of the challange is done by anyone sending the chunk as a transaction to the blockchain. Upon receiving a refutation transaction, the contract checks its validity by verifying the hash of the chunk payload. If the refutation is valid, the cost of uploading the chunk is compensated from the demand's deposit, with the remainder refunded.
@@ -221,7 +249,7 @@ Without the promise of positive compensation it is unclear if nodes have enough 
 Note that the chunk is sent to the blockchain and is therefore included in the block. While this is meant to be a very rare event, it might end up unnecessarily bloating the state database. Alternatively one could use other cheaper forms of proof of custody, however, it is unclear how serving the actual chunk can be guaranteed and/or proved.
 
 
-@node Receipt storage and consumer litigation, Swap: Swarm Accounting Protocol, Potential caveats, Incentivisation
+@node Receipt storage and consumer litigation, Swap - Swarm Accounting Protocol, Potential caveats, Incentivisation
 @section Receipt storage and consumer litigation
 
 End-users that store important information in the swarm have an obvious interest in keeping as many receipts of it as possible available for "litigation". The storage space required for storing a receipt is a sizable fraction of that used for storing the information itself, so end users can reduce their storage requirement further by storing the receipts in Swarm as well. Doing this recursively would result in end users only having to store a single receipt, the @emph{root receipt}, yet being able to penalize quite a few Swarm nodes, in case only a small part of their stored information is lost.
@@ -239,8 +267,8 @@ Therefore a manifest file itself can store its own warranty.
 While the potential of losing your entire deposit may act as a serious disincentive to cheat in any form, it may not act as sufficient guarantee for nodes wanting to store  important private content that is rarely used.
 These scenarios are likely taken care of by third party insurers which will find further motivators to secure availability and speedy delivery for a premium.
 
-@node Swap: Swarm Accounting Protocol,  , Receipt storage and consumer litigation, Incentivisation
-@section Swap: Swarm Accounting Protocol
+@node Swap - Swarm Accounting Protocol,  , Receipt storage and consumer litigation, Incentivisation
+@section Swap - Swarm Accounting Protocol
 
 @dfn{SWAP} is the abbreviation for the @dfn{Swarm Accounting Protocol}. It is the protocol by which peers in the Swarm network keep track of chunks delivered and received and the resulting (micro-)payments owed. On its own, SWAP can function in a wider context too and is presented here as a generic micropayment scheme suited for pairwise accounting between peers. And yet, while generic by design, our first use of it is for accounting of bandwidth as part of the incentivisation of data transfer in the Swarm decentralised peer to peer storage network.
 @cindex Swarm Accounting Protocol (SWAP)
@@ -254,7 +282,13 @@ There are three levels of SWAP:
 @item @code{Swap^3}: Swarm Accounting Protocol with Swift Automatic  Payments  and Debt Swap
 @end itemize
 
-@node SWAP, SWAP^2, Swap: Swarm Accounting Protocol, Swap: Swarm Accounting Protocol
+@menu
+* SWAP::
+* SWAP^2::
+* SWAP^3::
+@end menu
+
+@node SWAP, SWAP^2, Swap - Swarm Accounting Protocol, Swap - Swarm Accounting Protocol
 @subsection SWAP
 
 In the context of Swarm, SWAP will be used as an accounting protocol for exchanged chunks of data. However in general SWAP is a protocol (in the broad sense as 'scheme of interaction') of accounting that enables direct trading of any commodity class that
@@ -315,7 +349,7 @@ To reduce insolvency risks we could rely on a @emph{reputation system}. In the S
 
 Thus saving on transaction costs while managing risk is possible if participants are incentivised to conduct continual business as the same identity (basically a reputation system). This is possible because long term participation encourages compliance (@emph{discipline of repeated transactions}), since honest users set the standard which can then be expected. Naive new nodes need to provide the service first before using it or else need to pay their way in for not working.
 
-@node SWAP^2, SWAP^3, SWAP, Swap: Swarm Accounting Protocol
+@node SWAP^2, SWAP^3, SWAP, Swap - Swarm Accounting Protocol
 @subsection SWAP^2
 
 SWAP^2 stands for Swarm Accounting Protocol with Swift Automatic  Payments.
@@ -361,7 +395,7 @@ Setting autodeposit strategy manages the tradeoff between spending on transactio
 
 This system is completely flexible even allowing capping of service related spending while allowing unlimited consumption via service-for-service exchange.
 
-@node SWAP^3,  , SWAP^2, Swap: Swarm Accounting Protocol
+@node SWAP^3,  , SWAP^2, Swap - Swarm Accounting Protocol
 @subsection SWAP^3
 
 SWAP^3 further reduces tx costs by introducing payment by IOU (@emph{debt swap})

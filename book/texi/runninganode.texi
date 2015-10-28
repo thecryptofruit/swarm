@@ -1,5 +1,5 @@
-@node  Running a Node, Usage, About, Top
-@chapter  Running a Node
+@node  Running a node, Usage, Introduction, Top
+@chapter  Running a node
 
 
 
@@ -13,7 +13,7 @@
 * Getting started::
 @end menu
 
-@node Installation, Configuration options, Running a Node, Running a Node
+@node Installation, Configuration options, Running a node, Running a node
 @section Installation
 
 Swarm is part of the Ethereum stack and currently only supports running on the ethereum network as a subprotocol of the go client nodes.
@@ -111,7 +111,7 @@ in the toplevel directory of the unpacked distribution.
 
 
 
-@node Configuration options, , Installation, Running a Node
+@node Configuration options, Getting started, Installation, Running a node
 @section Configuration options
 
 This section lists all the options you can set in the config file @file{<datadir>/bzz/<baseaccount>/config.json}. By default the swarm data directory is under the ethereum's data directory but different depending on the base address. This is important if you run multiple swarm nodes since storage, configuration, connected peers will all be distinct depending on the base address.
@@ -261,7 +261,7 @@ This section lists all the options you can set in the config file @file{<datadir
 @deffnx {} {}  Ethereum account address serving as beneficiary of incoming cheques
 @end deffn
 
-@node Getting started,  , Configuration options, Running a Node
+@node Getting started,  , Configuration options, Running a node
 @section Getting started
 
 Use @command{geth} with the @code{--bzzaccount} parameter to start the client with Swarm enabled. If you want automatic deposits to your chequebook, then this account should be unlocked.

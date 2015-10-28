@@ -35,7 +35,7 @@ A not too technical presentation of what is offered here and the background, mot
  Installation instructions, @pxref{Installation}.
 
 @item
-A bit about @ref{Running a Node}.
+A bit about @ref{Running a node}.
 
 @item
 The formal specifications of relevant standards, APIs and Protocols (@pxref{Specifications});
