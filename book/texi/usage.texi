@@ -17,9 +17,9 @@
 @end menu
 
 
-@subheading Using a local Swarm Instance
+@subsection Using a local Swarm Instance
 
-@subsubheading Running your client
+@subsubsection Running your client
 To start a swarm node we must start geth with an empty data directory on a private network. First set aside an empty temporary directory to be the data store
 
 @codequotebacktick on
@@ -33,7 +33,7 @@ then make a new account using this directory
 
 @example
  PASSWORD="mypassword"
- /geth --datadir \$DATADIR --password  `echo -n \$PASSWORD` account new
+ /geth --datadir $DATADIR --password  `echo -n $PASSWORD` account new
 @end example
 
 and finally, launch geth on a private network (id 322)
@@ -42,7 +42,7 @@ and finally, launch geth on a private network (id 322)
     ./geth --datadir $DATADIR @backslashchar{} 
            --port 30301 @backslashchar{} 
            --unlock primary @backslashchar{} 
-           --password `echo \$PASSWORD` @backslashchar{} 
+           --password `echo $PASSWORD` @backslashchar{} 
            --logfile $DATADIR/bzz.log @backslashchar{} 
            --logtostderr @backslashchar{} 
            --verbosity 6 @backslashchar{} 
@@ -53,23 +53,23 @@ and finally, launch geth on a private network (id 322)
            --networkid 322 @backslashchar{} 
            --nodiscover @backslashchar{} 
            --maxpeers 0 @backslashchar{} 
-           console   2>> \$DATADIR/bzz.glog
+           console   2>> $DATADIR/bzz.glog
 @end example
 
-At this verbosity level you should see plenty of output accumulating in the logfile. You can keep en eye on it using the command @command{tail -f \$DATADIR/bzz.glog}.
+At this verbosity level you should see plenty of output accumulating in the logfile. You can keep en eye on it using the command @command{tail -f $DATADIR/bzz.glog}.
 
 
-@subsubheading Uploading a file or directory to your local swarm instance
+@subsubsection Uploading a file or directory to your local swarm instance
 
 Included in the swarm repository is a shell script that makes it easy to upload a file to a local swarm node using http port 8500.
 
 @example
-    bash bzz/bzzup/bzzup.sh /path/to/myFileOrDirectory
+bash bzz/bzzup/bzzup.sh /path/to/myFileOrDirectory
 @end example
 
 If this command is successful, the output will be a hash
 @example
-   65b2a32ab2230d7d2bad2616e804d374921be68758009491cd52c727e37b4979
+65b2a32ab2230d7d2bad2616e804d374921be68758009491cd52c727e37b4979
 @end example
 
 If unsuccessful (for example if no local node is running) the output will simply be blank.
@@ -77,85 +77,130 @@ If unsuccessful (for example if no local node is running) the output will simply
 It is also possible to upload a file or directory from the console like this
 
 @example
-    hash = bzz.upload("/path/to/myfileordirectory", "index.html")
+hash = bzz.upload("/path/to/myFileOrDirectory", "index.html")
 @end example
 
 Here the second parameter (index.html) is to be mapped to the root path '/'.
 
-@subsubheading Downloading a file from your local swarm instance
+@subsubsection Downloading a file from your local swarm instance
 
 Your local swarm instance has an http interface running on port 8500 (by default). To download a file is thus a simple matter of pointing your browser to
 
 @example
-    http://localhost:8500/65b2a32ab2230d7d2bad2616e804d374921be68758009491cd52c727e37b4979
+http://localhost:8500/65b2a32ab2230d7d2bad2616e804d374921be68758009491cd52c727e37b4979
 @end example
 
 or, if you prefer, you can use the console 
 @example
-    bzz.get(hash)
+bzz.get(hash)
 @end example
 
 
 
 
-@subheading Manifests:
+@subsection Manifests:
 
-Manifests declare a list of paths associated with swarm entries.
-Urls can be matched on these paths effectively making the manifest a routing table and
-the manifest swarm entry is logically equivalent to a host.
+In general Manifests declare a list of strings associated with swarm entries. Before we get into generalities however, let us begin with an introductory example.
 
-* check manifest,  raw call
-* path matching, fallback, status
-* recursive resolution
-* insert/delete
-* downloadable
+@subsubheading A Manifest example - directory trees
 
-check manifest,  raw call
+Suppose we had used @command{bzzup.sh} described above to upload a directory to swarm instead of just a file:
 
 @example
-    wget -O - "http://localhost:8500/raw/65b2a32ab2230d7d2bad2616e804d374921be68758009491cd52c727e37b4979"
+bash bzz/bzzup/bzzup.sh /path/to/directory
 @end example
 
-Paths
+then the resulting hash points to a "manifest" - in this case a list of files within the directory along with thir swarm hashes. Let us take a closer look.
 
-* forced content type
-* html assets with relative paths in the browser
-* fallback to existing parent path with url preserved
-    * dynamic paths, resourceful routing, restful apis
-    * error pages
+@subsubheading The raw Manifest
+We can see the raw Manifest by prepending @code{raw/} to the URL like so
+@example
+    wget -O - "http://localhost:8500/raw/HASH"
+@end example
 
-The bzz scheme
+In our example it contains a list of all files contained in @code{/path/to/directory} together with their swarm ids (hashes) as well as their mime-types.
 
-* rewrite and proxy
-* bzz fully functional in console http url fetcher
+@subsubheading Path Matching on Manifests
+A useful feature of manifests is that Urls can be matched on the paths. In some sense this makes the manifest a routing table and so the manifest swarm entry acts as if it were a host.
 
-@subsubheading  http module for urls on the console
+More concretely, continuing in our example, we can access the file 
+@example
+/path/to/directory/subdirectory/filename
+@end example
+by pointing the browser to
+@example
+http://localhost:8500/HASH/subdirectory/filename
+@end example
 
-the console http module is a very simple http client, that understands the bzz scheme is bzz is enabled.
+Note: if the filename is @code{index.html} then it can be omitted.
 
-* `http.get(url)`
-* `http.loadScript(url)` should be same as JSRE.loadScript
+@subsubheading Manifests in general
+Although in our example above the manifest was essentially a file listing in a directory, there is no reason for a Manifest to take this form. Manifests simply match strings with swarm id's, and there is no requirement that the strings be of the form @code{path/to/file}. Indeed swarm treats @code{path/to/file} as just another identifying string and there is nothing special about the @code{/} character.
 
-@subsubheading domain name registration
+@subsubheading more to document
+
+@itemize @bullet
+@item check manifest,  raw call
+@item path matching, fallback, status
+@item recursive resolution
+@item insert/delete
+@item downloadable
+@end itemize
+
+@subheading Paths
+
+@itemize @bullet
+@item forced content type
+@item html assets with relative paths in the browser
+@item fallback to existing parent path with url preserved
+@item dynamic paths, resourceful routing, restful apis
+@item error pages
+@end itemize
+
+@subheading The bzz scheme
+
+
+@itemize @bullet
+@item rewrite and proxy
+@item bzz fully functional in console http url fetcher
+@end itemize
+
+@subsubsection  http module for urls on the console
+
+the console http module is a very simple http client, that understands the bzz scheme if bzz is enabled.
+
+@itemize @bullet
+@item `http.get(url)`
+@item `http.loadScript(url)` should be same as JSRE.loadScript
+@end itemize
+
+@subsubsection domain name registration
 
 Any hash can be registered with a domain name, that can be used in the host part of the bzz scheme.
 So it is exactly analogous to DNS, domain names and IP addresses.
 
-* name registration
-* name resolution in the browser
-* mimicking mutability by namereg (latest)
-* versioning by blockheight
+@itemize @bullet
+@item name registration
+@item name resolution in the browser
+@item mimicking mutability by namereg (latest)
+@item versioning by blockheight
+@end itemize
+
+
+@subsection 
 
 
 
-@subheading Bzz console API
+Bzz console API
 
-* `bzz.upload(localfspath, indexfile)` returns content hash
-* `bzz.download(bzzpath, localdirpath)` returns error
-* `bzz.put(content, contentType)` returns content hash
-* `bzz.get(bzzpath)` returns object with content, mime type, status code and content size
-* `bzz.register(address, hash, domain)` returns error
-* `bzz.resolve(domain)` returns content hash
+@itemize @bullet
+@item  `bzz.upload(localfspath, indexfile)` returns content hash
+@item `bzz.download(bzzpath, localdirpath)` returns error
+@item `bzz.put(content, contentType)` returns content hash
+@item `bzz.get(bzzpath)` returns object with content, mime type, status code and content size
+@item `bzz.register(address, hash, domain)` returns error
+@item `bzz.resolve(domain)` returns content hash
+@end itemize
 
 @example
 js
@@ -181,12 +226,14 @@ true
 bzz.register(primary, hash, "hello")
 @end example
 
-@subheading Using swarm for contract info
+@subsection Using swarm for contract info
 
-@subsubheading Prerequisites
+@subsubsection Prerequisites
 
-* globalRegistrar contract deployed
-* HashReg, UrlHint deployed and registered with globalRegistrar
+@itemize @bullet
+@item  globalRegistrar contract deployed
+@item HashReg, UrlHint deployed and registered with globalRegistrar
+@end itemize
 
 These need to be done only once for every chain. See appendix.
 
@@ -211,9 +258,9 @@ eth.getCode(urlHintAddr);
 
 If these checks are ok, you are all set up.
 
-@subsubheading Creating and deploying a contract
+@subsubsection Creating and deploying a contract
 
-@subsubheading Create contract and deploy compiled code to the blockchain
+@subsubsection Create contract and deploy compiled code to the blockchain
 
 @example
 js
@@ -239,7 +286,7 @@ multiply7 = eth.contract(abiDef).at(contractaddress);
 multiply7.multiply.call(6);
 @end example
 
-@subsubheading Deploying off-chain contract info
+@subsubsection Deploying off-chain contract info
 
 The contract.info substructure given back from the solidity compiler can be deployed with swarm.
 The resulting contenthash is registered in the HashReg.
@@ -252,7 +299,7 @@ admin.contractInfo.register(primary, contractaddress, contenthash);
 
 You need to wait till it is mined and confirmed.
 
-@subsubheading Contract usage from dapp (or user-side case)
+@subsubsection Contract usage from dapp (or user-side case)
 
 `admin.contractInfo.get` will magically work. If the url fetcher has the bzz protocol scheme enabled, then it tries to fetch it with the registered contenthash. (If there is no swarm or the content is not (yet) uploaded there, it gracefully falls back to the UrlHint, ie., it looks up the url hint for the contentHash, fetches its content, and verifies it against the contentHash for protection.)
 
@@ -281,7 +328,7 @@ NatSpec: Will multiply 6 by 7.
 Confirm? [y/n] y
 @end example
 
-@subsubheading Using name registrar for contracts
+@subsubsection Using name registrar for contracts
 
 And now we can go one step further and use the globalRegistrar name registry for contracts:
 
@@ -378,7 +425,7 @@ http.get("http://raw/album/?content\_type=\"text/plain\"")
 '{"entries":[{"path":"add.png","hash":"8fbac5d742128d4a2cd1c453201c9300280b9ea7f132eac66c0bb9e9dedeb3ff","contentType":"image/png","status":0},{"path":"back.png","hash":"f7ef5a708262258cc59b261849d1794dcafa9319848990dda05b1cf814ffe7c8","contentType":"image/png","status":0},{"path":"cut-","hash":"c1710a9cd0cd34261d80288f1b694fcf9ce814788457bd74bbaf5e1c08eab26e","contentType":"application/bzz-manifest+json","status":0},{"path":"d","hash":"b69bd4600643c2563934e36260b7f7b91e59cf6ab130854882833b922da639a9","contentType":"application/bzz-manifest+json","status":0},{"path":"eye.png","hash":"bc3fc186c7c02a7841acfb1de3e61bcef870e8d81588dd05827d028b5b310536","contentType":"image/png","status":0},{"path":"i","hash":"4ae40ee14730629c12937ccd732eef1e3b0ffb8df1b759ea9946aba5296c0bef","contentType":"application/bzz-manifest+json","status":0},{"path":"left.png","hash":"a6093a7b7b8fae95fee097125e90c4d1477d8948f1f24ac241cc4e2ff55872e1","contentType":"image/png","status":0},{"path":"mootools-","hash":"ebf08b45f54021e764c163b2b7083cb7a05ae4c88cce1986e0599e79036c16ad","contentType":"application/bzz-manifest+json","status":0},{"path":"noise.png","hash":"90254e6274ef150f5ccb7c61fd6bd9c0614abf18306d43b9e79a7f738f84831f","contentType":"image/png","status":0},{"path":"right.png","hash":"88a26306bd909a3bc34201a1e18c3f1767069a48019caedfb4fd64c8556521b9","contentType":"image/png","status":0},{"path":"throbber.gif","hash":"583bd22d262b2192399d97f5daf04516b620b95b607c94f5051f515fb4137d9d","contentType":"image/gif","status":0}]}'
 @end example
 
-@subsubheading Changes, versions, rollback
+@subsubsection Changes, versions, rollback
 
 @example
 js
@@ -431,9 +478,9 @@ js
 '{"entries":[{"path":"MSTR-Swarm-Logo.jpg","hash":"35e6a17fab09d7f84f1feacfe629a2c0660d6c3ca70db5c8ff2c7ac2c537ce1d","contentType":"image/jpeg","status":0},{"path":"","hash":"35e6a17fab09d7f84f1feacfe629a2c0660d6c3ca70db5c8ff2c7ac2c537ce1d","contentType":"image/jpeg","status":0}]}'
 @end example
 
-@subheading Appendix
+@subsection Appendix
 
-@subsubheading mine some ether on a private chain
+@subsubsection mine some ether on a private chain
 
 @example
 js
@@ -445,7 +492,7 @@ admin.sleepBlocks(10);
 admin.miner.stop()  ;
 @end example
 
-@subsubheading mine transactions on a private chain
+@subsubsection mine transactions on a private chain
 
 @example
 js
@@ -459,7 +506,7 @@ miner.stop();
 eth.getBlockTransactionCount("pending");
 @end example
 
-@subsubheading create and deploy GlobalRegistrar, HashReg and UrlHint
+@subsubsection create and deploy GlobalRegistrar, HashReg and UrlHint
 
 @example
 primary = eth.accounts[0];
