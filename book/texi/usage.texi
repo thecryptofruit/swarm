@@ -22,6 +22,9 @@
 @subsubheading Running your client
 To start a swarm node we must start geth with an empty data directory on a private network. First set aside an empty temporary directory to be the data store
 
+@codequotebacktick on
+@codequoteundirected on
+
 @example
  DATADIR=/tmp/BZZ/`date +%s`
 @end example
@@ -30,30 +33,30 @@ then make a new account using this directory
 
 @example
  PASSWORD="mypassword"
- /geth --datadir $DATADIR --password  `echo -n $PASSWORD` account new
+ /geth --datadir \$DATADIR --password  `echo -n \$PASSWORD` account new
 @end example
 
 and finally, launch geth on a private network (id 322)
 
 @example
-    ./geth --datadir $DATADIR \
-           --port 30301 \
-           --unlock primary \
-           --password `echo $PASSWORD` \
-           --logfile $DATADIR/bzz.log \
-           --logtostderr \
-           --verbosity 6 \
-           --rpc \
-           --rpcport 8101 \
-           --rpccorsdomain '*' \
-           --bzz \
-           --networkid 322 \
-           --nodiscover \
-           --maxpeers 0 \
-           console   2>> $DATADIR/bzz.glog
+    ./geth --datadir $DATADIR @backslashchar{} 
+           --port 30301 @backslashchar{} 
+           --unlock primary @backslashchar{} 
+           --password `echo \$PASSWORD` @backslashchar{} 
+           --logfile $DATADIR/bzz.log @backslashchar{} 
+           --logtostderr @backslashchar{} 
+           --verbosity 6 @backslashchar{} 
+           --rpc @backslashchar{} 
+           --rpcport 8101 @backslashchar{} 
+           --rpccorsdomain '*' @backslashchar{} 
+           --bzz @backslashchar{} 
+           --networkid 322 @backslashchar{} 
+           --nodiscover @backslashchar{} 
+           --maxpeers 0 @backslashchar{} 
+           console   2>> \$DATADIR/bzz.glog
 @end example
 
-At this verbosity level you should see plenty of output accumulating in the logfile. You can keep en eye on it using the command @command{tail -f $DATADIR/bzz.glog}.
+At this verbosity level you should see plenty of output accumulating in the logfile. You can keep en eye on it using the command @command{tail -f \$DATADIR/bzz.glog}.
 
 
 @subsubheading Uploading a file or directory to your local swarm instance
@@ -109,10 +112,11 @@ the manifest swarm entry is logically equivalent to a host.
 
 check manifest,  raw call
 
+@example
     wget -O - "http://localhost:8500/raw/65b2a32ab2230d7d2bad2616e804d374921be68758009491cd52c727e37b4979"
+@end example
 
-
-# Paths
+Paths
 
 * forced content type
 * html assets with relative paths in the browser
@@ -120,19 +124,19 @@ check manifest,  raw call
     * dynamic paths, resourceful routing, restful apis
     * error pages
 
-# The bzz scheme
+The bzz scheme
 
 * rewrite and proxy
 * bzz fully functional in console http url fetcher
 
-##  http module for urls on the console
+@subsubheading  http module for urls on the console
 
 the console http module is a very simple http client, that understands the bzz scheme is bzz is enabled.
 
 * `http.get(url)`
 * `http.loadScript(url)` should be same as JSRE.loadScript
 
-# domain name registration
+@subsubheading domain name registration
 
 Any hash can be registered with a domain name, that can be used in the host part of the bzz scheme.
 So it is exactly analogous to DNS, domain names and IP addresses.
@@ -144,7 +148,7 @@ So it is exactly analogous to DNS, domain names and IP addresses.
 
 
 
-# Bzz console API
+@subheading Bzz console API
 
 * `bzz.upload(localfspath, indexfile)` returns content hash
 * `bzz.download(bzzpath, localdirpath)` returns error
@@ -153,7 +157,8 @@ So it is exactly analogous to DNS, domain names and IP addresses.
 * `bzz.register(address, hash, domain)` returns error
 * `bzz.resolve(domain)` returns content hash
 
-```js
+@example
+js
 hash = bzz.upload("/path/to/my/directory")
 
 hash = bzz.put("console.log(\"hello from console\")", "application/javascript")
@@ -174,11 +179,11 @@ hello from console
 true
 
 bzz.register(primary, hash, "hello")
-```
+@end example
 
-# Using swarm for contract info
+@subheading Using swarm for contract info
 
-## Prerequisites
+@subsubheading Prerequisites
 
 * globalRegistrar contract deployed
 * HashReg, UrlHint deployed and registered with globalRegistrar
@@ -187,132 +192,146 @@ These need to be done only once for every chain. See appendix.
 
 If this was successful, you will see these commands respond with addresses.
 
-```js
+@example
+js
 registrar.owner("HashReg");
 registrar.owner("UrlHint");
 registrar.addr("HashReg");
 registrar.addr("UrlHint");
-```
+@end example
 
 and these commands will respond with code:
 
-```js
+@example
+js
 eth.getCode(globalRegistrarAddr);
 eth.getCode(hashRegAddr);
 eth.getCode(urlHintAddr);
-```
+@end example
 
 If these checks are ok, you are all set up.
 
-## Creating and deploying a contract
+@subsubheading Creating and deploying a contract
 
-### Create contract and deploy compiled code to the blockchain
+@subsubheading Create contract and deploy compiled code to the blockchain
 
-```js
+@example
+js
 admin.contractInfo.stop();
 
-source = "contract test {\n" +
-"   /// @@notice will multiply `a` by 7.\n" +
-"   function multiply(uint a) returns(uint d) {\n" +
-"      return a * 7;\n" +
-"   }\n" +
+source = "contract test {@backslashchar{}n" +
+"   /// @@notice will multiply `a` by 7.@backslashchar{}n" +
+"   function multiply(uint a) returns(uint d) {@backslashchar{}n" +
+"      return a * 7;@backslashchar{}n" +
+"   }@backslashchar{}n" +
 "} ";
 contract = eth.compile.solidity(source).test;
 contractaddress = eth.sendTransaction({from: primary, data: contract.code});
-```
+@end example
 
 Check if they arrived on the blockchain and that they execute your calls by:
 
-```js
+@example
+js
 code = eth.getCode(contractaddress);
 abiDef = contract.info.abiDefinition;
 multiply7 = eth.contract(abiDef).at(contractaddress);
 multiply7.multiply.call(6);
-```
+@end example
 
-### Deploying off-chain contract info
+@subsubheading Deploying off-chain contract info
 
 The contract.info substructure given back from the solidity compiler can be deployed with swarm.
 The resulting contenthash is registered in the HashReg.
 
-```js
+@example
+js
 contenthash = bzz.put(JSON.stringify(contract.info), "application/eth-contractinfo+json");
 admin.contractInfo.register(primary, contractaddress, contenthash);
-```
+@end example
 
 You need to wait till it is mined and confirmed.
 
-### Contract usage from dapp (or user-side case)
+@subsubheading Contract usage from dapp (or user-side case)
 
 `admin.contractInfo.get` will magically work. If the url fetcher has the bzz protocol scheme enabled, then it tries to fetch it with the registered contenthash. (If there is no swarm or the content is not (yet) uploaded there, it gracefully falls back to the UrlHint, ie., it looks up the url hint for the contentHash, fetches its content, and verifies it against the contentHash for protection.)
 
 Note that the user needs the contractaddress but nothing else.
 
-```js
+@example
+js
 info = admin.contractInfo.get(contractaddress);
 multiply7 = eth.contract(info.abiDefinition).at(contractaddress);
-```
+@end example
 
 Now that we  switch on natspec and try:
 
-```js
+@example
+js
 admin.contractInfo.start();
 multiply7.multiply.sendTransaction(6, { from: primary });
-```
+@end example
 
 The following custom confirmation message should appear on the console and 6 shall be multiplied by seven:
 
-```js
+@example
+js
 > myMultiply7.multiply.sendTransaction(6)
 NatSpec: Will multiply 6 by 7.
 Confirm? [y/n] y
-```
+@end example
 
-## Using name registrar for contracts
+@subsubheading Using name registrar for contracts
 
 And now we can go one step further and use the globalRegistrar name registry for contracts:
 
-```js
+@example
+js
 admin.contractInfo.stop();
 registrar.reserve.sendTransaction("multiply7", {from:primary})
 registrar.setAddress.sendTransaction("multiply7", contractaddress, true, {from:primary})
-```
+@end example
 
 You need to wait for these 2 transactions to be confirmed. You can check if arrived:
 
-```js
+@example
+js
 registrar.owner("multiply7")
-```
+@end example
 
 Now the contract name is sufficient to use this contract from a Dapp.
 
-```js
+@example
+js
 contractaddress = registrar.addr("multiply7")
 info = admin.contractInfo.get(contractaddress);
 multiply7 = eth.contract(info.abiDefinition).at(contractaddress);
-```
+@end example
 
 If info is only needed because of the Abi, then one could define this function:
 
-```js
+@example
+js
 getContract = function(name) {
   contractaddress = registrar.addr(name)
   info = admin.contractInfo.get(contractaddress);
   return eth.contract(info.abiDefinition).at(contractaddress);
 }
-```
-
-#
+@end example
 
 
-```js
+
+
+@example
+js
 web3.sha3(eth.getCode(registrar.addr("multiply7")))
 51b68b0f44e8c6ef096797efbed04185fd4c4a639cd5ffe52e96076519c1385d
-```
+@end example
 
-# bzz domain names, registration, resolution
+@subheading bzz domain names, registration, resolution
 
-```js
+@example
+js
 bzz.upload("/Users/tron/Work/ethereum/go-ethereum/bzz.demo/luzhany/")
 '51b68b0f44e8c6ef096797efbed04185fd4c4a639cd5ffe52e96076519c1385d'
 bzz.register(primary, "album", "0x51b68b0f44e8c6ef096797efbed04185fd4c4a639cd5ffe52e96076519c1385d")
@@ -320,65 +339,74 @@ true
 bzz.resolve("album")
 unable to resolve 'album': content hash not found for '0x3ae883aa85e0554e92a3ab951b5cf9f7e045e742618560ec3fe62d80800e8673'
 undefined
-```
+@end example
 
 oops you need to mine it or wait for concensus.
 
-```js
+@example
+js
 admin.miner.start(); admin.debug.waitForBlocks(eth.blockNumber+1); admin.miner.stop();
 true
 bzz.resolve("album")
 '0x51b68b0f44e8c6ef096797efbed04185fd4c4a639cd5ffe52e96076519c1385d'
-```
+@end example
 
 homomorphic:
 
-```js
+@example
+js
 bzz.download("/album", "/tmp/album")
 undefined
 bzz.upload("/tmp/album")
 '51b68b0f44e8c6ef096797efbed04185fd4c4a639cd5ffe52e96076519c1385d'
-```
+@end example
 
 Open a page via path (matching, fallbacks errors)
 
-```js
+@example
+js
 http.get("bzz://51b68b0f44e8c6ef096797efbed04185fd4c4a639cd5ffe52e96076519c1385d/index.html")
 http.get("bzz://album/index.html")
 http.get("bzz://album/index.css")
-```
+@end example
 
-# t get raw content, override these
-```js
-http.get("http://raw/album/?content_type=\"text/plain\"")
+to get raw content, override these
+
+@example
+js
+http.get("http://raw/album/?content\_type=\"text/plain\"")
 '{"entries":[{"path":"add.png","hash":"8fbac5d742128d4a2cd1c453201c9300280b9ea7f132eac66c0bb9e9dedeb3ff","contentType":"image/png","status":0},{"path":"back.png","hash":"f7ef5a708262258cc59b261849d1794dcafa9319848990dda05b1cf814ffe7c8","contentType":"image/png","status":0},{"path":"cut-","hash":"c1710a9cd0cd34261d80288f1b694fcf9ce814788457bd74bbaf5e1c08eab26e","contentType":"application/bzz-manifest+json","status":0},{"path":"d","hash":"b69bd4600643c2563934e36260b7f7b91e59cf6ab130854882833b922da639a9","contentType":"application/bzz-manifest+json","status":0},{"path":"eye.png","hash":"bc3fc186c7c02a7841acfb1de3e61bcef870e8d81588dd05827d028b5b310536","contentType":"image/png","status":0},{"path":"i","hash":"4ae40ee14730629c12937ccd732eef1e3b0ffb8df1b759ea9946aba5296c0bef","contentType":"application/bzz-manifest+json","status":0},{"path":"left.png","hash":"a6093a7b7b8fae95fee097125e90c4d1477d8948f1f24ac241cc4e2ff55872e1","contentType":"image/png","status":0},{"path":"mootools-","hash":"ebf08b45f54021e764c163b2b7083cb7a05ae4c88cce1986e0599e79036c16ad","contentType":"application/bzz-manifest+json","status":0},{"path":"noise.png","hash":"90254e6274ef150f5ccb7c61fd6bd9c0614abf18306d43b9e79a7f738f84831f","contentType":"image/png","status":0},{"path":"right.png","hash":"88a26306bd909a3bc34201a1e18c3f1767069a48019caedfb4fd64c8556521b9","contentType":"image/png","status":0},{"path":"throbber.gif","hash":"583bd22d262b2192399d97f5daf04516b620b95b607c94f5051f515fb4137d9d","contentType":"image/gif","status":0}]}'
-```
+@end example
 
-## Changes, versions, rollback
+@subsubheading Changes, versions, rollback
 
-```js
+@example
+js
 bzz.register(primary, "swarm", bzz.upload("bzz.demo/swarm-inside.png", "swarm-inside.png"))
-```
+@end example
 
 after some mining or wait, take a look at http://localhost:8500/swarm/
 Now resolver should work too:
 
-```js
+@example
+js
 bzz.resolve("swarm")
 '0x58c604de89bf3ecbbbfc90948b273ae3f956e6106babd5e8bacb3615213d3c2e'
-```
+@end example
 
 lets remember this version, just record the current block.
 
-```js
+@example
+js
 v1 = eth.blockNumber
 31
-```
+@end example
 
 [http://localhost:8500/swarm/]
 Now i realise i left out the logo, so
 
-```js
+@example
+js
 bzz.register(primary, "swarm", bzz.upload("bzz.demo/MSTR-Swarm-Logo.jpg", "MSTR-Swarm-Logo.jpg"))
 true
 miner.start(); admin.sleepBlocks(1); miner.stop();
@@ -387,7 +415,7 @@ bzz.resolve("swarm")
 '0x8232b8259393019920d57737c1073c78a6cee18ffa8bfcfdc0cd378a732415a8'
 v2 = eth.blockNumber
 33
-```
+@end example
 
 the full historical record is addressable:
 
@@ -395,29 +423,32 @@ the full historical record is addressable:
 
 Finally you can see it with the bzz-aware http client:
 
-```js
-> http.get("bzz://raw/swarm:"+v1+"?content_type=text/json")
+@example
+js
+> http.get("bzz://raw/swarm:"+v1+"?content\_type=text/json")
 '{"entries":[{"path":"swarm-inside.png","hash":"a41a826e6dae90816e432993576d2418c33f40f4e6774df457706e2890202228","contentType":"image/png","status":0},{"path":"","hash":"a41a826e6dae90816e432993576d2418c33f40f4e6774df457706e2890202228","contentType":"image/png","status":0}]}'
-> http.get("bzz://raw/swarm:"+v2+"?content_type=text/json")
+> http.get("bzz://raw/swarm:"+v2+"?content\_type=text/json")
 '{"entries":[{"path":"MSTR-Swarm-Logo.jpg","hash":"35e6a17fab09d7f84f1feacfe629a2c0660d6c3ca70db5c8ff2c7ac2c537ce1d","contentType":"image/jpeg","status":0},{"path":"","hash":"35e6a17fab09d7f84f1feacfe629a2c0660d6c3ca70db5c8ff2c7ac2c537ce1d","contentType":"image/jpeg","status":0}]}'
-```
+@end example
 
-# Appendix
+@subheading Appendix
 
-## mine some ether on a private chain
+@subsubheading mine some ether on a private chain
 
-```js
+@example
+js
 primary = eth.accounts[0];
 balance = web3.fromWei(eth.getBalance(primary), "ether");
 
 admin.miner.start(8);
 admin.sleepBlocks(10);
 admin.miner.stop()  ;
-```
+@end example
 
-## mine transactions on a private chain
+@subsubheading mine transactions on a private chain
 
-```js
+@example
+js
 eth.getBlockTransactionCount("pending");
 eth.getBlock("pending", true).transactions;
 
@@ -426,36 +457,37 @@ admin.sleepBlocks(eth.blockNumber+1);
 miner.stop();
 
 eth.getBlockTransactionCount("pending");
-```
+@end example
 
-## create and deploy GlobalRegistrar, HashReg and UrlHint
+@subsubheading create and deploy GlobalRegistrar, HashReg and UrlHint
 
-```
+@example
 primary = eth.accounts[0];
 globalRegistrarAddr = admin.setGlobalRegistrar(primary);
 hashRegAddr = admin.setHashReg(primary);
 urlHintAddr = admin.setUrlHint(primary);
-```
+@end example
 
 You need to mine or wait till the txs are all picked up.
 Initialise the registrar on the new address and check if the other registars are registered:
 
-```js
+@example
+js
 registrar = GlobalRegistrar.at(globalRegistrarAddr);
 registrar.owner("HashReg");
 registrar.owner("UrlHint");
 registrar.addr("HashReg");
 registrar.addr("UrlHint");
-```
+@end example
 
 Next time you only need to specify the address of the GlobalRegistrar (for the live chain it is encoded in the code)
 
-```
+@example
 admin.setGlobalRegistrar("0x6e332ff2d38e8d6f21bee5ab9a1073166382ce33")
 registrar = GlobalRegistrar.at(GlobalRegistrarAddr);
 registrar.owner("HashReg");
 registrar.owner("UrlHint");
 registrar.addr("HashReg");
 registrar.addr("UrlHint");
-```
+@end example
 
