@@ -104,13 +104,13 @@ In general Manifests declare a list of strings associated with swarm entries. Be
 
 @subsubheading A Manifest example - directory trees
 
-Suppose we had used @command{bzzup.sh} described above to upload a directory to swarm instead of just a file:
+Suppose we had used @command{bzzup.sh} (as described above) to upload a directory to swarm instead of just a file:
 
 @example
 bash bzz/bzzup/bzzup.sh /path/to/directory
 @end example
 
-then the resulting hash points to a "manifest" - in this case a list of files within the directory along with thir swarm hashes. Let us take a closer look.
+then the resulting hash points to a "manifest" - in this case a list of files within the directory along with their swarm hashes. Let us take a closer look.
 
 @subsubheading The raw Manifest
 We can see the raw Manifest by prepending @code{raw/} to the URL like so
@@ -118,7 +118,22 @@ We can see the raw Manifest by prepending @code{raw/} to the URL like so
     wget -O - "http://localhost:8500/raw/HASH"
 @end example
 
-In our example it contains a list of all files contained in @code{/path/to/directory} together with their swarm ids (hashes) as well as their mime-types.
+In our example it contains a list of all files contained in @code{/path/to/directory} together with their swarm ids (hashes) as well as their mime-types. It may look like this: (whitespace added here to make it legible)
+
+@example
+{"entries":[{"hash":"HASH-for-fileA1",
+"path":"directoryA/fileA1",
+"contentType":"text/plain"},
+{"hash":"HASH-for-fileB2",
+"path":"directoryA/directoryB/fileB2",
+"contentType":"text/plain"},
+{"hash":"HASH-for-fileB1",
+"path":"directoryA/directoryB/fileB1",
+"contentType":"text/plain"},
+{"hash":"HASH-for-fileC1",
+"path":"directoryA/directoryC/fileC1",
+"contentType":"text/plain"}]}
+@end example
 
 @subsubheading Path Matching on Manifests
 A useful feature of manifests is that Urls can be matched on the paths. In some sense this makes the manifest a routing table and so the manifest swarm entry acts as if it were a host.
