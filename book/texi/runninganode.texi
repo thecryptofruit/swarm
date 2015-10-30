@@ -127,139 +127,139 @@ This section lists all the options you can set in the config file @file{<datadir
 @node Main parameters, Storage parameters, Configuration options, Configuration options
 @subsection Main parameters
 
-@deffn {} Path (@file{<datadir>/bzz/<baseaccount>})
-@deffnx {} {}  swarm data directory
-@end deffn
+@defopt Path (@file{<datadir>/bzz/<baseaccount>})
+  swarm data directory
+@end defopt
 
-@deffn {} Port (8500)
-@deffnx {} {}  port to run the http proxy server
-@end deffn
+@defopt Port (8500)
+  port to run the http proxy server
+@end defopt
 
-@deffn {} PublicKey
-@deffnx {} {}  Public key of your swarm base account
-@end deffn
+@defopt PublicKey
+  Public key of your swarm base account
+@end defopt
 
-@deffn {} BzzKey
-@deffnx {} {}  Swarm node base address (@math{hash(PublicKey)}). This is used to decide storage based on radius and routing by kademlia.
-@end deffn
+@defopt BzzKey
+  Swarm node base address (@math{hash(PublicKey)}). This is used to decide storage based on radius and routing by kademlia.
+@end defopt
 
 
 @node Storage parameters, Chunker/bzzhash parameters, Main parameters, Configuration options
 @subsection Storage parameters
 
-@deffn {} ChunkDbPath (@file{<datadir>/bzz/<baseaccount>/chunks})
-@deffnx {} {}  leveldb directory for persistent storage of chunks
-@end deffn
+@defopt ChunkDbPath (@file{<datadir>/bzz/<baseaccount>/chunks})
+  leveldb directory for persistent storage of chunks
+@end defopt
 
-@deffn {} DbCapacity (5000000)
-@deffnx {} {}  chunk storage capacity, number of chunks (5M is roughly 20-25GB)
-@end deffn
+@defopt DbCapacity (5000000)
+  chunk storage capacity, number of chunks (5M is roughly 20-25GB)
+@end defopt
 
-@deffn {} CacheCapacity (5000)
-@deffnx {} {}  Number of recent chunks cached in memory
-@end deffn
+@defopt CacheCapacity (5000)
+  Number of recent chunks cached in memory
+@end defopt
 
-@deffn {} Radius (0)
-@deffnx {} {}  Storage Radius: minimum proximity order (number of identical prefix bits of address key) for chunks to warrant storage. Given a storage radius @math{r} and total number of chunks in the network @math{n}, the node stores @math{n*2^{-r}} chunks minimum. If you allow @math{b} bytes for guaranteed storage and the chunk storage size is @math{c}, your radius should be set to @math{int(log_2(nc/b))}
-@end deffn
+@defopt Radius (0)
+  Storage Radius: minimum proximity order (number of identical prefix bits of address key) for chunks to warrant storage. Given a storage radius @math{r} and total number of chunks in the network @math{n}, the node stores @math{n*2^{-r}} chunks minimum. If you allow @math{b} bytes for guaranteed storage and the chunk storage size is @math{c}, your radius should be set to @math{int(log_2(nc/b))}
+@end defopt
 
 @node Chunker/bzzhash parameters, Hive/Kademlia parameters, Storage parameters, Configuration options
 @subsection Chunker/bzzhash parameters
 @cindex chunker
 @cindex bzzhash
 
-@deffn {} Branches (128)
-@deffnx {} {}  Number of branches in bzzhash merkle tree. @math{Branches*ByteSize(Hash)} gives the datasize of chunks.
-@end deffn
+@defopt Branches (128)
+  Number of branches in bzzhash merkle tree. @math{Branches*ByteSize(Hash)} gives the datasize of chunks.
+@end defopt
 
-@deffn {} Hash (SHA256)
-@deffnx {} {}  The hash function used by the chunker (base hash algo of bzzhash): SHA3 or SHA256
-@end deffn
+@defopt Hash (SHA256)
+  The hash function used by the chunker (base hash algo of bzzhash): SHA3 or SHA256
+@end defopt
 
-@deffn {} SplitTimeout (120s)
-@deffnx {} {}  Maximum time before splitting a document times out
-@end deffn
+@defopt SplitTimeout (120s)
+  Maximum time before splitting a document times out
+@end defopt
 
-@deffn {} JoinTimeout (120s)
-@deffnx {} {}  Maximum time before joining a document times out. Not used with Lazy Reader.
-@end deffn
+@defopt JoinTimeout (120s)
+  Maximum time before joining a document times out. Not used with Lazy Reader.
+@end defopt
 
 @node Hive/Kademlia parameters, SWAP parameters, Chunker/bzzhash parameters, Configuration options
 @subsection Hive/Kademlia parameters
 @cindex Kademlia
 
-@deffn {} CallInterval (1s)
-@deffnx {} {}  Time elapsed before attempting to connect to the most needed peer
-@end deffn
+@defopt CallInterval (1s)
+  Time elapsed before attempting to connect to the most needed peer
+@end defopt
 
-@deffn {} BucketSize (3)
-@deffnx {} {}  Maximum number of active peers in a kademlia proximity bin. If new peer is added, the worst peer in the bin is dropped.
-@end deffn
+@defopt BucketSize (3)
+  Maximum number of active peers in a kademlia proximity bin. If new peer is added, the worst peer in the bin is dropped.
+@end defopt
 
-@deffn {} MaxProx (10)
-@deffnx {} {}  Highest Proximity order (i.e., Maximum number of identical prefix bits of address key) considered distinct. Given the total number of nodes in the network @math{N}, MaxProx should be larger than @math{log_2(N/ProxBinSize)}), safely @math{log_2(N)}.
-@end deffn
+@defopt MaxProx (10)
+  Highest Proximity order (i.e., Maximum number of identical prefix bits of address key) considered distinct. Given the total number of nodes in the network @math{N}, MaxProx should be larger than @math{log_2(N/ProxBinSize)}), safely @math{log_2(N)}.
+@end defopt
 
-@deffn {} ProxBinSize (8)
-@deffnx {} {}  Number of most proximate nodes lumped together in the most proximate kademlia bin
-@end deffn
+@defopt ProxBinSize (8)
+  Number of most proximate nodes lumped together in the most proximate kademlia bin
+@end defopt
 
-@deffn {} KadDbPath (@file{<datadir>/bzz/<baseaccount>/bzz-peers.json})
-@deffnx {} {}  json file path storing the known bzz peers used to bootstrap kademlia table.
-@end deffn
+@defopt KadDbPath (@file{<datadir>/bzz/<baseaccount>/bzz-peers.json})
+  json file path storing the known bzz peers used to bootstrap kademlia table.
+@end defopt
 
 @node SWAP parameters,  , Hive/Kademlia parameters, Configuration options
 @subsection SWAP parameters
 @cindex SWAP
 
-@deffn {} BuyAt (@math{2*10^{10}} wei)
-@deffnx {} {}  highest accepted price per chunk in wei
-@end deffn
+@defopt BuyAt (@math{2*10^{10}} wei)
+  highest accepted price per chunk in wei
+@end defopt
 
-@deffn {} SellAt (@math{2*10^{10}} wei)
-@deffnx {} {}  offered price per chunk in wei
-@end deffn
+@defopt SellAt (@math{2*10^{10}} wei)
+  offered price per chunk in wei
+@end defopt
 
-@deffn {} PayAt (100 chunks)
-@deffnx {} {}  Maximum number of chunks served without receiving a cheque. Debt tolerance.
-@end deffn
+@defopt PayAt (100 chunks)
+  Maximum number of chunks served without receiving a cheque. Debt tolerance.
+@end defopt
 
-@deffn {} DropAt ()
-@deffnx {} {}  Maximum number of chunks served without receiving a cheque. Debt tolerance.
-@end deffn
+@defopt DropAt ()
+  Maximum number of chunks served without receiving a cheque. Debt tolerance.
+@end defopt
 
 
-@deffn {} AutoCashInterval (@math{3*10^{11}}, 5 minutes)
-@deffnx {} {}  Maximum Time before any outstanding cheques are cashed
-@end deffn
+@defopt AutoCashInterval (@math{3*10^{11}}, 5 minutes)
+  Maximum Time before any outstanding cheques are cashed
+@end defopt
 
-@deffn {} AutoCashThreshold (@math{5*10^{13}})
-@deffnx {} {}  Maximum total amount of uncashed cheques in Wei
-@end deffn
+@defopt AutoCashThreshold (@math{5*10^{13}})
+  Maximum total amount of uncashed cheques in Wei
+@end defopt
 
-@deffn {} AutoDepositInterval (@math{3*10^{11}}, 5 minutes)
-@deffnx {} {}  Maximum time before cheque book is replenished if necessary by sending funds from the baseaccount
-@end deffn
+@defopt AutoDepositInterval (@math{3*10^{11}}, 5 minutes)
+  Maximum time before cheque book is replenished if necessary by sending funds from the baseaccount
+@end defopt
 
-@deffn {} AutoDepositThreshold (@math{5*10^{13}})
-@deffnx {} {}  Minimum balance in Wei required before replenishing the cheque book
-@end deffn
+@defopt AutoDepositThreshold (@math{5*10^{13}})
+  Minimum balance in Wei required before replenishing the cheque book
+@end defopt
 
-@deffn {} AutoDepositBuffer (@math{10^{14}})
-@deffnx {} {}  Maximum amount of Wei expected as a safety credit buffer on the cheque book
-@end deffn
+@defopt AutoDepositBuffer (@math{10^{14}})
+  Maximum amount of Wei expected as a safety credit buffer on the cheque book
+@end defopt
 
-@deffn {} PublicKey (PublicKey(bzzaccount))
-@deffnx {} {}  Public key of your swarm base account use
-@end deffn
+@defopt PublicKey (PublicKey(bzzaccount))
+  Public key of your swarm base account use
+@end defopt
 
-@deffn {} Contract ()
-@deffnx {} {}  Address of the cheque book contract deployed on the Ethereum blockchain. If blank, a new chequebook contract will be deployed.
-@end deffn
+@defopt Contract ()
+  Address of the cheque book contract deployed on the Ethereum blockchain. If blank, a new chequebook contract will be deployed.
+@end defopt
 
-@deffn {} Beneficiary (Address(PublicKey))
-@deffnx {} {}  Ethereum account address serving as beneficiary of incoming cheques
-@end deffn
+@defopt Beneficiary (Address(PublicKey))
+  Ethereum account address serving as beneficiary of incoming cheques
+@end defopt
 
 @node Getting started,  , Configuration options, Running a node
 @section Getting started
@@ -271,6 +271,130 @@ By default, the config file is sought under @file{<datadir>/bzz/<bzzaccount>/con
 @example
 geth --bzzaccount 0 --unlock
 @end example
+
+
+@menu
+* Setting up SWAP::
+@end menu
+
+@node Setting up SWAP,  , Getting started, Getting started
+@subsection Setting up SWAP
+
+SWAP (Swarm accounting protocol) is the  system that allows fair utilisation of bandwidth (see @ref{Incentivisation}, esp. @ref{SWAP -- Swarm Accounting Protocol}).
+When the client is launched and the chequebook contract does not exist or the given contract is invalid, the client attempts to autodeploy a chequebook:
+@cindex chequebook
+@cindex autodeploy (chequebook contract)
+
+@smallquotation
+[BZZ] SWAP Deploying new chequebook (owner: 0xe10536ae628f7d6e319435ef9b429dcdc085e491)
+@end smallquotation
+
+If you already have a valid chequebook on the blockchain you can just enter it in the config file @code{Contract} field.
+@cindex chequebook contract address (@code{Contract} configuration parameter)
+@vrindex Contract, chequebook contract address
+
+You can set a separate account as beneficiary to which the cashed cheque payment for your services are to be credited. Set it on the @code{Beneficiary} field in the config file.
+@cindex benefieciary (@code{Beneficiary} configuration parameter)
+@vrindex Beneficiary, recipient address for service payments
+
+However, as the baseaccount has no funds, autodeployment fails already at sending the transaction due to low balance. Note that this can also happen if your blockchain is not synchronised.
+
+
+@smallquotation
+[BZZ] SWAP unable to deploy new chequebook: unable to send chequebook creation transaction: Account does not exist or account balance too low...retrying in 10s
+@end smallquotation
+
+Now if you connect to another bzz capable node, the arrangement will be that you cannot do purchase. If the remote peers contract is found to be a valid chequebook, then selling is enabled, otherwise it is not.
+Selling is also disabled if remote peer advertise a lower maximum accepted chunk price than our offer.
+@cindex maximum accepted chunk price (@code{BuyAt})
+@cindex offered chunk price (@code{BuyAt})
+@vrindex SellAt, offered chunk price
+@vrindex BuyAt, maximum accepted chunk price
+
+@smallquotation
+[BZZ] SWAP arrangement with <enode://23ae0e62f97833d542ad742ab125b405b1892f1385b4c27ba309b547906228dd7e81069f2d4c85e0518d360c7aaf9a528c57a9cd1d97d28a4c6bc93b7d2aa4fb@@195.228.155.76:30301>: purchase from peer disabled; selling to peer disabled)
+@end smallquotation
+
+Since no business is possible here, the connection is idle until at least one party has a contract. In fact, this is only enabled for a test phase.
+If one is not allowed to purchase, no outgoing requests are allowed. If we are trying to download content we dont have locally, the request might fail (unless we got credit with other peers).
+
+@smallquotation
+[BZZ] netStore.startSearch: unable to send retrieveRequest to peer [<addr>]: [SWAP] <enode://23ae0e62f97833d542ad742ab125b405b1892f1385b4c27ba309b547906228dd7e81069f2d4c85e0518d360c7aaf9a528c57a9cd1d97d28a4c6bc93b7d2aa4fb@@195.228.155.76:30301> we cannot have debt (unable to buy)
+@end smallquotation
+
+Once one of the nodes has funds (say after mining a bit), and the network is mining, the autodeployment eventually succeeds:
+
+@smallquotation
+[CHEQUEBOOK] chequebook deployed at 0x77de9813e52e3a37d06c0fc845e207bfc8835ea7 (owner: 0xe10536ae628f7d6e319435ef9b429dcdc085e491)
+[CHEQUEBOOK] new chequebook initialised from 0x77de9813e52e3a37d06c0fc845e207bfc8835ea7 (owner: 0xe10536ae628f7d6e319435ef9b429dcdc085e491)
+[BZZ] SWAP auto deposit ON for 0xe10536 -> 0x77de98: interval = 5m0s, threshold = 50000000000000, buffer = 100000000000000)
+[BZZ] Swarm: new chequebook set: saving config file, resetting all connections in the hive
+[KΛÐ]: remove node enode://23ae0e62f97833d542ad742ab125b405b1892f1385b4c27ba309b547906228dd7e81069f2d4c85e0518d360c7aaf9a528c57a9cd1d97d28a4c6bc93b7d2aa4fb@@195.228.155.76:30301 from table
+@end smallquotation
+
+Once the node deployed a new chequebook its address is set in the config file and all connections are dropped to be reset with the new conditions. Once we reconnect, purchase in one direction should be enabled. The logs from the point of view of the peer with no valid chequebook:
+
+
+@smallquotation
+[CHEQUEBOOK] initialised inbox (0x95850c6871c43d237d1c83bc06a1d4e93bceee6c -> 0xa5df94be30159a9f8078ebe9a6bc7b586bbef1e5) expected signer: 041e185925bb92deb0335a7705240ef145a2b96bcd608a323dc8e7b26ae47cf5423d9a60215a34abbfd9a5686c405f55805f1e9d81df242688702cf5e73cf8d618
+[SWAP] <enode://23ae0e62f97833d542ad742ab125b405b1892f1385b4c27ba309b547906228dd7e81069f2d4c85e0518d360c7aaf9a528c57a9cd1d97d28a4c6bc93b7d2aa4fb@@195.228.155.76:30301> set autocash to every 5m0s, max uncashed limit: 50000000000000
+[SWAP] <enode://23ae0e62f97833d542ad742ab125b405b1892f1385b4c27ba309b547906228dd7e81069f2d4c85e0518d360c7aaf9a528c57a9cd1d97d28a4c6bc93b7d2aa4fb@@195.228.155.76:30301> autodeposit off (not buying)
+[SWAP] <enode://23ae0e62f97833d542ad742ab125b405b1892f1385b4c27ba309b547906228dd7e81069f2d4c85e0518d360c7aaf9a528c57a9cd1d97d28a4c6bc93b7d2aa4fb@@195.228.155.76:30301> remote profile set: pay at: 100, drop at: 10000, buy at: 20000000000, sell at: 20000000000
+[BZZ] SWAP arrangement with <enode://23ae0e62f97833d542ad742ab125b405b1892f1385b4c27ba309b547906228dd7e81069f2d4c85e0518d360c7aaf9a528c57a9cd1d97d28a4c6bc93b7d2aa4fb@@195.228.155.76:30301>: purchase from peer disabled; selling to peer enabled at 20000000000 wei/chunk)
+@end smallquotation
+
+Depending on autodeposit settings, the chequebook will be regularly replenished:
+@cindex autodeposit
+
+
+@smallquotation
+[BZZ] SWAP auto deposit ON for 0x6d2c5b -> 0xefbb0c: interval = 5m0s, threshold = 50000000000000, buffer = 100000000000000)
+swap03.log:I1028 10:03:40.576238   59241 cheque.go:358] deposited 100000000000000 wei to chequebook (0xefbb0c02c4aa745ffd8866ff923578555ab16dea, balance: 100000000000000, target: 100000000000000)
+@end smallquotation
+
+
+The peer with no chequebook first should not be allowed to download, retrieve requests will not go out.
+Now the other is able to pay, so they can retrieve chunks from the first peer and puts them in positive, which they can then use to retrieve as well.
+However only down to 0 balance, after that no more requests allowed to go out
+
+@smallquotation
+[BZZ] netStore.startSearch: unable to send retrieveRequest to peer [aff89da0c66cc6368113e3c8df9cdfb31a3f69f61db7c102c06d0623e5671c01]: [SWAP] <enode://23ae0e62f97833d542ad742ab125b405b1892f1385b4c27ba309b547906228dd7e81069f2d4c85e0518d360c7aaf9a528c57a9cd1d97d28a4c6bc93b7d2aa4fb@@195.228.155.76:30301> we cannot have debt (unable to buy)
+@end smallquotation
+
+If a malicious peer tries to send request the remote peer will know that they got no contract and interprets it as adverserial behaviour resulting in the peer being dropped.
+Finally we start mining, restart the node, the second one autodeploys, the peers sync their chains and reconnect and then all goes smooth:
+
+@smallquotation
+initialised inbox (0x95850c6871c43d237d1c83bc06a1d4e93bceee6c -> 0xa5df94be30159a9f8078ebe9a6bc7b586bbef1e5) expected signer: 041e185925bb92deb0335a7705240ef145a2b96bcd608a323dc8e7b26ae47cf5423d9a60215a34abbfd9a5686c405f55805f1e9d81df242688702cf5e73cf8d618
+[SWAP] <enode://23ae0e62f97833d542ad742ab125b405b1892f1385b4c27ba309b547906228dd7e81069f2d4c85e0518d360c7aaf9a528c57a9cd1d97d28a4c6bc93b7d2aa4fb@@195.228.155.76:30301> set autocash to every 5m0s, max uncashed limit: 50000000000000
+[SWAP] <enode://23ae0e62f97833d542ad742ab125b405b1892f1385b4c27ba309b547906228dd7e81069f2d4c85e0518d360c7aaf9a528c57a9cd1d97d28a4c6bc93b7d2aa4fb@@195.228.155.76:30301> set autodeposit to every 5m0s, pay at: 50000000000000, buffer: 100000000000000
+[SWAP] <enode://23ae0e62f97833d542ad742ab125b405b1892f1385b4c27ba309b547906228dd7e81069f2d4c85e0518d360c7aaf9a528c57a9cd1d97d28a4c6bc93b7d2aa4fb@@195.228.155.76:30301> remote profile set: pay at: 100, drop at: 10000, buy at: 20000000000, sell at: 20000000000
+[SWAP] <enode://23ae0e62f97833d542ad742ab125b405b1892f1385b4c27ba309b547906228dd7e81069f2d4c85e0518d360c7aaf9a528c57a9cd1d97d28a4c6bc93b7d2aa4fb@@195.228.155.76:30301> remote profile set: pay at: 100, drop at: 10000, buy at: 20000000000, sell at: 20000000000
+[BZZ] SWAP arrangement with <enode://23ae0e62f97833d542ad742ab125b405b1892f1385b4c27ba309b547906228dd7e81069f2d4c85e0518d360c7aaf9a528c57a9cd1d97d28a4c6bc93b7d2aa4fb@@195.228.155.76:30301>: purchase from peer enabled at 20000000000 wei/chunk; selling to peer enabled at 20000000000 wei/chunk)
+@end smallquotation
+
+As part of normal operation, after a peer reaches a balance of @code{PayAt} (number of chunks), a cheque payment is sent via the protocol. Logs on the receiving end:
+
+@smallquotation
+[CHEQUEBOOK] verify cheque: contract: 0x95850c6871c43d237d1c83bc06a1d4e93bceee6c, beneficiary: 0xe10536ae628f7d6e319435ef9b429dcdc085e491, amount: 868020000000000, signature: a7d52dc744b8d192c42018ec828a6671a2fd34afbc2641dab9cb571cc120810061b197747c781d80a86baa55d22f0cf6c7d3761e78dd0a034676b56c82f1fe2001 - sum: 866020000000000
+[CHEQUEBOOK] received cheque of 2000000000000 wei in inbox (0x95850c6871c43d237d1c83bc06a1d4e93bceee6c, uncashed: 42000000000000)
+@end smallquotation
+
+The cheque is verified. If uncashed cheques have an outstanding balance of more than @code{AutoCashThreshold}, the last cheque (with a cumulative amount) is cashed. This is done by sending a transaction containing the cheque to the remote peer's cheuebook contract. Therefore in order to cash a payment, your sender account (baseaddress) needs to have funds and the network should be mining.
+@cindex autocash
+@cindex cheque
+
+@smallquotation
+[CHEQUEBOOK] cashing cheque (total: 104000000000000) on chequebook (0x95850c6871c43d237d1c83bc06a1d4e93bceee6c) sending to 0xa5df94be30159a9f8078ebe9a6bc7b586bbef1e5aaz
+@end smallquotation
+
+For further fine tuning of SWAP, see @ref{SWAP parameters}.
+@vrindex AutoDepositBuffer, credit buffer
+@vrindex AutoCashThreshold, autocash threshold
+@vrindex AutoDepositThreshold: autodeposit threshold
+@vrindex AutoCashInterval, autocash interval
+@vrindex AutoCashBuffer, autocash target credit buffer)
+
 
 
 

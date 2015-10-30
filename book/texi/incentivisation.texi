@@ -68,13 +68,13 @@ In stage one, therefore, we introduce two parameters that represent thresholds t
 @item @emph{Disconnect threshold} is the limit which when reached triggers disconnect from the peer.
 @end itemize
 
-@vrindex offered price (@code{SellAt})
+@vrindex SellAt, offered price)
 @cindex offered price (@code{SellAt})
-@vrindex highest accepted price (@code{BuyAt})
+@vrindex BuyAt highest accepted price)
 @cindex highest accepted price (@code{BuyAt})
-@vrindex payment threshold (@code{PayAt})
+@vrindex PayAt, payment threshold)
 @cindex payment threshold (@code{PayAt})
-@vrindex disconnect threshold (@code{DropAt})
+@vrindex DropAt, disconnect threshold)
 @cindex disconnect threshold (@code{DropAt})
 
 
@@ -363,13 +363,13 @@ SWAP^2 allows for an enhanced automated version of SWAP which reduces transactio
 It is an extenstion which provides provides an API for setting and resetting trigger thresholds.
 
 As a seller you can set a limit on maximum service debt and as a buyer you can set a threshold that triggers a payment.  You can also cash out automatically triggered by a limit on maximum uncashed revenue from a peer with a fallback to time period (interval after which promise is always cashed).
-@vrindex payment threshold (@code{PayAt})
+@vrindex PayAt, payment threshold)
 @cindex payment threshold (@code{PayAt})
-@vrindex disconnect threshold (@code{DropAt})
+@vrindex DropAt, disconnect threshold)
 @cindex disconnect threshold (@code{DropAt})
-@vrindex offered price (@code{SellAt})
+@vrindex SellAt, offered price)
 @cindex offered price (@code{SellAt})
-@vrindex highest accepted price (@code{BuyAt})
+@vrindex BuyAt, highest accepted price)
 @cindex highest accepted price (@code{BuyAt})
 
 
@@ -386,12 +386,11 @@ Setting autodeposit strategy manages the tradeoff between spending on transactio
 @cindex autodeposit threshold (@code{AutoDepositThreshold})
 @cindex autocash interval (@code{AutoCashInterval})
 @cindex autodeposit interval (@code{AutoDepositInterval})
-@vrindex credit buffer (@code{AutoDepositBuffer})
-@vrindex autocash threshold (@code{AutoCashThreshold})
-@vrindex autodeposit threshold (@code{AutoDepositThreshold})
-@vrindex autocash interval (@code{AutoCashInterval})
-@vrindex autodeposit interval (@code{AutoDepositInterval})
-
+@vrindex AutoDepositBuffer, credit buffer
+@vrindex AutoCashThreshold, autocash threshold
+@vrindex AutoDepositThreshold: autodeposit threshold
+@vrindex AutoCashInterval, autocash interval
+@vrindex AutoCashBuffer, autocash target credit buffer)
 
 This system is completely flexible even allowing capping of service related spending while allowing unlimited consumption via service-for-service exchange.
 

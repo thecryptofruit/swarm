@@ -61,24 +61,24 @@ The actual storage layer of swarm consists of two main components, the \@dfn{loc
 
 For disk storage, leveldb is used. Both components can easily be swapped by alternative solutions with minimal work.
 
-The netStore is the actual DHT (distributed hash table) implementation. It interacts with the bzz protocol as well as the hive, the network peer logistic manager. The netStore is really where the network storage logic is implemented and should be considered the heart of swarm.
+The netStore is the actual DHT (distributed hash table) implementation. It interacts with the bzz protocol as well as the hive, the network peer logistic manager. The netStore is really where the network storage logic is implemented.
 
-The DPA, distributed preimage archive is the local interface for storage and retrieval of documents. When a document is handed to the DPA for storage, it chunks the document into a merkle hashtree and hands back its root key to the caller (DPA). This key can later be used to retrieve the document in question in part or whole.
+The @dfn{distributed preimage archive (DPA)} is the local interface for storage and retrieval of documents. When a document is handed to the DPA for storage, it chunks the document into a merkle hashtree and hands back its root key to the caller (DPA). This key can later be used to retrieve the document in question in part or whole.
 
-The component that chunks the documents into the merkle tree is called the @dfn{chunker}. Our chunker implements the @dfn{bzzhash} algorithm which is parallelizable tree hash based on Sha3. The DPA runs a storage loop which receives the chunks back from the chunker and dispatches them to the chunkstore for storage. This entry point is the netStore.
+The component that chunks the documents into the merkle tree is called the @dfn{chunker}. Our chunker implements the @dfn{bzzhash} algorithm which is parallelizable tree hash based on SHA3/SHA256. The DPA runs a storage loop which receives the chunks back from the chunker and dispatches them to the chunkstore for storage. This entry point is the netStore.
 
 When a root key is handed to the DPA for document retrieval, the DPA calls the Chunker which hands back a seekable document reader to the caller. This is a @dfn{lazy reader} in the sense that it retrieves relevant parts of the underlying document only as they are actually read. This entails that partial reads (e.g., range requests on video) are supported on the lowest level.
 
 The swarm manifest is a structure that defines a mapping between arbitrary paths and documents to handle document collections. It also includes various metadata associated with the collection and the documents therein.
 
-The high level API to the manifests provides functionality to upload and download individual documents as files, collections (manifests) as directories. It also provides an interface to add documents to a collection on a path, delete a document from a collection. Additionally, it provides an API for the @dfn{swarm DNS} and @dfn{Swarm Accounting Protocol (SWAP)} and a light http client aware of the . The Swarm DNS is @dfn{name registrar} interface allowing for versioned (archival) resolution of domain names as well as registration using ethereum transactions.
+The high level API to the manifests provides functionality to upload and download individual documents as files, collections (manifests) as directories. It also provides an interface to add documents to a collection on a path, delete a document from a collection. Additionally, it provides an API for the @dfn{swarm DNS} and @dfn{Swarm Accounting Protocol (SWAP)}. The Swarm DNS is @dfn{name registrar} interface allowing for versioned (archival) resolution of domain names as well as registration using ethereum transactions.
 
-API is the go implementation (and go API) for these high level functions. There is an http proxy interface as well as a JS api for these functions. These all differ in there exact functionality due to inherent privilege differences, etc. or interface limitations.
-These are described in detail in @xref{API}.
+API is the go implementation (and go API) for these high level functions. There is an http proxy interface as well as a JS api for these functions. These all differ in there exact functionality due to inherent privilege differences or interface limitations.
+These are described in detail in @ref{API}.
 @cindex API
 @cindex HTTP proxy
 
-Dox is a simple go HTTP client which can handle the bzz url scheme, it is also exposed  in the bzz module (@command{admin.httpGet})
+There is a simple go HTTP client which can handle the bzz url scheme, it is also exposed  in the bzz module (@command{admin.httpGet})
 
 The Swarm Accounting Protocol (SWAP)
  component keeps track of requests between peers and implements the accounting protocol as a response to the @emph{swarm incentive system}. It is described in detail in @ref{Incentivisation}.
