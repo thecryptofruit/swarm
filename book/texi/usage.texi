@@ -441,7 +441,7 @@ v2 = eth.blockNumber
 
 The full historical record is addressable:
 
-[http://localhost:8500/swarmpicture@;31/] vs [http://localhost:8500/swarmpicture@;32/]
+[http://localhost:8500/swarmpicture;31/] vs [http://localhost:8500/swarmpicture;32/]
 
 And you can see it with the bzz-aware http client:
 
