@@ -158,11 +158,12 @@ http://localhost:8500/HASH/subdirectory/filename
 Note: if the filename is @code{index.html} then it can be omitted.
 
 @subsubheading Manifests in general
-Although in our example above the manifest was essentially a file listing in a directory, there is no reason for a Manifest to take this form. Manifests simply match strings with swarm id's, and there is no requirement that the strings be of the form @code{path/to/file}. Indeed swarm treats @code{path/to/file} as just another identifying string and there is nothing special about the @code{/} character.
+Although in our example above the manifest was essentially a file listing in a directory, there is no reason for a Manifest to take this form. Manifests simply match strings with swarm id's, and there is no requirement that the strings be of the form @code{path/to/file}. Indeed swarm treats @code{path/to/file} as just another identifying string and there is nothing special about the @code{/} character. 
 
+@strong{However}, a browser will treat @code{/} as a special character. This is important to remember when specifying (relative) URL's in your Dapp.
 
 @section The bzz:// URL scheme
-To make it easier to access swarm content, we can use the bzz URL scheme. One of its primary merits is that it allows us to use himan readable addresses instead of hashes. This is achieved by a name registration contract on the blockchain. 
+To make it easier to access swarm content, we can use the bzz URL scheme. One of its primary merits is that it allows us to use human readable addresses instead of hashes. This is achieved by a name registration contract on the blockchain. 
 
 @subsubheading  http module for urls on the console
 The in-console http client understands the bzz scheme if geth is started with swarm enabled. Syntax:
@@ -186,14 +187,14 @@ The console http module is a very simple http client, that understands the bzz s
 @item  @code{bzz.download(bzzpath, localdirpath)} 
 @item  @code{bzz.put(content, contentType)} returns content hash
 @item  @code{bzz.get(bzzpath)} returns object with content, mime type, status code and content size
-@item  @code{bzz.register(address, hash, domain)} returns error
+@item  @code{bzz.register(address, hash, domain)} 
 @item  @code{bzz.resolve(domain)} returns content hash
 @end itemize
 
 
 
 @subsection Name Registration for swarm content
-It is the swarm hash of a piece of data that dictates routing. Therefore it's role is somehwhat analogous to an IP address in the TCP/IP internet. Domain names can be registered on the blockchain and set to resolve to any swarm hash. The bzz blockchain registry is thus analogous to DNS (and no ICANN nor any name servers are needed).
+It is the swarm hash of a piece of data that dictates routing. Therefore its role is somehwhat analogous to an IP address in the TCP/IP internet. Domain names can be registered on the blockchain and set to resolve to any swarm hash. The bzz blockchain registry is thus analogous to DNS (and no ICANN nor any name servers are needed).
 
 Currently the domain name is any arbitrary string in that the contract does not impose any restrictions. Since this is used in the host part of the url in the bzz scheme, we recommend using wellformed domain names so that there is interoperability with restrictive url handler libs. 
 
