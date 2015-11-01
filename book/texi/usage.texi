@@ -161,7 +161,7 @@ Note: if the filename is @code{index.html} then it can be omitted.
 Although in our example above the manifest was essentially a file listing in a directory, there is no reason for a Manifest to take this form. Manifests simply match strings with swarm id's, and there is no requirement that the strings be of the form @code{path/to/file}. Indeed swarm treats @code{path/to/file} as just another identifying string and there is nothing special about the @code{/} character.
 
 
-@section The bzz:// URL scheme and relative paths
+@section The bzz:// URL scheme
 To make it easier to access swarm content, we can use the bzz URL scheme. One of its primary merits is that it allows us to use himan readable addresses instead of hashes. This is achieved by a name registration contract on the blockchain. 
 
 @subsubheading  http module for urls on the console
@@ -179,8 +179,21 @@ The console http module is a very simple http client, that understands the bzz s
 @item `http.loadScript(url)` should be same as JSRE.loadScript
 @end itemize
 
+@subsubheading bzz console api overview
+
+@itemize @bullet
+@item  @code{bzz.upload(localfspath, indexfile)} returns content hash
+@item  @code{bzz.download(bzzpath, localdirpath)} 
+@item  @code{bzz.put(content, contentType)} returns content hash
+@item  @code{bzz.get(bzzpath)} returns object with content, mime type, status code and content size
+@item  @code{bzz.register(address, hash, domain)} returns error
+@item  @code{bzz.resolve(domain)} returns content hash
+@end itemize
+
+
+
 @subsection Name Registration for swarm content
-Iis the swarm hash of a piece of data that dictates routing. Therefore it's role is somehwhat analogous to an IP address in the TCP/IP internet. Domain names can be registered on the blockchain and set to resolve to any swarm hash. The bzz blockchain registry is thus analogous to DNS (and no ICANN nor any name servers are needed).
+It is the swarm hash of a piece of data that dictates routing. Therefore it's role is somehwhat analogous to an IP address in the TCP/IP internet. Domain names can be registered on the blockchain and set to resolve to any swarm hash. The bzz blockchain registry is thus analogous to DNS (and no ICANN nor any name servers are needed).
 
 Currently the domain name is any arbitrary string in that the contract does not impose any restrictions. Since this is used in the host part of the url in the bzz scheme, we recommend using wellformed domain names so that there is interoperability with restrictive url handler libs. 
 
@@ -189,6 +202,32 @@ In the bzz:// URL scheme it is possible to supply a block number;
 bzz://swarm.com;144
 @end example
 and this means that we want swarm.com to be resolved to a hash as registered in the registry at block 144. (Note the semicolon @code{;} in the URL)
+
+Example: using bzz api and registered names:
+@example
+js
+hash = bzz.upload("/path/to/my/directory")
+
+hash = bzz.put("console.log(\"hello from console\")", "application/javascript")
+
+bzz.get(hash)
+{
+  content: 'console.log("hello");',
+  contentType: 'application/javascript',
+  status: '0'
+  size: '21',
+}
+
+http.get("bzz://"+hash)
+'console.log("hello from console")'
+
+http.loadScript("bzz://"+hash)
+hello from console
+true
+
+bzz.register(primary, hash, "hello")
+@end example
+
 
 @subsection Name registration for contracts
 It is also possible to register human readable names for contracts.
@@ -220,14 +259,17 @@ If these checks are ok, you are all set up.
 In order to continue this example, we must write a contract and deploy its compiled code on the blockchain. We proceed:
 
 @example
-source = "contract test {\n" +
-"   /// @notice will multiply `a` by 7.\n" +
-"   function multiply(uint a) returns(uint d) {\n" +
-"      return a * 7;\n" +
-"   }\n" +
+js
+admin.contractInfo.stop();
+
+source = "contract test {@backslashchar{}n" +
+"   /// @@notice will multiply `a` by 7.@backslashchar{}n" +
+"   function multiply(uint a) returns(uint d) {@backslashchar{}n" +
+"      return a * 7;@backslashchar{}n" +
+"   }@backslashchar{}n" +
 "} ";
 contract = eth.compile.solidity(source).test;
-txhash = eth.sendTransaction({from: primary, data: contract.code});
+contractaddress = eth.sendTransaction({from: primary, data: contract.code});
 @end example
 
 Then we must wait until the contract is included in a block. Thus, if we are on a private test network, wem must mine a block
@@ -247,8 +289,6 @@ fortytwo = multiply7.multiply.call(6);
 
 Then we check if everything worked and the contracts are deployed and usable
 @example
-Check if they arrived on the blockchain and that they execute your calls by:
-
 code = eth.getCode(contractaddress);
 abiDef = contract.info.abiDefinition;
 multiply7 = eth.contract(abiDef).at(contractaddress);
@@ -265,7 +305,7 @@ miner.start(1); admin.sleepBlocks(1); miner.stop(); // do this if you are on a p
 @end example
 
 
-@subsubheading Contract usage from dapp (or user-side case)
+@subheading Contract usage from dapp (or user-side case example)
 
 @code{admin.getContractInfo()} will magically work. If the url fetcher has the bzz protocol scheme enabled, then it tries to fetch it with the registered contenthash. (If there is no swarm or the content is not (yet) uploaded there, it gracefully falls back to the UrlHint, ie., it looks up the url hint for the contentHash, fetches its content, and verifies it against the contentHash for protection.)
 
@@ -325,12 +365,15 @@ getContract = function(name) {
   info = admin.getContractInfo(contractaddress);
   return eth.contract(info.abiDefinition).at(contractaddress);  
 }
+@end example
+
+@example
 web3.sha3(eth.getCode(registrar.addr("multiply7")))
 51b68b0f44e8c6ef096797efbed04185fd4c4a639cd5ffe52e96076519c1385d
 @end example
 
 
-@subsection Using bzz somain names
+@subsection Using bzz domain names
 Now that we know how to register names, let us see how to use them in practice
 
 @example
@@ -354,342 +397,71 @@ admin.httpGet("bzz://album/index.html")
 admin.httpGet("bzz://album/index.css")
 @end example
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-@subheading The bzz scheme
-
-
-@itemize @bullet
-@item rewrite and proxy
-@item bzz fully functional in console http url fetcher
-@end itemize
-
-@subsubheading  http module for urls on the console
-
-the console http module is a very simple http client, that understands the bzz scheme if bzz is enabled.
-
-@itemize @bullet
-@item `http.get(url)`
-@item `http.loadScript(url)` should be same as JSRE.loadScript
-@end itemize
-
-@subsubheading domain name registration
-
-Any hash can be registered with a domain name, that can be used in the host part of the bzz scheme.
-So it is exactly analogous to DNS, domain names and IP addresses.
-
-@itemize @bullet
-@item name registration
-@item name resolution in the browser
-@item mimicking mutability by namereg (latest)
-@item versioning by blockheight
-@end itemize
-
-
-@section Bzz console API
-
-@itemize @bullet
-@item  `bzz.upload(localfspath, indexfile)` returns content hash
-@item `bzz.download(bzzpath, localdirpath)` returns error
-@item `bzz.put(content, contentType)` returns content hash
-@item `bzz.get(bzzpath)` returns object with content, mime type, status code and content size
-@item `bzz.register(address, hash, domain)` returns error
-@item `bzz.resolve(domain)` returns content hash
-@end itemize
+As indicated above, we can force a content type manually to get at the raw content:
 
 @example
-js
-hash = bzz.upload("/path/to/my/directory")
-
-hash = bzz.put("console.log(\"hello from console\")", "application/javascript")
-
-bzz.get(hash)
-{
-  content: 'console.log("hello");',
-  contentType: 'application/javascript',
-  status: '0'
-  size: '21',
-}
-
-http.get("bzz://"+hash)
-'console.log("hello from console")'
-
-http.loadScript("bzz://"+hash)
-hello from console
-true
-
-bzz.register(primary, hash, "hello")
-@end example
-
-@section Using swarm for contract info
-
-@subsubheading Prerequisites
-
-@itemize @bullet
-@item  globalRegistrar contract deployed
-@item HashReg, UrlHint deployed and registered with globalRegistrar
-@end itemize
-
-These need to be done only once for every chain. See appendix.
-
-If this was successful, you will see these commands respond with addresses.
-
-@example
-js
-registrar.owner("HashReg");
-registrar.owner("UrlHint");
-registrar.addr("HashReg");
-registrar.addr("UrlHint");
-@end example
-
-and these commands will respond with code:
-
-@example
-js
-eth.getCode(globalRegistrarAddr);
-eth.getCode(hashRegAddr);
-eth.getCode(urlHintAddr);
-@end example
-
-If these checks are ok, you are all set up.
-
-@subsubheading Creating and deploying a contract
-
-@subsubheading Create contract and deploy compiled code to the blockchain
-
-@example
-js
-admin.contractInfo.stop();
-
-source = "contract test {@backslashchar{}n" +
-"   /// @@notice will multiply `a` by 7.@backslashchar{}n" +
-"   function multiply(uint a) returns(uint d) {@backslashchar{}n" +
-"      return a * 7;@backslashchar{}n" +
-"   }@backslashchar{}n" +
-"} ";
-contract = eth.compile.solidity(source).test;
-contractaddress = eth.sendTransaction({from: primary, data: contract.code});
-@end example
-
-Check if they arrived on the blockchain and that they execute your calls by:
-
-@example
-js
-code = eth.getCode(contractaddress);
-abiDef = contract.info.abiDefinition;
-multiply7 = eth.contract(abiDef).at(contractaddress);
-multiply7.multiply.call(6);
-@end example
-
-@subsubheading Deploying off-chain contract info
-
-The contract.info substructure given back from the solidity compiler can be deployed with swarm.
-The resulting contenthash is registered in the HashReg.
-
-@example
-js
-contenthash = bzz.put(JSON.stringify(contract.info), "application/eth-contractinfo+json");
-admin.contractInfo.register(primary, contractaddress, contenthash);
-@end example
-
-You need to wait till it is mined and confirmed.
-
-@subsubheading Contract usage from dapp (or user-side case)
-
-`admin.contractInfo.get` will magically work. If the url fetcher has the bzz protocol scheme enabled, then it tries to fetch it with the registered contenthash. (If there is no swarm or the content is not (yet) uploaded there, it gracefully falls back to the UrlHint, ie., it looks up the url hint for the contentHash, fetches its content, and verifies it against the contentHash for protection.)
-
-Note that the user needs the contractaddress but nothing else.
-
-@example
-js
-info = admin.contractInfo.get(contractaddress);
-multiply7 = eth.contract(info.abiDefinition).at(contractaddress);
-@end example
-
-Now that we  switch on natspec and try:
-
-@example
-js
-admin.contractInfo.start();
-multiply7.multiply.sendTransaction(6, { from: primary });
-@end example
-
-The following custom confirmation message should appear on the console and 6 shall be multiplied by seven:
-
-@example
-js
-> myMultiply7.multiply.sendTransaction(6)
-NatSpec: Will multiply 6 by 7.
-Confirm? [y/n] y
-@end example
-
-@subsubheading Using name registrar for contracts
-
-And now we can go one step further and use the globalRegistrar name registry for contracts:
-
-@example
-js
-admin.contractInfo.stop();
-registrar.reserve.sendTransaction("multiply7", {from:primary})
-registrar.setAddress.sendTransaction("multiply7", contractaddress, true, {from:primary})
-@end example
-
-You need to wait for these 2 transactions to be confirmed. You can check if arrived:
-
-@example
-js
-registrar.owner("multiply7")
-@end example
-
-Now the contract name is sufficient to use this contract from a Dapp.
-
-@example
-js
-contractaddress = registrar.addr("multiply7")
-info = admin.contractInfo.get(contractaddress);
-multiply7 = eth.contract(info.abiDefinition).at(contractaddress);
-@end example
-
-If info is only needed because of the Abi, then one could define this function:
-
-@example
-js
-getContract = function(name) {
-  contractaddress = registrar.addr(name)
-  info = admin.contractInfo.get(contractaddress);
-  return eth.contract(info.abiDefinition).at(contractaddress);
-}
-@end example
-
-
-
-
-@example
-js
-web3.sha3(eth.getCode(registrar.addr("multiply7")))
-51b68b0f44e8c6ef096797efbed04185fd4c4a639cd5ffe52e96076519c1385d
-@end example
-
-@subheading bzz domain names, registration, resolution
-
-@example
-js
-bzz.upload("/Users/tron/Work/ethereum/go-ethereum/bzz.demo/luzhany/")
-'51b68b0f44e8c6ef096797efbed04185fd4c4a639cd5ffe52e96076519c1385d'
-bzz.register(primary, "album", "0x51b68b0f44e8c6ef096797efbed04185fd4c4a639cd5ffe52e96076519c1385d")
-true
-bzz.resolve("album")
-unable to resolve 'album': content hash not found for '0x3ae883aa85e0554e92a3ab951b5cf9f7e045e742618560ec3fe62d80800e8673'
-undefined
-@end example
-
-oops you need to mine it or wait for concensus.
-
-@example
-js
-admin.miner.start(); admin.debug.waitForBlocks(eth.blockNumber+1); admin.miner.stop();
-true
-bzz.resolve("album")
-'0x51b68b0f44e8c6ef096797efbed04185fd4c4a639cd5ffe52e96076519c1385d'
-@end example
-
-homomorphic:
-
-@example
-js
-bzz.download("/album", "/tmp/album")
-undefined
-bzz.upload("/tmp/album")
-'51b68b0f44e8c6ef096797efbed04185fd4c4a639cd5ffe52e96076519c1385d'
-@end example
-
-Open a page via path (matching, fallbacks errors)
-
-@example
-js
-http.get("bzz://51b68b0f44e8c6ef096797efbed04185fd4c4a639cd5ffe52e96076519c1385d/index.html")
-http.get("bzz://album/index.html")
-http.get("bzz://album/index.css")
-@end example
-
-to get raw content, override these
-
-@example
-js
 http.get("http://raw/album/?content\_type=\"text/plain\"")
-'{"entries":[{"path":"add.png","hash":"8fbac5d742128d4a2cd1c453201c9300280b9ea7f132eac66c0bb9e9dedeb3ff","contentType":"image/png","status":0},{"path":"back.png","hash":"f7ef5a708262258cc59b261849d1794dcafa9319848990dda05b1cf814ffe7c8","contentType":"image/png","status":0},{"path":"cut-","hash":"c1710a9cd0cd34261d80288f1b694fcf9ce814788457bd74bbaf5e1c08eab26e","contentType":"application/bzz-manifest+json","status":0},{"path":"d","hash":"b69bd4600643c2563934e36260b7f7b91e59cf6ab130854882833b922da639a9","contentType":"application/bzz-manifest+json","status":0},{"path":"eye.png","hash":"bc3fc186c7c02a7841acfb1de3e61bcef870e8d81588dd05827d028b5b310536","contentType":"image/png","status":0},{"path":"i","hash":"4ae40ee14730629c12937ccd732eef1e3b0ffb8df1b759ea9946aba5296c0bef","contentType":"application/bzz-manifest+json","status":0},{"path":"left.png","hash":"a6093a7b7b8fae95fee097125e90c4d1477d8948f1f24ac241cc4e2ff55872e1","contentType":"image/png","status":0},{"path":"mootools-","hash":"ebf08b45f54021e764c163b2b7083cb7a05ae4c88cce1986e0599e79036c16ad","contentType":"application/bzz-manifest+json","status":0},{"path":"noise.png","hash":"90254e6274ef150f5ccb7c61fd6bd9c0614abf18306d43b9e79a7f738f84831f","contentType":"image/png","status":0},{"path":"right.png","hash":"88a26306bd909a3bc34201a1e18c3f1767069a48019caedfb4fd64c8556521b9","contentType":"image/png","status":0},{"path":"throbber.gif","hash":"583bd22d262b2192399d97f5daf04516b620b95b607c94f5051f515fb4137d9d","contentType":"image/gif","status":0}]}'
 @end example
 
-@subsubheading Changes, versions, rollback
+@subsection Changing registered name, managing versions, rollback
+
+Suppose we have registered the name @code{swarmpicture} as in
 
 @example
-js
-bzz.register(primary, "swarm", bzz.upload("bzz.demo/swarm-inside.png", "swarm-inside.png"))
+bzz.register(primary, "swarmpicture", bzz.upload("bzz.demo/swarm-inside.png", "swarm-inside.png"))
 @end example
 
-after some mining or wait, take a look at http://localhost:8500/swarm/
-Now resolver should work too:
-
+After some blocks are mined, this content will become accessible at
+@code{http://localhost:8500/swarmpicture/} and the resolver should work too as:
 @example
-js
-bzz.resolve("swarm")
+bzz.resolve("swarmpicture")
 '0x58c604de89bf3ecbbbfc90948b273ae3f956e6106babd5e8bacb3615213d3c2e'
 @end example
 
-lets remember this version, just record the current block.
+Let us remember this version of "swarmpicture"
 
 @example
-js
 v1 = eth.blockNumber
-31
 @end example
 
-[http://localhost:8500/swarm/]
-Now i realise i left out the logo, so
-
+Now we realise that we have made a mistake and want to include the full logo in our site and se we re-register:
 @example
-js
-bzz.register(primary, "swarm", bzz.upload("bzz.demo/MSTR-Swarm-Logo.jpg", "MSTR-Swarm-Logo.jpg"))
-true
-miner.start(); admin.sleepBlocks(1); miner.stop();
-true
-bzz.resolve("swarm")
+bzz.register(primary, "swarmpicture", bzz.upload("bzz.demo/MSTR-Swarm-Logo.jpg", "MSTR-Swarm-Logo.jpg"))
+@end example
+
+then mine some more @code{miner.start(); admin.sleepBlocks(1); miner.stop();} and then we can resolve as
+@example
+bzz.resolve("swarmpicture")
 '0x8232b8259393019920d57737c1073c78a6cee18ffa8bfcfdc0cd378a732415a8'
+@end example
+This new registration of "swarmpicture" is stored at a different block
+@example
 v2 = eth.blockNumber
-33
 @end example
 
-the full historical record is addressable:
+The full historical record is addressable:
 
-[http://localhost:8500/swarm@@31/] vs [http://localhost:8500/swarm@@32/]
+[http://localhost:8500/swarmpicture@;31/] vs [http://localhost:8500/swarmpicture@;32/]
 
-Finally you can see it with the bzz-aware http client:
+And you can see it with the bzz-aware http client:
 
 @example
 js
-> http.get("bzz://raw/swarm:"+v1+"?content\_type=text/json")
+> http.get("bzz://raw/swarmpicture:"+v1+"?content\_type=text/json")
 '{"entries":[{"path":"swarm-inside.png","hash":"a41a826e6dae90816e432993576d2418c33f40f4e6774df457706e2890202228","contentType":"image/png","status":0},{"path":"","hash":"a41a826e6dae90816e432993576d2418c33f40f4e6774df457706e2890202228","contentType":"image/png","status":0}]}'
-> http.get("bzz://raw/swarm:"+v2+"?content\_type=text/json")
+> http.get("bzz://raw/swarmpicture:"+v2+"?content\_type=text/json")
 '{"entries":[{"path":"MSTR-Swarm-Logo.jpg","hash":"35e6a17fab09d7f84f1feacfe629a2c0660d6c3ca70db5c8ff2c7ac2c537ce1d","contentType":"image/jpeg","status":0},{"path":"","hash":"35e6a17fab09d7f84f1feacfe629a2c0660d6c3ca70db5c8ff2c7ac2c537ce1d","contentType":"image/jpeg","status":0}]}'
 @end example
 
-@section Appendix
+
+
+
+
+@section Appendix - Deploying a Name Registry
 
 @subsubheading mine some ether on a private chain
 
 @example
-js
 primary = eth.accounts[0];
 balance = web3.fromWei(eth.getBalance(primary), "ether");
 
@@ -701,7 +473,6 @@ admin.miner.stop()  ;
 @subsubheading mine transactions on a private chain
 
 @example
-js
 eth.getBlockTransactionCount("pending");
 eth.getBlock("pending", true).transactions;
 
@@ -725,7 +496,6 @@ You need to mine or wait till the txs are all picked up.
 Initialise the registrar on the new address and check if the other registars are registered:
 
 @example
-js
 registrar = GlobalRegistrar.at(globalRegistrarAddr);
 registrar.owner("HashReg");
 registrar.owner("UrlHint");
