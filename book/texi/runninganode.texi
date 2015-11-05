@@ -114,7 +114,11 @@ in the toplevel directory of the unpacked distribution.
 @node Configuration options, Getting started, Installation, Running a node
 @section Configuration options
 
-This section lists all the options you can set in the config file @file{<datadir>/bzz/<baseaccount>/config.json}. By default the swarm data directory is under the ethereum's data directory but different depending on the base address. This is important if you run multiple swarm nodes since storage, configuration, connected peers will all be distinct depending on the base address.
+This section lists all the options you can set in the config file:
+
+    @file{<datadir>/bzz/<baseaccount>/config.json}
+
+By default the swarm data directory is under the ethereum's data directory but different depending on the base address. This is important if you run multiple swarm nodes since storage, configuration, connected peers will all be distinct depending on the base address.
 
 @menu
 * Main parameters::
@@ -374,7 +378,7 @@ swap03.log:I1028 10:03:40.576238   59241 cheque.go:358] deposited
 
 
 The peer with no chequebook (yet) should not be allowed to download and thus retrieve requests will not go out.
-The other peer however is able to pay, therefore this other pper can retrieve chunks from the first peer and pay for them. This in turn puts the first peer in positive, which they can then use both to (auto)deploy their own chequebook and to pay for retrieving data as well. If they do not deploy a chequebook for whatever reason, they can use their balance to pay for retrieving data, but only down to 0 balance; after that no more requests are allowed to go out. Again you will see:
+The other peer however is able to pay, therefore this other peer can retrieve chunks from the first peer and pay for them. This in turn puts the first peer in positive, which they can then use both to (auto)deploy their own chequebook and to pay for retrieving data as well. If they do not deploy a chequebook for whatever reason, they can use their balance to pay for retrieving data, but only down to 0 balance; after that no more requests are allowed to go out. Again you will see:
 
 @example
 [BZZ] netStore.startSearch: unable to send retrieveRequest 
@@ -385,7 +389,7 @@ The other peer however is able to pay, therefore this other pper can retrieve ch
 
 If a peer without a chequebook tries to send requests without paying, then the remote peer (who can see that they have no chequebook contract) interprets this as adverserial behaviour resulting in the peer being dropped.
 
-So at this point we start mining and restart the node. The second chequebook autodeploys, the peers sync their chains and reconnect and then all goes smooth:
+Following on in this example, we start mining and then restart the node. The second chequebook autodeploys, the peers sync their chains and reconnect and then if all goes smoothly the logs will show something like:
 
 @example
 initialised inbox (0x95850c6...bceee6c -> 0xa5df94b...bef1e5) 
