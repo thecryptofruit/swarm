@@ -324,54 +324,72 @@ If one is not allowed to purchase, no outgoing requests are allowed. If we are t
 
 Once one of the nodes has funds (say after mining a bit), and the network is mining, the autodeployment eventually succeeds:
 
-@smallquotation
-[CHEQUEBOOK] chequebook deployed at 0x77de9813e52e3a37d06c0fc845e207bfc8835ea7 (owner: 0xe10536ae628f7d6e319435ef9b429dcdc085e491)
-[CHEQUEBOOK] new chequebook initialised from 0x77de9813e52e3a37d06c0fc845e207bfc8835ea7 (owner: 0xe10536ae628f7d6e319435ef9b429dcdc085e491)
-[BZZ] SWAP auto deposit ON for 0xe10536 -> 0x77de98: interval = 5m0s, threshold = 50000000000000, buffer = 100000000000000)
-[BZZ] Swarm: new chequebook set: saving config file, resetting all connections in the hive
-[KΛÐ]: remove node enode://23ae0e62f97833d542ad742ab125b405b1892f1385b4c27ba309b547906228dd7e81069f2d4c85e0518d360c7aaf9a528c57a9cd1d97d28a4c6bc93b7d2aa4fb@@195.228.155.76:30301 from table
-@end smallquotation
+@example
+[CHEQUEBOOK] chequebook deployed at 0x77de9813e52e3a...c8835ea7  @math{\swarrow }
+      @math{\hookrightarrow}(owner: 0xe10536ae628f7d6e319435ef9b429dcdc085e491)
+[CHEQUEBOOK] new chequebook initialised from 0x77de9813e52e3a...c8835ea7 @math{\swarrow }
+      @math{\hookrightarrow}(owner: 0xe10536ae628f7d6e319435ef9b429dcdc085e491)
+[BZZ] SWAP auto deposit ON for 0xe10536 -> 0x77de98: interval = 5m0s, @math{\swarrow }
+       @math{\hookrightarrow} threshold = 50000000000000, buffer = 100000000000000)
+[BZZ] Swarm: new chequebook set: saving config file, resetting all  @math{\swarrow }
+      @math{\hookrightarrow}connections in the hive
+[KΛÐ]: remove node enode://23ae0e6...aa4fb@@195.228.155.76:30301 from table
+@end example
 
 Once the node deployed a new chequebook its address is set in the config file and all connections are dropped to be reset with the new conditions. Once we reconnect, purchase in one direction should be enabled. The logs from the point of view of the peer with no valid chequebook:
 
 
-@smallquotation
-[CHEQUEBOOK] initialised inbox (0x95850c6871c43d237d1c83bc06a1d4e93bceee6c -> 0xa5df94be30159a9f8078ebe9a6bc7b586bbef1e5) expected signer: 041e185925bb92deb0335a7705240ef145a2b96bcd608a323dc8e7b26ae47cf5423d9a60215a34abbfd9a5686c405f55805f1e9d81df242688702cf5e73cf8d618
-[SWAP] <enode://23ae0e62f97833d542ad742ab125b405b1892f1385b4c27ba309b547906228dd7e81069f2d4c85e0518d360c7aaf9a528c57a9cd1d97d28a4c6bc93b7d2aa4fb@@195.228.155.76:30301> set autocash to every 5m0s, max uncashed limit: 50000000000000
-[SWAP] <enode://23ae0e62f97833d542ad742ab125b405b1892f1385b4c27ba309b547906228dd7e81069f2d4c85e0518d360c7aaf9a528c57a9cd1d97d28a4c6bc93b7d2aa4fb@@195.228.155.76:30301> autodeposit off (not buying)
-[SWAP] <enode://23ae0e62f97833d542ad742ab125b405b1892f1385b4c27ba309b547906228dd7e81069f2d4c85e0518d360c7aaf9a528c57a9cd1d97d28a4c6bc93b7d2aa4fb@@195.228.155.76:30301> remote profile set: pay at: 100, drop at: 10000, buy at: 20000000000, sell at: 20000000000
-[BZZ] SWAP arrangement with <enode://23ae0e62f97833d542ad742ab125b405b1892f1385b4c27ba309b547906228dd7e81069f2d4c85e0518d360c7aaf9a528c57a9cd1d97d28a4c6bc93b7d2aa4fb@@195.228.155.76:30301>: purchase from peer disabled; selling to peer enabled at 20000000000 wei/chunk)
-@end smallquotation
+@example
+[CHEQUEBOOK] initialised inbox (0x9585...3bceee6c -> 0xa5df94be...bbef1e5) @math{\swarrow }
+      @math{\hookrightarrow} expected signer: 041e18592......702cf5e73cf8d618
+[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301> @math{\swarrow }
+      @math{\hookrightarrow} set autocash to every 5m0s, max uncashed limit: 50000000000000
+[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301> @math{\swarrow }
+      @math{\hookrightarrow} autodeposit off (not buying)
+[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301> @math{\swarrow }
+      @math{\hookrightarrow} remote profile set: pay at: 100, drop at: 10000, @math{\swarrow }
+            @math{\hookrightarrow}buy at: 20000000000, sell at: 20000000000
+[BZZ] SWAP arrangement with <enode://23ae0e62......8a4c6bc93b7d2aa4fb@math{\swarrow }
+      @math{\hookrightarrow} @@195.228.155.76:30301>: purchase from peer disabled;@math{\swarrow }
+            @math{\hookrightarrow} selling to peer enabled at 20000000000 wei/chunk)
+@end example
 
 Depending on autodeposit settings, the chequebook will be regularly replenished:
 @cindex autodeposit
 
 
-@smallquotation
-[BZZ] SWAP auto deposit ON for 0x6d2c5b -> 0xefbb0c: interval = 5m0s, threshold = 50000000000000, buffer = 100000000000000)
-swap03.log:I1028 10:03:40.576238   59241 cheque.go:358] deposited 100000000000000 wei to chequebook (0xefbb0c02c4aa745ffd8866ff923578555ab16dea, balance: 100000000000000, target: 100000000000000)
-@end smallquotation
+@example
+[BZZ] SWAP auto deposit ON for 0x6d2c5b -> 0xefbb0c: @math{\swarrow }
+        @math{\hookrightarrow} interval = 5m0s, threshold = 50000000000000,@math{\swarrow }
+                @math{\hookrightarrow} buffer = 100000000000000)
+swap03.log:I1028 10:03:40.576238   59241 cheque.go:358] deposited@math{\swarrow }
+      @math{\hookrightarrow} 100000000000000 wei to chequebook (0xefbb0c0...16dea, @math{\swarrow }
+            @math{\hookrightarrow}balance: 100000000000000, target: 100000000000000)
+@end example
 
 
 The peer with no chequebook first should not be allowed to download, retrieve requests will not go out.
 Now the other is able to pay, so they can retrieve chunks from the first peer and puts them in positive, which they can then use to retrieve as well.
 However only down to 0 balance, after that no more requests allowed to go out
 
-@smallquotation
-[BZZ] netStore.startSearch: unable to send retrieveRequest to peer [aff89da0c66cc6368113e3c8df9cdfb31a3f69f61db7c102c06d0623e5671c01]: [SWAP] <enode://23ae0e62f97833d542ad742ab125b405b1892f1385b4c27ba309b547906228dd7e81069f2d4c85e0518d360c7aaf9a528c57a9cd1d97d28a4c6bc93b7d2aa4fb@@195.228.155.76:30301> we cannot have debt (unable to buy)
-@end smallquotation
+@example
+[BZZ] netStore.startSearch: unable to send retrieveRequest @math{\swarrow }
+      @math{\hookrightarrow}to peer [aff89da0c6...623e5671c01]:
+[SWAP]  <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301>@math{\swarrow }
+      @math{\hookrightarrow} we cannot have debt (unable to buy)
+@end example
 
 If a malicious peer tries to send request the remote peer will know that they got no contract and interprets it as adverserial behaviour resulting in the peer being dropped.
 Finally we start mining, restart the node, the second one autodeploys, the peers sync their chains and reconnect and then all goes smooth:
 
-@smallquotation
-initialised inbox (0x95850c6871c43d237d1c83bc06a1d4e93bceee6c -> 0xa5df94be30159a9f8078ebe9a6bc7b586bbef1e5) expected signer: 041e185925bb92deb0335a7705240ef145a2b96bcd608a323dc8e7b26ae47cf5423d9a60215a34abbfd9a5686c405f55805f1e9d81df242688702cf5e73cf8d618
-[SWAP] <enode://23ae0e62f97833d542ad742ab125b405b1892f1385b4c27ba309b547906228dd7e81069f2d4c85e0518d360c7aaf9a528c57a9cd1d97d28a4c6bc93b7d2aa4fb@@195.228.155.76:30301> set autocash to every 5m0s, max uncashed limit: 50000000000000
-[SWAP] <enode://23ae0e62f97833d542ad742ab125b405b1892f1385b4c27ba309b547906228dd7e81069f2d4c85e0518d360c7aaf9a528c57a9cd1d97d28a4c6bc93b7d2aa4fb@@195.228.155.76:30301> set autodeposit to every 5m0s, pay at: 50000000000000, buffer: 100000000000000
-[SWAP] <enode://23ae0e62f97833d542ad742ab125b405b1892f1385b4c27ba309b547906228dd7e81069f2d4c85e0518d360c7aaf9a528c57a9cd1d97d28a4c6bc93b7d2aa4fb@@195.228.155.76:30301> remote profile set: pay at: 100, drop at: 10000, buy at: 20000000000, sell at: 20000000000
-[SWAP] <enode://23ae0e62f97833d542ad742ab125b405b1892f1385b4c27ba309b547906228dd7e81069f2d4c85e0518d360c7aaf9a528c57a9cd1d97d28a4c6bc93b7d2aa4fb@@195.228.155.76:30301> remote profile set: pay at: 100, drop at: 10000, buy at: 20000000000, sell at: 20000000000
-[BZZ] SWAP arrangement with <enode://23ae0e62f97833d542ad742ab125b405b1892f1385b4c27ba309b547906228dd7e81069f2d4c85e0518d360c7aaf9a528c57a9cd1d97d28a4c6bc93b7d2aa4fb@@195.228.155.76:30301>: purchase from peer enabled at 20000000000 wei/chunk; selling to peer enabled at 20000000000 wei/chunk)
-@end smallquotation
+@example
+initialised inbox (0x95850c6...bceee6c -> 0xa5df94b...bef1e5) expected signer: 041e185925bb......702cf5e73cf8d618
+[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301> set autocash to every 5m0s, max uncashed limit: 50000000000000
+[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301> set autodeposit to every 5m0s, pay at: 50000000000000, buffer: 100000000000000
+[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301> remote profile set: pay at: 100, drop at: 10000, buy at: 20000000000, sell at: 20000000000
+[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301> remote profile set: pay at: 100, drop at: 10000, buy at: 20000000000, sell at: 20000000000
+[BZZ] SWAP arrangement with <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301>: purchase from peer enabled at 20000000000 wei/chunk; selling to peer enabled at 20000000000 wei/chunk)
+@end example
 
 As part of normal operation, after a peer reaches a balance of @code{PayAt} (number of chunks), a cheque payment is sent via the protocol. Logs on the receiving end:
 
