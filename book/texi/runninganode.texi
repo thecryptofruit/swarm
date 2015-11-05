@@ -264,9 +264,9 @@ This section lists all the options you can set in the config file @file{<datadir
 @node Getting started,  , Configuration options, Running a node
 @section Getting started
 
-Use @command{geth} with the @code{--bzzaccount} parameter to start the client with Swarm enabled. If you want automatic deposits to your chequebook, then this account should be unlocked.
+Use @command{geth} with the @code{--bzzaccount} parameter to start the client with Swarm enabled. If you want automatic deposits to your chequebook, then this account should be unlocked @code{--unlock}.
 
-By default, the config file is sought under @file{<datadir>/bzz/<bzzaccount>/config.json}. If this file does not exist, the default config is written out which you can edit (the directories on the path will be created if necessary). In this case or if @code{config.Contract} is blank (zero address), a new chequebook contract is deployed. Until the contract is confirmed on the blockchain, no outgoing retrieve requests will be allowed.
+By default, the config file is sought under @file{<datadir>/bzz/<bzzaccount>/config.json}. If this file does not exist at startup, the default config file is created which you can then edit (the directories on the path will be created if necessary). In this case or if @code{config.Contract} is blank (zero address), a new chequebook contract is deployed. Until the contract is confirmed on the blockchain, no outgoing retrieve requests will be allowed.
 
 @example
 geth --bzzaccount 0 --unlock
@@ -281,13 +281,13 @@ geth --bzzaccount 0 --unlock
 @subsection Setting up SWAP
 
 SWAP (Swarm accounting protocol) is the  system that allows fair utilisation of bandwidth (see @ref{Incentivisation}, esp. @ref{SWAP -- Swarm Accounting Protocol}).
-When the client is launched and the chequebook contract does not exist or the given contract is invalid, the client attempts to autodeploy a chequebook:
+In order for SWAP to be used, a chequebook contract has to have been deployed. If the chequebook contract does not exist when the client is launched or if the contract specified in the config file is invalid, then the client attempts to autodeploy a chequebook:
 @cindex chequebook
 @cindex autodeploy (chequebook contract)
 
-@smallquotation
-[BZZ] SWAP Deploying new chequebook (owner: 0xe10536ae628f7d6e319435ef9b429dcdc085e491)
-@end smallquotation
+@example
+[BZZ] SWAP Deploying new chequebook (owner: 0xe10536...5e491)
+@end example
 
 If you already have a valid chequebook on the blockchain you can just enter it in the config file @code{Contract} field.
 @cindex chequebook contract address (@code{Contract} configuration parameter)
@@ -297,41 +297,46 @@ You can set a separate account as beneficiary to which the cashed cheque payment
 @cindex benefieciary (@code{Beneficiary} configuration parameter)
 @vrindex Beneficiary, recipient address for service payments
 
-However, as the baseaccount has no funds, autodeployment fails already at sending the transaction due to low balance. Note that this can also happen if your blockchain is not synchronised.
+Autodeployment of the chequebook can fail if the baseaccount has no funds and cannot pay for the transaction. Note that this can also happen if your blockchain is not synchronised. In this case you will see the log message:
 
+@example
+[BZZ] SWAP unable to deploy new chequebook: unable to send chequebook 
+      @math{\hookrightarrow}creation transaction: Account does not exist or account
+      @math{\hookrightarrow} balance too low...retrying in 10s
+@end example
 
-@smallquotation
-[BZZ] SWAP unable to deploy new chequebook: unable to send chequebook creation transaction: Account does not exist or account balance too low...retrying in 10s
-@end smallquotation
-
-Now if you connect to another bzz capable node, the arrangement will be that you cannot do purchase. If the remote peers contract is found to be a valid chequebook, then selling is enabled, otherwise it is not.
+If at this point you connect to another bzz capable node, the arrangement is that you cannot purchase and chunks. If the remote peers contract is found to be a valid chequebook, then you can sell to that peer; otherwise selling is disabled also.
 Selling is also disabled if remote peer advertise a lower maximum accepted chunk price than our offer.
 @cindex maximum accepted chunk price (@code{BuyAt})
 @cindex offered chunk price (@code{BuyAt})
 @vrindex SellAt, offered chunk price
 @vrindex BuyAt, maximum accepted chunk price
 
-@smallquotation
-[BZZ] SWAP arrangement with <enode://23ae0e62f97833d542ad742ab125b405b1892f1385b4c27ba309b547906228dd7e81069f2d4c85e0518d360c7aaf9a528c57a9cd1d97d28a4c6bc93b7d2aa4fb@@195.228.155.76:30301>: purchase from peer disabled; selling to peer disabled)
-@end smallquotation
+@example
+[BZZ] SWAP arrangement with <enode://23ae0e62......8a4c6bc93b7d2aa4fb
+      @math{\hookrightarrow}@@195.228.155.76:30301>: purchase from peer disabled;
+      @math{\hookrightarrow} selling to peer disabled)
+@end example
 
 Since no business is possible here, the connection is idle until at least one party has a contract. In fact, this is only enabled for a test phase.
-If one is not allowed to purchase, no outgoing requests are allowed. If we are trying to download content we dont have locally, the request might fail (unless we got credit with other peers).
-
-@smallquotation
-[BZZ] netStore.startSearch: unable to send retrieveRequest to peer [<addr>]: [SWAP] <enode://23ae0e62f97833d542ad742ab125b405b1892f1385b4c27ba309b547906228dd7e81069f2d4c85e0518d360c7aaf9a528c57a9cd1d97d28a4c6bc93b7d2aa4fb@@195.228.155.76:30301> we cannot have debt (unable to buy)
-@end smallquotation
-
-Once one of the nodes has funds (say after mining a bit), and the network is mining, the autodeployment eventually succeeds:
+If we are not allowed to purchase chunks, then no outgoing requests are allowed. If we still try to download content that we dont have locally, the request will fail (unless we have credit with other peers).
 
 @example
-[CHEQUEBOOK] chequebook deployed at 0x77de9813e52e3a...c8835ea7  @math{\swarrow }
+[BZZ] netStore.startSearch: unable to send retrieveRequest to peer
+      @math{\hookrightarrow} [<addr>]: [SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb
+      @math{\hookrightarrow}@@195.228.155.76:30301> we cannot have debt (unable to buy)
+@end example
+
+Once one of the nodes has funds (say after mining a bit), and also someone on the network is mining, then the autodeployment will eventually succeed:
+
+@example
+[CHEQUEBOOK] chequebook deployed at 0x77de9813e52e3a...c8835ea7  
       @math{\hookrightarrow}(owner: 0xe10536ae628f7d6e319435ef9b429dcdc085e491)
-[CHEQUEBOOK] new chequebook initialised from 0x77de9813e52e3a...c8835ea7 @math{\swarrow }
+[CHEQUEBOOK] new chequebook initialised from 0x77de9813e52e3a...c8835ea7 
       @math{\hookrightarrow}(owner: 0xe10536ae628f7d6e319435ef9b429dcdc085e491)
-[BZZ] SWAP auto deposit ON for 0xe10536 -> 0x77de98: interval = 5m0s, @math{\swarrow }
+[BZZ] SWAP auto deposit ON for 0xe10536 -> 0x77de98: interval = 5m0s, 
        @math{\hookrightarrow} threshold = 50000000000000, buffer = 100000000000000)
-[BZZ] Swarm: new chequebook set: saving config file, resetting all  @math{\swarrow }
+[BZZ] Swarm: new chequebook set: saving config file, resetting all  
       @math{\hookrightarrow}connections in the hive
 [KΛÐ]: remove node enode://23ae0e6...aa4fb@@195.228.155.76:30301 from table
 @end example
@@ -340,17 +345,17 @@ Once the node deployed a new chequebook its address is set in the config file an
 
 
 @example
-[CHEQUEBOOK] initialised inbox (0x9585...3bceee6c -> 0xa5df94be...bbef1e5) @math{\swarrow }
+[CHEQUEBOOK] initialised inbox (0x9585...3bceee6c -> 0xa5df94be...bbef1e5)
       @math{\hookrightarrow} expected signer: 041e18592......702cf5e73cf8d618
-[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301> @math{\swarrow }
+[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301> 
       @math{\hookrightarrow} set autocash to every 5m0s, max uncashed limit: 50000000000000
-[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301> @math{\swarrow }
+[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301> 
       @math{\hookrightarrow} autodeposit off (not buying)
-[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301> @math{\swarrow }
-      @math{\hookrightarrow} remote profile set: pay at: 100, drop at: 10000, @math{\swarrow }
+[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301> 
+      @math{\hookrightarrow} remote profile set: pay at: 100, drop at: 10000,
             @math{\hookrightarrow}buy at: 20000000000, sell at: 20000000000
-[BZZ] SWAP arrangement with <enode://23ae0e62......8a4c6bc93b7d2aa4fb@math{\swarrow }
-      @math{\hookrightarrow} @@195.228.155.76:30301>: purchase from peer disabled;@math{\swarrow }
+[BZZ] SWAP arrangement with <enode://23ae0e62......8a4c6bc93b7d2aa4fb
+      @math{\hookrightarrow} @@195.228.155.76:30301>: purchase from peer disabled;
             @math{\hookrightarrow} selling to peer enabled at 20000000000 wei/chunk)
 @end example
 
@@ -359,52 +364,67 @@ Depending on autodeposit settings, the chequebook will be regularly replenished:
 
 
 @example
-[BZZ] SWAP auto deposit ON for 0x6d2c5b -> 0xefbb0c: @math{\swarrow }
-        @math{\hookrightarrow} interval = 5m0s, threshold = 50000000000000,@math{\swarrow }
+[BZZ] SWAP auto deposit ON for 0x6d2c5b -> 0xefbb0c: 
+        @math{\hookrightarrow} interval = 5m0s, threshold = 50000000000000,
                 @math{\hookrightarrow} buffer = 100000000000000)
-swap03.log:I1028 10:03:40.576238   59241 cheque.go:358] deposited@math{\swarrow }
-      @math{\hookrightarrow} 100000000000000 wei to chequebook (0xefbb0c0...16dea, @math{\swarrow }
+swap03.log:I1028 10:03:40.576238   59241 cheque.go:358] deposited
+      @math{\hookrightarrow} 100000000000000 wei to chequebook (0xefbb0c0...16dea, 
             @math{\hookrightarrow}balance: 100000000000000, target: 100000000000000)
 @end example
 
 
-The peer with no chequebook first should not be allowed to download, retrieve requests will not go out.
-Now the other is able to pay, so they can retrieve chunks from the first peer and puts them in positive, which they can then use to retrieve as well.
-However only down to 0 balance, after that no more requests allowed to go out
+The peer with no chequebook (yet) should not be allowed to download and thus retrieve requests will not go out.
+The other peer however is able to pay, therefore this other pper can retrieve chunks from the first peer and pay for them. This in turn puts the first peer in positive, which they can then use both to (auto)deploy their own chequebook and to pay for retrieving data as well. If they do not deploy a chequebook for whatever reason, they can use their balance to pay for retrieving data, but only down to 0 balance; after that no more requests are allowed to go out. Again you will see:
 
 @example
-[BZZ] netStore.startSearch: unable to send retrieveRequest @math{\swarrow }
+[BZZ] netStore.startSearch: unable to send retrieveRequest 
       @math{\hookrightarrow}to peer [aff89da0c6...623e5671c01]:
-[SWAP]  <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301>@math{\swarrow }
+[SWAP]  <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301>
       @math{\hookrightarrow} we cannot have debt (unable to buy)
 @end example
 
-If a malicious peer tries to send request the remote peer will know that they got no contract and interprets it as adverserial behaviour resulting in the peer being dropped.
-Finally we start mining, restart the node, the second one autodeploys, the peers sync their chains and reconnect and then all goes smooth:
+If a peer without a chequebook tries to send requests without paying, then the remote peer (who can see that they have no chequebook contract) interprets this as adverserial behaviour resulting in the peer being dropped.
+
+So at this point we start mining and restart the node. The second chequebook autodeploys, the peers sync their chains and reconnect and then all goes smooth:
 
 @example
-initialised inbox (0x95850c6...bceee6c -> 0xa5df94b...bef1e5) expected signer: 041e185925bb......702cf5e73cf8d618
-[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301> set autocash to every 5m0s, max uncashed limit: 50000000000000
-[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301> set autodeposit to every 5m0s, pay at: 50000000000000, buffer: 100000000000000
-[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301> remote profile set: pay at: 100, drop at: 10000, buy at: 20000000000, sell at: 20000000000
-[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301> remote profile set: pay at: 100, drop at: 10000, buy at: 20000000000, sell at: 20000000000
-[BZZ] SWAP arrangement with <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301>: purchase from peer enabled at 20000000000 wei/chunk; selling to peer enabled at 20000000000 wei/chunk)
+initialised inbox (0x95850c6...bceee6c -> 0xa5df94b...bef1e5) 
+      @math{\hookrightarrow} expected signer: 041e185925bb......702cf5e73cf8d618
+[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301> 
+      @math{\hookrightarrow} set autocash to every 5m0s, max uncashed limit: 50000000000000
+[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301> 
+      @math{\hookrightarrow} set autodeposit to every 5m0s, pay at: 50000000000000, 
+      @math{\hookrightarrow} buffer: 100000000000000
+[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301> 
+      @math{\hookrightarrow} remote profile set: pay at: 100, drop at: 10000, 
+      @math{\hookrightarrow} buy at: 20000000000, sell at: 20000000000
+[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301> 
+      @math{\hookrightarrow} remote profile set: pay at: 100, drop at: 10000, 
+      @math{\hookrightarrow} buy at: 20000000000, sell at: 20000000000
+[BZZ] SWAP arrangement with <enode://23ae0e62......8a4c6bc93b7d2aa4fb  
+      @math{\hookrightarrow}@@195.228.155.76:30301>: purchase from peer enabled at 
+      @math{\hookrightarrow} 20000000000 wei/chunk; selling to peer 
+      @math{\hookrightarrow} enabled at 20000000000 wei/chunk)
 @end example
 
 As part of normal operation, after a peer reaches a balance of @code{PayAt} (number of chunks), a cheque payment is sent via the protocol. Logs on the receiving end:
 
-@smallquotation
-[CHEQUEBOOK] verify cheque: contract: 0x95850c6871c43d237d1c83bc06a1d4e93bceee6c, beneficiary: 0xe10536ae628f7d6e319435ef9b429dcdc085e491, amount: 868020000000000, signature: a7d52dc744b8d192c42018ec828a6671a2fd34afbc2641dab9cb571cc120810061b197747c781d80a86baa55d22f0cf6c7d3761e78dd0a034676b56c82f1fe2001 - sum: 866020000000000
-[CHEQUEBOOK] received cheque of 2000000000000 wei in inbox (0x95850c6871c43d237d1c83bc06a1d4e93bceee6c, uncashed: 42000000000000)
-@end smallquotation
+@example
+[CHEQUEBOOK] verify cheque: contract: 0x95850...eee6c, beneficiary:   
+      @math{\hookrightarrow}0xe10536ae628...cdc085e491, amount: 868020000000000,   
+      @math{\hookrightarrow}signature: a7d52dc744b8......f1fe2001 - sum: 866020000000000
+[CHEQUEBOOK] received cheque of 2000000000000 wei in inbox 
+      @math{\hookrightarrow}(0x95850...eee6c, uncashed: 42000000000000)
+@end example
 
 The cheque is verified. If uncashed cheques have an outstanding balance of more than @code{AutoCashThreshold}, the last cheque (with a cumulative amount) is cashed. This is done by sending a transaction containing the cheque to the remote peer's cheuebook contract. Therefore in order to cash a payment, your sender account (baseaddress) needs to have funds and the network should be mining.
 @cindex autocash
 @cindex cheque
 
-@smallquotation
-[CHEQUEBOOK] cashing cheque (total: 104000000000000) on chequebook (0x95850c6871c43d237d1c83bc06a1d4e93bceee6c) sending to 0xa5df94be30159a9f8078ebe9a6bc7b586bbef1e5aaz
-@end smallquotation
+@example
+[CHEQUEBOOK] cashing cheque (total: 104000000000000) on chequebook 
+      @math{\hookrightarrow} (0x95850c6...eee6c) sending to 0xa5df94be...e5aaz
+@end example
 
 For further fine tuning of SWAP, see @ref{SWAP parameters}.
 @vrindex AutoDepositBuffer, credit buffer
