@@ -87,7 +87,7 @@ Here the second parameter (index.html) is to be mapped to the root path '/'.
 Your local swarm instance has an http interface running on port 8500 (by default). To download a file is thus a simple matter of pointing your browser to
 
 @example
-http://localhost:8500/65b2a32ab2230d7d2bad2616e804d374921be68758009491cd52c727e37b4979
+http://localhost:8500/65b2a32ab2...7b4979
 @end example
 
 or, if you prefer, you can use the console 
@@ -256,7 +256,7 @@ eth.getCode(urlHintAddr);
 
 If these checks are ok, you are all set up.
 
-@subsubheading Creating and deploying a contract
+@subsubheading Creating and a contract
 In order to continue this example, we must write a contract and deploy its compiled code on the blockchain. We proceed:
 
 @example
@@ -300,9 +300,11 @@ multiply7.multiply.call(6);
 The contract.info substructure given back from the solidity compiler can be deployed with swarm. The resulting contenthash is registered in the HashReg.
 
 @example
-contenthash = bzz.put(JSON.stringify(contract.info), "application/eth-contractinfo+json");
+contenthash = bzz.put(JSON.stringify(contract.info),  @math{\swarrow }
+      @math{\hookrightarrow} "application/eth-contractinfo+json");
 admin.register(primary, contractaddress, contenthash);
-miner.start(1); admin.sleepBlocks(1); miner.stop(); // do this if you are on a private chain self mining
+miner.start(1); admin.sleepBlocks(1); miner.stop();
+//mining only needed if you are on a private chain self mining
 @end example
 
 
@@ -337,7 +339,8 @@ And now we can go one step further and use the globalRegistrar name registry for
 @example
 admin.stopNatSpec();
 registrar.reserve.sendTransaction("multiply7", {from:primary})
-registrar.setAddress.sendTransaction("multiply7", contractaddress, true, {from:primary})
+registrar.setAddress.sendTransaction("multiply7",   @math{\swarrow }
+                     @math{\hookrightarrow} contractaddress, true, {from:primary})
 @end example
 
 You need to wait for these 2 transactions to be confirmed. 
@@ -378,9 +381,11 @@ web3.sha3(eth.getCode(registrar.addr("multiply7")))
 Now that we know how to register names, let us see how to use them in practice
 
 @example
-albumHash = bzz.upload("/Users/tron/Work/ethereum/go-ethereum/bzz/bzzdemo/", "index.html")
+albumHash = bzz.upload("/Users/tron/Work/ethereum/go-ethereum/bzz/bzzdemo/",  @math{\swarrow }
+              @math{\hookrightarrow}  "index.html")
 bzz.register(primary, "album", albumHash)
-miner.start(1); admin.sleepBlocks(1); miner.stop(); // if you are on a private chain self mining
+miner.start(1); admin.sleepBlocks(1); miner.stop();
+//mining needed if you are on a private chain
 bzz.resolve("album")
 admin.httpGet("bzz:/album/")
 @end example
@@ -393,7 +398,7 @@ bzz.upload("/tmp/album", "index.html");
 
 And using the bzz URL's in the http module we can now try these (matching, fallbacks errors)
 @example
-admin.httpGet("bzz://51b68b0f44e8c6ef096797efbed04185fd4c4a639cd5ffe52e96076519c1385d/")
+admin.httpGet("bzz://51b68b0f44e8c6ef...1385d/")
 admin.httpGet("bzz://album/index.html")
 admin.httpGet("bzz://album/index.css")
 @end example
@@ -409,11 +414,15 @@ http.get("http://raw/album/?content\_type=\"text/plain\"")
 Suppose we have registered the name @code{swarmpicture} as in
 
 @example
-bzz.register(primary, "swarmpicture", bzz.upload("bzz.demo/swarm-inside.png", "swarm-inside.png"))
+bzz.register(primary, "swarmpicture",   @math{\swarrow }
+        @math{\hookrightarrow}  bzz.upload("bzz.demo/swarm-inside.png", "swarm-inside.png"))
 @end example
 
 After some blocks are mined, this content will become accessible at
-@code{http://localhost:8500/swarmpicture/} and the resolver should work too as:
+
+@code{http://localhost:8500/swarmpicture/} 
+
+and the resolver should work too as:
 @example
 bzz.resolve("swarmpicture")
 '0x58c604de89bf3ecbbbfc90948b273ae3f956e6106babd5e8bacb3615213d3c2e'
@@ -427,7 +436,8 @@ v1 = eth.blockNumber
 
 Now we realise that we have made a mistake and want to include the full logo in our site and se we re-register:
 @example
-bzz.register(primary, "swarmpicture", bzz.upload("bzz.demo/MSTR-Swarm-Logo.jpg", "MSTR-Swarm-Logo.jpg"))
+bzz.register(primary, "swarmpicture",  @math{\swarrow }
+   @math{\hookrightarrow}  bzz.upload("bzz.demo/MSTR-Swarm-Logo.jpg", "MSTR-Swarm-Logo.jpg"))
 @end example
 
 then mine some more @code{miner.start(); admin.sleepBlocks(1); miner.stop();} and then we can resolve as
@@ -447,11 +457,14 @@ The full historical record is addressable:
 And you can see it with the bzz-aware http client:
 
 @example
-js
 > http.get("bzz://raw/swarmpicture:"+v1+"?content\_type=text/json")
-'{"entries":[{"path":"swarm-inside.png","hash":"a41a826e6dae90816e432993576d2418c33f40f4e6774df457706e2890202228","contentType":"image/png","status":0},{"path":"","hash":"a41a826e6dae90816e432993576d2418c33f40f4e6774df457706e2890202228","contentType":"image/png","status":0}]}'
+'{"entries":[{"path":"swarm-inside.png","hash":"a41a826e...28", @math{\swarrow }
+   @math{\hookrightarrow} "contentType":"image/png","status":0},{"path":"", @math{\swarrow }
+      @math{\hookrightarrow}"hash":"a41a826e...28","contentType":"image/png","status":0}]}'
 > http.get("bzz://raw/swarmpicture:"+v2+"?content\_type=text/json")
-'{"entries":[{"path":"MSTR-Swarm-Logo.jpg","hash":"35e6a17fab09d7f84f1feacfe629a2c0660d6c3ca70db5c8ff2c7ac2c537ce1d","contentType":"image/jpeg","status":0},{"path":"","hash":"35e6a17fab09d7f84f1feacfe629a2c0660d6c3ca70db5c8ff2c7ac2c537ce1d","contentType":"image/jpeg","status":0}]}'
+'{"entries":[{"path":"MSTR-Swarm-Logo.jpg","hash":"35e6a17f...1d", @math{\swarrow }
+   @math{\hookrightarrow}"contentType":"image/jpeg","status":0},{"path":"", @math{\swarrow }
+      @math{\hookrightarrow}"hash":"35e6a17f...1d","contentType":"image/jpeg","status":0}]}'
 @end example
 
 
