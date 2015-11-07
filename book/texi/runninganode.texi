@@ -1,4 +1,4 @@
-@node  Running a node, Usage, Introduction, Top
+﻿@node  Running a node, Usage, Introduction, Top
 @chapter  Running a node
 
 
@@ -344,8 +344,12 @@ Autodeployment of the chequebook can fail if the baseaccount has no funds and ca
 
 @example
 [BZZ] SWAP unable to deploy new chequebook: unable to send chequebook
-      @math{\hookrightarrow}creation transaction: Account does not exist or account
-      @math{\hookrightarrow} balance too low...retrying in 10s
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+ creation transaction: Account does not exist or account
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+ balance too low...retrying in 10s
 @end example
 
 If at this point you connect to another bzz capable node, the arrangement is that you cannot purchase and chunks. If the remote peers contract is found to be a valid chequebook, then you can sell to that peer; otherwise selling is disabled also.
@@ -357,8 +361,12 @@ Selling is also disabled if remote peer advertise a lower maximum accepted chunk
 
 @example
 [BZZ] SWAP arrangement with <enode://23ae0e62......8a4c6bc93b7d2aa4fb
-      @math{\hookrightarrow}@@195.228.155.76:30301>: purchase from peer disabled;
-      @math{\hookrightarrow} selling to peer disabled)
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+@@195.228.155.76:30301>: purchase from peer disabled;
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+ selling to peer disabled)
 @end example
 
 Since no business is possible here, the connection is idle until at least one party has a contract. In fact, this is only enabled for a test phase.
@@ -366,21 +374,33 @@ If we are not allowed to purchase chunks, then no outgoing requests are allowed.
 
 @example
 [BZZ] netStore.startSearch: unable to send retrieveRequest to peer
-      @math{\hookrightarrow} [<addr>]: [SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb
-      @math{\hookrightarrow}@@195.228.155.76:30301> we cannot have debt (unable to buy)
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+ [<addr>]: [SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+@@195.228.155.76:30301> we cannot have debt (unable to buy)
 @end example
 
 Once one of the nodes has funds (say after mining a bit), and also someone on the network is mining, then the autodeployment will eventually succeed:
 
 @example
 [CHEQUEBOOK] chequebook deployed at 0x77de9813e52e3a...c8835ea7
-      @math{\hookrightarrow}(owner: 0xe10536ae628f7d6e319435ef9b429dcdc085e491)
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+(owner: 0xe10536ae628f7d6e319435ef9b429dcdc085e491)
 [CHEQUEBOOK] new chequebook initialised from 0x77de9813e52e3a...c8835ea7
-      @math{\hookrightarrow}(owner: 0xe10536ae628f7d6e319435ef9b429dcdc085e491)
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+(owner: 0xe10536ae628f7d6e319435ef9b429dcdc085e491)
 [BZZ] SWAP auto deposit ON for 0xe10536 -> 0x77de98: interval = 5m0s,
-       @math{\hookrightarrow} threshold = 50000000000000, buffer = 100000000000000)
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+ threshold = 50000000000000, buffer = 100000000000000)
 [BZZ] Swarm: new chequebook set: saving config file, resetting all
-      @math{\hookrightarrow}connections in the hive
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+connections in the hive
 [KΛÐ]: remove node enode://23ae0e6...aa4fb@@195.228.155.76:30301 from table
 @end example
 
@@ -389,17 +409,31 @@ Once the node deployed a new chequebook its address is set in the config file an
 
 @example
 [CHEQUEBOOK] initialised inbox (0x9585...3bceee6c -> 0xa5df94be...bbef1e5)
-      @math{\hookrightarrow} expected signer: 041e18592......702cf5e73cf8d618
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+ expected signer: 041e18592......702cf5e73cf8d618
 [SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301>
-      @math{\hookrightarrow} set autocash to every 5m0s, max uncashed limit: 50000000000000
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+ set autocash to every 5m0s, max uncashed limit: 50000000000000
 [SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301>
-      @math{\hookrightarrow} autodeposit off (not buying)
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+ autodeposit off (not buying)
 [SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301>
-      @math{\hookrightarrow} remote profile set: pay at: 100, drop at: 10000,
-            @math{\hookrightarrow}buy at: 20000000000, sell at: 20000000000
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+ remote profile set: pay at: 100, drop at: 10000,
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+buy at: 20000000000, sell at: 20000000000
 [BZZ] SWAP arrangement with <enode://23ae0e62......8a4c6bc93b7d2aa4fb
-      @math{\hookrightarrow} @@195.228.155.76:30301>: purchase from peer disabled;
-            @math{\hookrightarrow} selling to peer enabled at 20000000000 wei/chunk)
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+ @@195.228.155.76:30301>: purchase from peer disabled;
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+ selling to peer enabled at 20000000000 wei/chunk)
 @end example
 
 Depending on autodeposit settings, the chequebook will be regularly replenished:
@@ -408,11 +442,19 @@ Depending on autodeposit settings, the chequebook will be regularly replenished:
 
 @example
 [BZZ] SWAP auto deposit ON for 0x6d2c5b -> 0xefbb0c:
-        @math{\hookrightarrow} interval = 5m0s, threshold = 50000000000000,
-                @math{\hookrightarrow} buffer = 100000000000000)
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+ interval = 5m0s, threshold = 50000000000000,
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+ buffer = 100000000000000)
 swap03.log:I1028 10:03:40.576238   59241 cheque.go:358] deposited
-      @math{\hookrightarrow} 100000000000000 wei to chequebook (0xefbb0c0...16dea,
-            @math{\hookrightarrow}balance: 100000000000000, target: 100000000000000)
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+ 100000000000000 wei to chequebook (0xefbb0c0...16dea,
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+balance: 100000000000000, target: 100000000000000)
 @end example
 
 
@@ -421,9 +463,13 @@ The other peer however is able to pay, therefore this other peer can retrieve ch
 
 @example
 [BZZ] netStore.startSearch: unable to send retrieveRequest
-      @math{\hookrightarrow}to peer [aff89da0c6...623e5671c01]:
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+to peer [aff89da0c6...623e5671c01]:
 [SWAP]  <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301>
-      @math{\hookrightarrow} we cannot have debt (unable to buy)
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+ we cannot have debt (unable to buy)
 @end example
 
 If a peer without a chequebook tries to send requests without paying, then the remote peer (who can see that they have no chequebook contract) interprets this as adverserial behaviour resulting in the peer being dropped.
@@ -432,32 +478,60 @@ Following on in this example, we start mining and then restart the node. The sec
 
 @example
 initialised inbox (0x95850c6...bceee6c -> 0xa5df94b...bef1e5)
-      @math{\hookrightarrow} expected signer: 041e185925bb......702cf5e73cf8d618
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+ expected signer: 041e185925bb......702cf5e73cf8d618
 [SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301>
-      @math{\hookrightarrow} set autocash to every 5m0s, max uncashed limit: 50000000000000
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+ set autocash to every 5m0s, max uncashed limit: 50000000000000
 [SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301>
-      @math{\hookrightarrow} set autodeposit to every 5m0s, pay at: 50000000000000,
-      @math{\hookrightarrow} buffer: 100000000000000
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+ set autodeposit to every 5m0s, pay at: 50000000000000,
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+ buffer: 100000000000000
 [SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301>
-      @math{\hookrightarrow} remote profile set: pay at: 100, drop at: 10000,
-      @math{\hookrightarrow} buy at: 20000000000, sell at: 20000000000
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+ remote profile set: pay at: 100, drop at: 10000,
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+ buy at: 20000000000, sell at: 20000000000
 [SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301>
-      @math{\hookrightarrow} remote profile set: pay at: 100, drop at: 10000,
-      @math{\hookrightarrow} buy at: 20000000000, sell at: 20000000000
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+ remote profile set: pay at: 100, drop at: 10000,
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+ buy at: 20000000000, sell at: 20000000000
 [BZZ] SWAP arrangement with <enode://23ae0e62......8a4c6bc93b7d2aa4fb
-      @math{\hookrightarrow}@@195.228.155.76:30301>: purchase from peer enabled at
-      @math{\hookrightarrow} 20000000000 wei/chunk; selling to peer
-      @math{\hookrightarrow} enabled at 20000000000 wei/chunk)
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+@@195.228.155.76:30301>: purchase from peer enabled at
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+ 20000000000 wei/chunk; selling to peer
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+ enabled at 20000000000 wei/chunk)
 @end example
 
 As part of normal operation, after a peer reaches a balance of @code{PayAt} (number of chunks), a cheque payment is sent via the protocol. Logs on the receiving end:
 
 @example
 [CHEQUEBOOK] verify cheque: contract: 0x95850...eee6c, beneficiary:
-      @math{\hookrightarrow}0xe10536ae628...cdc085e491, amount: 868020000000000,
-      @math{\hookrightarrow}signature: a7d52dc744b8......f1fe2001 - sum: 866020000000000
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+0xe10536ae628...cdc085e491, amount: 868020000000000,
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+signature: a7d52dc744b8......f1fe2001 - sum: 866020000000000
 [CHEQUEBOOK] received cheque of 2000000000000 wei in inbox
-      @math{\hookrightarrow}(0x95850...eee6c, uncashed: 42000000000000)
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+(0x95850...eee6c, uncashed: 42000000000000)
 @end example
 
 The cheque is verified. If uncashed cheques have an outstanding balance of more than @code{AutoCashThreshold}, the last cheque (with a cumulative amount) is cashed. This is done by sending a transaction containing the cheque to the remote peer's cheuebook contract. Therefore in order to cash a payment, your sender account (baseaddress) needs to have funds and the network should be mining.
@@ -466,7 +540,9 @@ The cheque is verified. If uncashed cheques have an outstanding balance of more 
 
 @example
 [CHEQUEBOOK] cashing cheque (total: 104000000000000) on chequebook
-      @math{\hookrightarrow} (0x95850c6...eee6c) sending to 0xa5df94be...e5aaz
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+ (0x95850c6...eee6c) sending to 0xa5df94be...e5aaz
 @end example
 
 For further fine tuning of SWAP, see @ref{SWAP parameters}.
