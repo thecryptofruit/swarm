@@ -124,6 +124,7 @@ By default the swarm data directory is under the ethereum's data directory but d
 * Main parameters::
 * Storage parameters::
 * Chunker/bzzhash parameters::
+* Syncronisation parameters::
 * Hive/Kademlia parameters::
 * SWAP parameters::
 @end menu
@@ -167,8 +168,9 @@ By default the swarm data directory is under the ethereum's data directory but d
   Storage Radius: minimum proximity order (number of identical prefix bits of address key) for chunks to warrant storage. Given a storage radius @math{r} and total number of chunks in the network @math{n}, the node stores @math{n*2^{-r}} chunks minimum. If you allow @math{b} bytes for guaranteed storage and the chunk storage size is @math{c}, your radius should be set to @math{int(log_2(nc/b))}
 @end defopt
 
-@node Chunker/bzzhash parameters, Hive/Kademlia parameters, Storage parameters, Configuration options
+@node Chunker/bzzhash parameters, Syncronisation parameters, Storage parameters, Configuration options
 @subsection Chunker/bzzhash parameters
+
 @cindex chunker
 @cindex bzzhash
 
@@ -188,7 +190,44 @@ By default the swarm data directory is under the ethereum's data directory but d
   Maximum time before joining a document times out. Not used with Lazy Reader.
 @end defopt
 
-@node Hive/Kademlia parameters, SWAP parameters, Chunker/bzzhash parameters, Configuration options
+@node Syncronisation parameters, Hive/Kademlia parameters, Chunker/bzzhash parameters, Configuration options
+@subsection Syncronisation parameters
+@cindex syncronisation
+@cindex smart sync
+
+@defopt KeyBufferSize (1024)
+In-memory cache for unsynced keys
+@end defopt
+
+@defopt SyncBufferSize (128)
+In-memory cache for unsynced keys
+@end defopt
+
+@defopt SyncCacheSize (1024)
+In-memory cache for outgoing deliveries
+@end defopt
+
+@defopt SyncBatchSize (128)
+Maximum number of unsynced keys sent in one batch
+@end defopt
+
+
+@defopt SyncPriorities ([3, 3, 2, 1, 1])
+Array of 5 priorities corresponding to 5 delivery types:
+delivery, propagation, deletion, history, backlog. Specifying a monotonically decreasing list of priorities is highly recommended.
+@end defopt
+@cindex delivery types
+
+@defopt SyncModes ([true, true, true, true, false])
+A boolean array specifying confirmation mode ON corresponding to 5 delivery types:
+delivery, propagation, deletion, history, backlog. Specifying true for a type means all deliveries will be preceeded by a confirmation roundtrip: the hash key is sent first in an unsyncedKeysMsg and delivered only if confirmed in a deliveryRequestMsg.
+@end defopt
+@cindex delivery types
+@cindex delivery request message
+@cindex unsynced keys message
+
+
+@node Hive/Kademlia parameters, SWAP parameters, Syncronisation parameters, Configuration options
 @subsection Hive/Kademlia parameters
 @cindex Kademlia
 
@@ -228,10 +267,10 @@ By default the swarm data directory is under the ethereum's data directory but d
   Maximum number of chunks served without receiving a cheque. Debt tolerance.
 @end defopt
 
-@defopt DropAt ()
+@defopt DropAt (10000)
   Maximum number of chunks served without receiving a cheque. Debt tolerance.
 @end defopt
-
+@cindex debt tolerance
 
 @defopt AutoCashInterval (@math{3*10^{11}}, 5 minutes)
   Maximum Time before any outstanding cheques are cashed
@@ -304,7 +343,7 @@ You can set a separate account as beneficiary to which the cashed cheque payment
 Autodeployment of the chequebook can fail if the baseaccount has no funds and cannot pay for the transaction. Note that this can also happen if your blockchain is not synchronised. In this case you will see the log message:
 
 @example
-[BZZ] SWAP unable to deploy new chequebook: unable to send chequebook 
+[BZZ] SWAP unable to deploy new chequebook: unable to send chequebook
       @math{\hookrightarrow}creation transaction: Account does not exist or account
       @math{\hookrightarrow} balance too low...retrying in 10s
 @end example
@@ -334,13 +373,13 @@ If we are not allowed to purchase chunks, then no outgoing requests are allowed.
 Once one of the nodes has funds (say after mining a bit), and also someone on the network is mining, then the autodeployment will eventually succeed:
 
 @example
-[CHEQUEBOOK] chequebook deployed at 0x77de9813e52e3a...c8835ea7  
+[CHEQUEBOOK] chequebook deployed at 0x77de9813e52e3a...c8835ea7
       @math{\hookrightarrow}(owner: 0xe10536ae628f7d6e319435ef9b429dcdc085e491)
-[CHEQUEBOOK] new chequebook initialised from 0x77de9813e52e3a...c8835ea7 
+[CHEQUEBOOK] new chequebook initialised from 0x77de9813e52e3a...c8835ea7
       @math{\hookrightarrow}(owner: 0xe10536ae628f7d6e319435ef9b429dcdc085e491)
-[BZZ] SWAP auto deposit ON for 0xe10536 -> 0x77de98: interval = 5m0s, 
+[BZZ] SWAP auto deposit ON for 0xe10536 -> 0x77de98: interval = 5m0s,
        @math{\hookrightarrow} threshold = 50000000000000, buffer = 100000000000000)
-[BZZ] Swarm: new chequebook set: saving config file, resetting all  
+[BZZ] Swarm: new chequebook set: saving config file, resetting all
       @math{\hookrightarrow}connections in the hive
 [KΛÐ]: remove node enode://23ae0e6...aa4fb@@195.228.155.76:30301 from table
 @end example
@@ -351,11 +390,11 @@ Once the node deployed a new chequebook its address is set in the config file an
 @example
 [CHEQUEBOOK] initialised inbox (0x9585...3bceee6c -> 0xa5df94be...bbef1e5)
       @math{\hookrightarrow} expected signer: 041e18592......702cf5e73cf8d618
-[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301> 
+[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301>
       @math{\hookrightarrow} set autocash to every 5m0s, max uncashed limit: 50000000000000
-[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301> 
+[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301>
       @math{\hookrightarrow} autodeposit off (not buying)
-[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301> 
+[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301>
       @math{\hookrightarrow} remote profile set: pay at: 100, drop at: 10000,
             @math{\hookrightarrow}buy at: 20000000000, sell at: 20000000000
 [BZZ] SWAP arrangement with <enode://23ae0e62......8a4c6bc93b7d2aa4fb
@@ -368,11 +407,11 @@ Depending on autodeposit settings, the chequebook will be regularly replenished:
 
 
 @example
-[BZZ] SWAP auto deposit ON for 0x6d2c5b -> 0xefbb0c: 
+[BZZ] SWAP auto deposit ON for 0x6d2c5b -> 0xefbb0c:
         @math{\hookrightarrow} interval = 5m0s, threshold = 50000000000000,
                 @math{\hookrightarrow} buffer = 100000000000000)
 swap03.log:I1028 10:03:40.576238   59241 cheque.go:358] deposited
-      @math{\hookrightarrow} 100000000000000 wei to chequebook (0xefbb0c0...16dea, 
+      @math{\hookrightarrow} 100000000000000 wei to chequebook (0xefbb0c0...16dea,
             @math{\hookrightarrow}balance: 100000000000000, target: 100000000000000)
 @end example
 
@@ -381,7 +420,7 @@ The peer with no chequebook (yet) should not be allowed to download and thus ret
 The other peer however is able to pay, therefore this other peer can retrieve chunks from the first peer and pay for them. This in turn puts the first peer in positive, which they can then use both to (auto)deploy their own chequebook and to pay for retrieving data as well. If they do not deploy a chequebook for whatever reason, they can use their balance to pay for retrieving data, but only down to 0 balance; after that no more requests are allowed to go out. Again you will see:
 
 @example
-[BZZ] netStore.startSearch: unable to send retrieveRequest 
+[BZZ] netStore.startSearch: unable to send retrieveRequest
       @math{\hookrightarrow}to peer [aff89da0c6...623e5671c01]:
 [SWAP]  <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301>
       @math{\hookrightarrow} we cannot have debt (unable to buy)
@@ -392,32 +431,32 @@ If a peer without a chequebook tries to send requests without paying, then the r
 Following on in this example, we start mining and then restart the node. The second chequebook autodeploys, the peers sync their chains and reconnect and then if all goes smoothly the logs will show something like:
 
 @example
-initialised inbox (0x95850c6...bceee6c -> 0xa5df94b...bef1e5) 
+initialised inbox (0x95850c6...bceee6c -> 0xa5df94b...bef1e5)
       @math{\hookrightarrow} expected signer: 041e185925bb......702cf5e73cf8d618
-[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301> 
+[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301>
       @math{\hookrightarrow} set autocash to every 5m0s, max uncashed limit: 50000000000000
-[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301> 
-      @math{\hookrightarrow} set autodeposit to every 5m0s, pay at: 50000000000000, 
+[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301>
+      @math{\hookrightarrow} set autodeposit to every 5m0s, pay at: 50000000000000,
       @math{\hookrightarrow} buffer: 100000000000000
-[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301> 
-      @math{\hookrightarrow} remote profile set: pay at: 100, drop at: 10000, 
+[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301>
+      @math{\hookrightarrow} remote profile set: pay at: 100, drop at: 10000,
       @math{\hookrightarrow} buy at: 20000000000, sell at: 20000000000
-[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301> 
-      @math{\hookrightarrow} remote profile set: pay at: 100, drop at: 10000, 
+[SWAP] <enode://23ae0e62......8a4c6bc93b7d2aa4fb@@195.228.155.76:30301>
+      @math{\hookrightarrow} remote profile set: pay at: 100, drop at: 10000,
       @math{\hookrightarrow} buy at: 20000000000, sell at: 20000000000
-[BZZ] SWAP arrangement with <enode://23ae0e62......8a4c6bc93b7d2aa4fb  
-      @math{\hookrightarrow}@@195.228.155.76:30301>: purchase from peer enabled at 
-      @math{\hookrightarrow} 20000000000 wei/chunk; selling to peer 
+[BZZ] SWAP arrangement with <enode://23ae0e62......8a4c6bc93b7d2aa4fb
+      @math{\hookrightarrow}@@195.228.155.76:30301>: purchase from peer enabled at
+      @math{\hookrightarrow} 20000000000 wei/chunk; selling to peer
       @math{\hookrightarrow} enabled at 20000000000 wei/chunk)
 @end example
 
 As part of normal operation, after a peer reaches a balance of @code{PayAt} (number of chunks), a cheque payment is sent via the protocol. Logs on the receiving end:
 
 @example
-[CHEQUEBOOK] verify cheque: contract: 0x95850...eee6c, beneficiary:   
-      @math{\hookrightarrow}0xe10536ae628...cdc085e491, amount: 868020000000000,   
+[CHEQUEBOOK] verify cheque: contract: 0x95850...eee6c, beneficiary:
+      @math{\hookrightarrow}0xe10536ae628...cdc085e491, amount: 868020000000000,
       @math{\hookrightarrow}signature: a7d52dc744b8......f1fe2001 - sum: 866020000000000
-[CHEQUEBOOK] received cheque of 2000000000000 wei in inbox 
+[CHEQUEBOOK] received cheque of 2000000000000 wei in inbox
       @math{\hookrightarrow}(0x95850...eee6c, uncashed: 42000000000000)
 @end example
 
@@ -426,7 +465,7 @@ The cheque is verified. If uncashed cheques have an outstanding balance of more 
 @cindex cheque
 
 @example
-[CHEQUEBOOK] cashing cheque (total: 104000000000000) on chequebook 
+[CHEQUEBOOK] cashing cheque (total: 104000000000000) on chequebook
       @math{\hookrightarrow} (0x95850c6...eee6c) sending to 0xa5df94be...e5aaz
 @end example
 
