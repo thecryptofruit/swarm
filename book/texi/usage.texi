@@ -1,4 +1,4 @@
-@node Usage, API, Running a node, Top
+﻿@node Usage, API, Running a node, Top
 @chapter Usage
 
 
@@ -302,7 +302,9 @@ The contract.info substructure given back from the solidity compiler can be depl
 
 @example
 contenthash = bzz.put(JSON.stringify(contract.info), 
-      @math{\hookrightarrow} "application/eth-contractinfo+json");
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+ "application/eth-contractinfo+json");
 admin.register(primary, contractaddress, contenthash);
 miner.start(1); admin.sleepBlocks(1); miner.stop();
 //mining only needed if you are on a private chain self mining
@@ -383,7 +385,9 @@ Now that we know how to register names, let us see how to use them in practice
 
 @example
 albumHash = bzz.upload("/Users/tron/Work/ethereum/go-ethereum/bzz/bzzdemo/", 
-              @math{\hookrightarrow}  "index.html")
+              @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+  "index.html")
 bzz.register(primary, "album", albumHash)
 miner.start(1); admin.sleepBlocks(1); miner.stop();
 //mining needed if you are on a private chain
@@ -417,7 +421,9 @@ Suppose we have registered the name @code{swarmpicture} as in
 
 @example
 bzz.register(primary, "swarmpicture",   
-        @math{\hookrightarrow}  bzz.upload("bzz.demo/swarm-inside.png", "swarm-inside.png"))
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+  bzz.upload("bzz.demo/swarm-inside.png", "swarm-inside.png"))
 @end example
 
 After some blocks are mined, this content will become accessible at
@@ -439,7 +445,9 @@ v1 = eth.blockNumber
 Now we realise that we have made a mistake and want to include the full logo in our site and se we re-register:
 @example
 bzz.register(primary, "swarmpicture",  
-   @math{\hookrightarrow}  bzz.upload("bzz.demo/MSTR-Swarm-Logo.jpg", "MSTR-Swarm-Logo.jpg"))
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+  bzz.upload("bzz.demo/MSTR-Swarm-Logo.jpg", "MSTR-Swarm-Logo.jpg"))
 @end example
 
 then mine some more @code{miner.start(); admin.sleepBlocks(1); miner.stop();} and then we can resolve as
@@ -461,12 +469,20 @@ And you can see it with the bzz-aware http client:
 @example
 > http.get("bzz://raw/swarmpicture:"+v1+"?content\_type=text/json")
 '{"entries":[{"path":"swarm-inside.png","hash":"a41a826e...28", 
-   @math{\hookrightarrow} "contentType":"image/png","status":0},{"path":"", 
-      @math{\hookrightarrow}"hash":"a41a826e...28","contentType":"image/png","status":0}]}'
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+ "contentType":"image/png","status":0},{"path":"", 
+            @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+"hash":"a41a826e...28","contentType":"image/png","status":0}]}'
 > http.get("bzz://raw/swarmpicture:"+v2+"?content\_type=text/json")
 '{"entries":[{"path":"MSTR-Swarm-Logo.jpg","hash":"35e6a17f...1d", 
-   @math{\hookrightarrow}"contentType":"image/jpeg","status":0},{"path":"", 
-      @math{\hookrightarrow}"hash":"35e6a17f...1d","contentType":"image/jpeg","status":0}]}'
+      @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+"contentType":"image/jpeg","status":0},{"path":"", 
+            @ifnothtml{@math{\hookrightarrow}}@c
+@end ifnothtml@c
+"hash":"35e6a17f...1d","contentType":"image/jpeg","status":0}]}'
 @end example
 
 
