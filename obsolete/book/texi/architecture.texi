@@ -61,13 +61,13 @@ The actual storage layer of swarm consists of two main components, the \@dfn{loc
 
 For disk storage, leveldb is used. Both components can easily be swapped by alternative solutions with minimal work.
 
-The netStore is the actual DHT (distributed hash table) implementation. It interacts with the bzz protocol as well as the hive, the network peer logistic manager. The netStore is really where the network storage logic is implemented.
+The netStore is the actual DHT (distributed hash table) implementation. It interacts with the bzz protocol as well as the hive, the network peer logistic manager. The netStore is really where the distributed storage logic is implemented.
 
 The @dfn{distributed preimage archive (DPA)} is the local interface for storage and retrieval of documents. When a document is handed to the DPA for storage, it chunks the document into a merkle hashtree and hands back its root key to the caller (DPA). This key can later be used to retrieve the document in question in part or whole.
 
 The component that chunks the documents into the merkle tree is called the @dfn{chunker}. Our chunker implements the @dfn{bzzhash} algorithm which is parallelizable tree hash based on SHA3/SHA256. The DPA runs a storage loop which receives the chunks back from the chunker and dispatches them to the chunkstore for storage. This entry point is the netStore.
 
-When a root key is handed to the DPA for document retrieval, the DPA calls the Chunker which hands back a seekable document reader to the caller. This is a @dfn{lazy reader} in the sense that it retrieves relevant parts of the underlying document only as they are actually read. This entails that partial reads (e.g., range requests on video) are supported on the lowest level.
+When a root key is handed to the DPA for document retrieval, the DPA calls the Chunker which hands back a seekable document reader to the caller. This is a @dfn{lazy reader} in the sense that it retrieves relevant parts of the underlying document only as they are actually read. This entails that partial reads (e.g., range requests on video) are supported on the lowest level. In other words this scheme provides an integrity protected random access storage of documents.
 
 The swarm manifest is a structure that defines a mapping between arbitrary paths and documents to handle document collections. It also includes various metadata associated with the collection and the documents therein.
 
@@ -85,7 +85,6 @@ The Swarm Accounting Protocol (SWAP)
 
 In what follows we describe the components in more detail.
 
-
 @node Bzzhash, DPA, Components and layers, Components and layers
 @subsection Bzzhash and chunks
 @cindex hash
@@ -95,7 +94,7 @@ In what follows we describe the components in more detail.
 
 In particular, it can take advantage of parallelisms (including SMP and massively-parallel architectures such as GPU's) for faster calculation and verification, can be used to verify the integrity of partial content without having to transmit all of it. Proofs of security to the underlying hash function carry over to Swarm Hash.
 
-Swarm Hash is constructed using a regular hash function (in our case, SHA3) with a generalization of Merkle's tree hash scheme. The basic unit of hashing is a @dfn{chunk} that can be either a @dfn{leaf chunk} containing a section of the content to be hashed or an @dfn{inner chunk} (non-leaf chunk) containing hashes of its children, which can be of either variety.
+Swarm Hash is constructed using a regular hash function (SHA256 or SHA3) with a generalization of Merkle's tree hash scheme. The basic unit of hashing is a @dfn{chunk} that can be either a @dfn{leaf chunk} containing a section of the content to be hashed or an @dfn{inner chunk} (non-leaf chunk) containing hashes of its children, which can be of either variety.
 
 Hashes of leaf chunks are defined as the hashes of the concatenation of the 64-bit length (in LSB-first order) of the content and the content itself. Because of the inclusion of the length, it is resistant to length extension attacks, even if the underlying hash function is not. Note that this "safety belt" measure is extensively used in the latest edition of OpenPGP standard. It is, however, important to emphasize that Swarm Hash is obviously vulnerable to length extension attacks, but can be easily protected against them, when necessary, using similar measures in a higher layer. A possibly very profitable performance optimization (not currently implemented) is to initialize the hash calculation with the length of the standard chunk size (e.g. 4096 bytes), thus saving the repeated hashing thereof.
 
@@ -217,7 +216,54 @@ If a storage request appears for the first time we assess the key for proximity 
 @node Syncing, Hive, DPA, Components and layers
 @subsection Syncing
 
-This is not implemented yet
+Node syncronisation is the protocol that makes sure content ends up where it is queried. Since the swarm has a address-key based retrieval protocol, content will be twice as likely be requested from a node that is one bit (one proximity bin) closer
+to the content's address. What a node stores is determined by the access count of chunks: if we reach capacity the oldest unaccessed chunks are removed.
+On the one hand, this is backed by an incentive system rewarding serving chunks.
+This directly translates to a motivation, that a content needs to be served with frequency X in order to make your worth while storing. On the one hand frequency of access directly translates to storage count. On the other hand it provides a way to combine proximity and popularity to dictate what is stored.
+
+Based on distance alone (all else being equal, assuming random popularity of chunks), a node could be expected to store chunks up to a certain proximity radius.
+However, it is always possible to look for further content that is popular enough to make it worth while storing. Given the power law of popularity rank and the uniform distribution of chunks in address space, one can be sure that any node can expand their storage with content where popularity makes up for their distance.
+
+Given absolute limits on popularity, there might be an actual upper limit on a storage capacity for a single base address. If this is the case, several nodes should be run in parallel.
+
+This storage protocol is designed to provide an elastic cloud where a growth in popularity automatically scales. An order of magnitude increase in popularity will result in an order of magnitude more nodes actually caching the chunk resulting in fewer hops to route the chunk, ie., a lower latency retrieval.
+
+Now with popularity it may well happen that a node closest to the target address is no longer motivated to keep a chunk. If all the neighbouring nodes have the content, the retrieval may never end up with the closest node and if they themselves happen not to ever retrieve that content, the chunk is deleted. This resembles a doughnot with a whole in the middle. Just as the doughnot grows if more mouth bite at it, need to make sure that it never breaks, no queries from outside end up with the closest nodes which do not have it. Elastic shrinking requires that when a node decides to delete a content it needs to forward it to all nodes closer to it. This in fact indication to the receiving node that subsequent queries may end up being routed to them so they will be rewarded for their delivery.
+
+Smart syncronisation is a protocol of distribution which makes sure that these transfers happen. Apart from access count which nodes use to determine which content to delete if capacity is reached, chunks also store their first entry index. This is an arbitrary monotonically increasing index, and nodes publish their current top index, so virtually they serve as timestamps of creation. This index helps keeping track what content to syncronise with a peer.
+
+When two peers connect, they establish their synchronisation state by exchanging information in the protocol handshake.
+When a connection is peer connection is opened the first time, syncronisation does not specify an index count, meaning that all content in the relevant address space no matter how long ago it was entered is offered to the peer.
+The address space relevant by default just designates all addresses that are closer to the receiving node than the source.
+Syncronisation goes both ways independently. Once all content up to the current index is syncronised, the receiving peer updates the syncornisation state with the current index given by the source node. The source providing a counter should mean that they have provided the recipient with all chunks they have upto that time.
+
+All newly stored content during a live connection is also offered to the peer. Assuming enough bandwidth, peers are expected to be fully in sync meaning that the storage counter stored by the recipient about a source is not very far behind the source node's current storage count.
+
+In practice all replication of content since the beginning of the peer session is persisted across sessions. This is needed anyway since propagation can overload the connection causing network buffer contention. For a dynamic response, the stream of outgoing store requests are buffered. This means that if there is a disconnection, the earlier backlog will be replayed upon reconnection, ie. offered again to the recipient. Therefore for all intents and purposes synronisation of content for the periods of active connection do not need to be requested. If the recipient updates
+the counter as given by the source then at disconnection, the syncstate containing this counter will be recorded (LastSeenAt). Next time the peers connect the recipient receives all content stored between this index and the beginning of the session.
+Since syncronisation can be adjusted by the recipient, it is assumed that syncing state is persisted by the recipient and given in the protocol handshake.
+
+The handshake also allows the recipient to specify an address range by default covering all addresses not further than the peers' proximity. Note that in the case of peers in the most proximate bin, the target range may contain chunks that are closer to the source than the recipient.
+
+The syncing protocol as defined here subsumes all scenarios where content is pushed. Given all the scenarios a chunk needs to be pushed, we distinguish 5 types:
+
+@enumerate
+@item @dfn{Delivery} is the responses to a retrieve request (either from originator or forwarded, either locally found or delivered to by other peers). Delivery proceeds typically from nodes closer to the target towards nodes farther from the target.
+@item @dfn{Propagation} new content pushed to us as a result of syncronising with
+other peers. Propagation typically proceeds from nodes farther from the target to nodes closer to the target.
+@item @dfn{Deletion} if content is deleted, content must be pushed inwards, ie
+proceeds from nodes farther from the target to nodes closer to the target.
+@item @dfn{History} Delayed propagation of existing chunks prompted by syncronisation in the narrow sense. proceeds from nodes farther from the target to nodes closer to the target.
+@item @dfn{backlog} (clog) is the undelivered chunks buffered at previous sessions
+@end enumerate
+
+These 5 types are roughly in order of decreasing importance/urgency. The implementation lets you assign independent priorities to these types however we strongly recommend a monotonically decreasing prioritisation. By default, delivery is high priority,  propagation types are medium and backlog is low priority. Note that within that priority backlog is replayed respecting the original priorities preserved. Also historical syncing is lower priority than real time traffic so in the default case of propagation, historical syncing only kicks in if no real time high or medium priority chunks available.
+
+In order to reduce network traffic resulting from receiving chunks from multiple sources, all store requests can go via a confirmation roundtrip.
+For each peer connection in both directions, the source peer sends an @dfn{unsyncedKeys} message containing a batch of hashes offered to push to the recipient. Recipient responds with a @dfn{delivery request} which also contains a batch of hashes that recipient actually needs (does not have) out of the ones listed among the incoming unsynced keys. If no chunks are missing an empty response is possible. Unsynced keys is sent whenever a delivery request is received.
+If none received until a timeout period and there are outstanding content to push, an unsynced keys message is sent.
+@vrindex SyncModes
+@vrindex SyncPriorities
 
 @node Hive, The bzz protocol, Syncing, Components and layers
 @subsection Peer management (hive, kademlia)
@@ -226,8 +272,11 @@ This is not implemented yet
 Hive is the logistic manager of the swarm. It uses a generic kademlia nodetable to find best peer list for any target. This is used by the netstore to search for content in the swarm.
 When the node receives peer suggestions (bzz protocol peersMsgData exchange), the hive relays the peer addresses obtained from the message to the Kademlia table for db storage and filtering.
 Hive also manages connections and disconnections that allows for bootstapping as well as keeping the routing table uptodate.
-When the p2p server connects with a node capable of bzz protocol, the hive registers the node in the kademlia table and sends a @dfn{self lookup}. A self lookup is basically just a retrieve request with intended target correspinding to the node's base address (self lookup can be encoded with nil/zero key since peers addr known, and having no request id.
-The receiving node does not record self lookups as request or forward it, just reply with peers.
+When the p2p server connects with a node capable of bzz protocol, the hive registers the node in the kademlia table and sends a @dfn{self lookup}. A self lookup is basically just a retrieve request with intended target corresponding to the node's base address (self lookup can be encoded with nil/zero key since peers addr known, and having no request id).
+The receiving node does not record self lookups as a request or forward it, just reply with peers.
+This can be improved by simply automatically sending all relevant peers to a connected peer at the time they become known. All peers sent to the connected node are cached so that no repeat sends happen during the session.
+
+
 @cindex self lookup
 
 @menu

@@ -1,4 +1,4 @@
-@node Specifications, Related Projects, Architecture, Top
+entire@node Specifications, Related Projects, Architecture, Top
 @chapter Specifications
 
 @menu
@@ -6,7 +6,8 @@
 * Bzz url scheme::
 * Bzz Manifest::
 * SWAP - swarm accounting protocol::
-@end menu
+@end menu.,
+
 
 @node Bzz wire protocol, Bzz url scheme, Specifications, Specifications
 @section Bzz wire protocol

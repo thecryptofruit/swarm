@@ -1,63 +1,33 @@
-# Resources
+# what is swarm?
 
-## Code 
-- repo https://github.com/ethersphere/go-ethereum/tree/bzz/
-- ethereum p2p: https://github.com/ethereum/go-ethereum/p2p
+Swarm is a distributed storage platform and content distribution service, a native base layer service of the ethereum web 3 stack. The primary objective of Swarm is to provide a sufficiently decentralized and redundant store of Ethereum's public record, in particular to store and distribute Đapp code and data as well as block chain data. From an economic point of view, it allows participants to efficiently pool their storage and bandwidth resources in order to provide the aforementioned services to all participants.
 
-## Docs & specs
-- URL scheme: https://github.com/ethereum/go-ethereum/wiki/URL-Scheme
-- Dani & Viktor on public wiki: https://github.com/ethereum/wiki/wiki/Distributed-Preimage-Archive
-- Multi-protocol peer selection https://github.com/ethereum/go-ethereum/wiki/Multi-protocol-peer-selection
-- Gav on public wiki: https://github.com/ethereum/cpp-ethereum/wiki/Swarm
-- on kademlia: https://github.com/ethereum/wiki/wiki/Cademlia-Peer-Selection
-- Ethereum node discovery protocol on UDP: https://github.com/ethereum/go-ethereum/wiki/RLPx-----Node-Discovery-Protocol
-- Dani's writup of incentives: https://github.com/ethersphere/swarm/blob/master/doc/incentives.md
+From the end user's perspective, Swarm is not that different from WWW, except that uploads are not to a specific server. The objective is to peer-to-peer storage and serving solution that is DDOS-resistant, zero-downtime, fault-tolerant and censorship-resistant as well as self-sustaining due to a built-in incentive system which uses peer to peer accounting and allows trading resources for payment. Swarm is designed to deeply integrate with the devp2p multiprotocol network layer of Ethereum as well as with the Ethereum blockchain for domain name resolution, service payments and content availability insurance. 
 
-## Talks
-- https://twitter.com/ethereumproject/status/538030376858693633
-- Dr. Daniel Nagy: Ethereum ÐΞVcon-0: Keeping the Public Record Safe and Accessible - https://www.youtube.com/watch?v=QzYZQ03ON2o&list=PLJqWcTqh_zKEjpSej3ddtDOKPRGl_7MhS&index=7&spfreload=10
+# resources
 
-## Forum
-- empty as of 01/2015: https://forum.ethereum.org/categories/swarm
+## The ΞTHΞЯSPHΞЯΞ orange paper series
 
-## Mentions, discussions
-- https://www.reddit.com/r/ethereum/comments/3hbqbv/ipfs_vs_swarm/
-- http://www.reddit.com/r/ethereum/comments/2d4uyw/swarm_and_whisper/
-- http://www.reddit.com/r/ethereum/comments/2ityfz/ethereum_swarm/
-- https://www.maidsafe.org/t/ethereums-swarm-p2p-storage-and-whisper-p2p-messaging/1528
-- Vitalik's blogpost of 08/2014 - https://blog.ethereum.org/2014/08/16/secret-sharing-erasure-coding-guide-aspiring-dropbox-decentralizer/
-- Vitalik: 'Swarm is out-of-scope': https://www.reddit.com/r/ethereum/comments/2phvml/constructive_criticism_of_ethereum_project_not/cmwtfqq
-- Vitalik on eth components, swarm at 4:00 http://www.naation.com/2015/02/02/ethereum-explained-with-vitalik-buterin-inventor-and-leader-of-the-ethereum-project/5764/
+Swarm incentive system research papers. Call for peer review, proposals for improvement, criticism, encouragement and generic feedback.
 
-## Swarm, the name
-- https://www.facebook.com/swarmcorp, http://swarm.fund/
-- https://bitcointalk.org/index.php?topic=650143.0
-- https://bitcoinmagazine.com/17956/swarm-1-rick-falkvinges-swarmops-project/
-- http://www.amazon.co.uk/Swarmwise-Tactical-Manual-Changing-World/dp/1463533152/
-
-### How far does the analogy go?
-    
-swarm of bees | a decentralised network of peers
--------|------------
-living in a hive | form a distributed preimage archive
-where they | where they
-gather pollen | gather data chunks which they 
-to produce honey | transform into a longer data stream (document)
-they consume and store |  they serve and store  
-buzzing bzz | using bzz as their communications protocol
+* Viktor Trón, Aron Fischer, Daniel A Nagy and Zsolt Felföldi: swap, swear and swindle: incentive system for swarm. [pdf](http://52.70.20.40:32200/bzz:/ethersphere/orange-papers/1/swap-swear-and-swindle.pdf)|[html](http://52.70.20.40:32200/bzz:/ethersphere/orange-papers/1/swap-swear-and-swindle.html)|[bibtex entry]((http://52.70.20.40:32200/bzz:/ethersphere/orange-papers/1/swap-swear-and-swindle.bib)
+* Viktor Trón, Aron Fischer, Daniel Varga: smash-proof: auditable storage for swarm secured by masked audit secret hash. [pdf](http://52.70.20.40:32200/bzz:/ethersphere/orange-papers/2/smash.pdf)|[html](http://52.70.20.40:32200/bzz:/ethersphere/orange-papers/2/smash.html)|[bibtex entry]((http://52.70.20.40:32200/bzz:/ethersphere/orange-papers/2/smash.bib)
 
 
-# Alternatives
+## ÐΞVcon talks on swarm
 
-- storj - http://storj.io/
-- maidsafe - http://maidsafe.net/
-- ipfs - http://ipfs.io/, https://www.youtube.com/watch?v=Fa4pckodM9g, http://static.benet.ai/t/ipfs.pdf, https://github.com/jbenet/go-ipfs
-- filecoin - http://filecoin.io/
-- permacoin - https://www.cs.umd.edu/~elaine/docs/permacoin.pdf, https://bitcointalk.org/index.php?topic=640410.0, http://blog.dshr.org/2014/06/permacoin.html
-- siacoin - http://www.siacoin.com/
-- riak - http://basho.com/riak/
-- BitTorrent http://www.bittorrent.com/ maelstrom http://blog.bittorrent.com/2014/12/10/project-maelstrom-the-internet-we-build-next/
-- Tahoe-LAFS https://www.tahoe-lafs.org/trac/tahoe-lafs
-- retroshare http://retroshare.sourceforge.net/
+* [Viktor Trón, Daniel A. Nagy: Swarm - Ethereum ÐΞVcon-1 talk on youtube](https://www.youtube.com/watch?v=VOC45AgZG5Q)
+* [Daniel A. Nagy: Keeping the Public Record Safe and Accessible - Ethereum ÐΞVcon-0 talk on youtube](https://www.youtube.com/watch?v=QzYZQ03ON2o&list=PLJqWcTqh_zKEjpSej3ddtDOKPRGl_7MhS)
 
+## code and status
+
+* [source](https://github.com/ethereum/go-ethereum/tree/swarm)
+* [issues on github](https://github.com/ethereum/go-ethereum/labels/swarm)
+* [development roadmap]()
+
+## follow swarm 
+
+* [@ethershere on twitter](https://twitter.com/ethersphere)
+* [gitter swarm room](https://gitter.im/ethereum/swarm) 
+* [swarm on swarm: bzz://swarm](http://52.70.20.40:32200/bzz:/swarm) public gateway (thanks to  @TerekJudi|@uwaterloo) once testnet is public
 

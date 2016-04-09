@@ -98,6 +98,7 @@ These objectives entail the following design requirements:
 @subsection Status
 
 The status of swarm is proof of concept vanilla prototype tested on toy network.
+It is highly experimental code and untested in the wild.
 
 @node License, Credits, Status, About
 @subsection License
@@ -187,7 +188,7 @@ See the ethereum developer's guide for how to contribute to the project. @url{ht
 @itemize
 @item SWAP^3: swarm accounting protocol stage 3 adding debt swap (accreditation)
 @item storage incentives: receipts and litigation
-@item ethereum blockchain on swarm
+@item ethereum blockchain, state, contract storage, logs and receipts on swarm
 @item network stress testing, viability, scalability
 @item latency and traffic simulations for routing
 @item encryption
@@ -198,6 +199,8 @@ See the ethereum developer's guide for how to contribute to the project. @url{ht
 @node Resources,  , About, Introduction
 @section Resources
 
-Dr. Daniel A. Nagy: Ethereum ÐΞVcon-0: Keeping the Public Record Safe and Accessible - @url{https://www.youtube.com/watch?v=QzYZQ03ON2o}
+@itemize
+@item Dr. Daniel A. Nagy: Ethereum ÐΞVcon-0: Keeping the Public Record Safe and Accessible - @url{https://www.youtube.com/watch?v=QzYZQ03ON2o}
+@end itemize
 
 
