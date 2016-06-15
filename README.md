@@ -10,12 +10,13 @@ From the end user's perspective, Swarm is not that different from WWW, except th
 
 Swarm incentive system research papers. Call for peer review, proposals for improvement, criticism, encouragement and generic feedback.
 
-* Viktor Trón, Aron Fischer, Daniel A Nagy and Zsolt Felföldi: swap, swear and swindle: incentive system for swarm. [pdf](http://52.70.20.40:32200/bzz:/ethersphere/orange-papers/1/swap-swear-and-swindle.pdf)|[html](http://52.70.20.40:32200/bzz:/ethersphere/orange-papers/1/swap-swear-and-swindle.html)|[bibtex entry]((http://52.70.20.40:32200/bzz:/ethersphere/orange-papers/1/swap-swear-and-swindle.bib)
-* Viktor Trón, Aron Fischer, Daniel Varga: smash-proof: auditable storage for swarm secured by masked audit secret hash. [pdf](http://52.70.20.40:32200/bzz:/ethersphere/orange-papers/2/smash.pdf)|[html](http://52.70.20.40:32200/bzz:/ethersphere/orange-papers/2/smash.html)|[bibtex entry]((http://52.70.20.40:32200/bzz:/ethersphere/orange-papers/2/smash.bib)
+* Viktor Trón, Aron Fischer, Daniel A Nagy and Zsolt Felföldi: swap, swear and swindle: incentive system for swarm. [pdf](http://52.70.20.40:32200/bzz:/ethersphere/orange-papers/1/swap-swear-and-swindle.pdf)|[html](http://52.70.20.40:32200/bzz:/ethersphere/orange-papers/1/swap-swear-and-swindle.html)|[bibtex entry](http://52.70.20.40:32200/bzz:/ethersphere/orange-papers/1/swap-swear-and-swindle.bib)
+* Viktor Trón, Aron Fischer, Daniel Varga: smash-proof: auditable storage for swarm secured by masked audit secret hash. [pdf](http://52.70.20.40:32200/bzz:/ethersphere/orange-papers/2/smash.pdf)|[html](http://52.70.20.40:32200/bzz:/ethersphere/orange-papers/2/smash.html)|[bibtex entry](http://52.70.20.40:32200/bzz:/ethersphere/orange-papers/2/smash.bib)
 
 
 ## ÐΞVcon talks on swarm
 
+* [Aron Fisher, Daniel A. Nagy, Viktor Tron - Swarm talk on Ethereum Meetup Berlin May 2016](https://www.youtube.com/watch?v=Y9kch84cbPA)
 * [Viktor Trón, Daniel A. Nagy: Swarm - Ethereum ÐΞVcon-1 talk on youtube](https://www.youtube.com/watch?v=VOC45AgZG5Q)
 * [Daniel A. Nagy: Keeping the Public Record Safe and Accessible - Ethereum ÐΞVcon-0 talk on youtube](https://www.youtube.com/watch?v=QzYZQ03ON2o&list=PLJqWcTqh_zKEjpSej3ddtDOKPRGl_7MhS)
 
@@ -23,7 +24,7 @@ Swarm incentive system research papers. Call for peer review, proposals for impr
 
 * [source](https://github.com/ethereum/go-ethereum/tree/swarm)
 * [issues on github](https://github.com/ethereum/go-ethereum/labels/swarm)
-* [development roadmap]()
+* [development roadmap](https://github.com/ethereum/go-ethereum/wiki/swarm-roadmap)
 
 ## follow swarm 
 
