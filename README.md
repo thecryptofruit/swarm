@@ -6,15 +6,15 @@ From the end user's perspective, Swarm is not that different from WWW, except th
 
 # resources
 
-## The ΞTHΞЯSPHΞЯΞ orange paper series
+## The Ethersphere orange paper series
 
 Swarm incentive system research papers. Call for peer review, proposals for improvement, criticism, encouragement and generic feedback.
 
-* Viktor Trón, Aron Fischer, Daniel A Nagy and Zsolt Felföldi: swap, swear and swindle: incentive system for swarm. [pdf](http://52.70.20.40:32200/bzz:/ethersphere/orange-papers/1/swap-swear-and-swindle.pdf)|[html](http://52.70.20.40:32200/bzz:/ethersphere/orange-papers/1/swap-swear-and-swindle.html)|[bibtex entry](http://52.70.20.40:32200/bzz:/ethersphere/orange-papers/1/swap-swear-and-swindle.bib)
-* Viktor Trón, Aron Fischer, Daniel Varga: smash-proof: auditable storage for swarm secured by masked audit secret hash. [pdf](http://52.70.20.40:32200/bzz:/ethersphere/orange-papers/2/smash.pdf)|[html](http://52.70.20.40:32200/bzz:/ethersphere/orange-papers/2/smash.html)|[bibtex entry](http://52.70.20.40:32200/bzz:/ethersphere/orange-papers/2/smash.bib)
+* Viktor Trón, Aron Fischer, Daniel A Nagy and Zsolt Felföldi: swap, swear and swindle: incentive system for swarm. [pdf](http://web3.download/bzz:/swarm/ethersphere/orange-papers/1/sw%5E3.pdf)
+* Viktor Trón, Aron Fischer, Daniel Varga: smash-proof: auditable storage for swarm secured by masked audit secret hash. [pdf](http://web3.download/bzz:/swarm/ethersphere/orange-papers/2/smash.pdf)
 
 
-## ÐΞVcon talks on swarm
+## Devcon talks on swarm
 
 * [Aron Fisher, Daniel A. Nagy, Viktor Tron - Swarm talk on Ethereum Meetup Berlin May 2016](https://www.youtube.com/watch?v=Y9kch84cbPA)
 * [Viktor Trón, Daniel A. Nagy: Swarm - Ethereum ÐΞVcon-1 talk on youtube](https://www.youtube.com/watch?v=VOC45AgZG5Q)
