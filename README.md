@@ -10,8 +10,8 @@ From the end user's perspective, Swarm is not that different from WWW, except th
 
 Swarm incentive system research papers. Call for peer review, proposals for improvement, criticism, encouragement and generic feedback.
 
-* Viktor Trón, Aron Fischer, Daniel A Nagy and Zsolt Felföldi: swap, swear and swindle: incentive system for swarm. [pdf](http://web3.download/bzz:/swarm/ethersphere/orange-papers/1/sw%5E3.pdf)
-* Viktor Trón, Aron Fischer, Daniel Varga: smash-proof: auditable storage for swarm secured by masked audit secret hash. [pdf](http://web3.download/bzz:/swarm/ethersphere/orange-papers/2/smash.pdf)
+* Viktor Trón, Aron Fischer, Daniel A Nagy and Zsolt Felföldi: swap, swear and swindle: incentive system for swarm. [pdf](http://swarm-gateways.net/bzz:/theswarm.eth/ethersphere/orange-papers/1/sw%5E3.pdf)
+* Viktor Trón, Aron Fischer, Daniel Varga: smash-proof: auditable storage for swarm secured by masked audit secret hash. [pdf](http://swarm-gateways.net/bzz:/theswarm.eth/ethersphere/orange-papers/2/smash.pdf)
 
 
 ## Devcon talks on swarm
