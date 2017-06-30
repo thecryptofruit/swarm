@@ -1,5 +1,7 @@
 # what is swarm?
 
+[![Join the chat at https://gitter.im/ethersphere/swarm-sites](https://badges.gitter.im/ethersphere/swarm-sites.svg)](https://gitter.im/ethersphere/swarm-sites?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Swarm is a distributed storage platform and content distribution service, a native base layer service of the ethereum web 3 stack. The primary objective of Swarm is to provide a sufficiently decentralized and redundant store of Ethereum's public record, in particular to store and distribute Đapp code and data as well as block chain data. From an economic point of view, it allows participants to efficiently pool their storage and bandwidth resources in order to provide the aforementioned services to all participants.
 
 From the end user's perspective, Swarm is not that different from WWW, except that uploads are not to a specific server. The objective is to peer-to-peer storage and serving solution that is DDOS-resistant, zero-downtime, fault-tolerant and censorship-resistant as well as self-sustaining due to a built-in incentive system which uses peer to peer accounting and allows trading resources for payment. Swarm is designed to deeply integrate with the devp2p multiprotocol network layer of Ethereum as well as with the Ethereum blockchain for domain name resolution, service payments and content availability insurance. 
