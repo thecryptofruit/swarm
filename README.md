@@ -30,5 +30,4 @@ Swarm incentive system research papers. Call for peer review, proposals for impr
 
 * [@ethershere on twitter](https://twitter.com/ethersphere)
 * [Gitter swarm room](https://gitter.im/ethereum/swarm) 
-* [Swarm on swarm: bzz://swarm](http://52.70.20.40:32200/bzz:/swarm) public gateway (thanks to  @TerekJudi|@uwaterloo) once testnet is public
-
+* [Swarm on swarm: bzz://swarm](http://swarm-gateways.net/bzz:/theswarm.eth/) public gateway (thanks to  @TerekJudi|@uwaterloo) once testnet is public
