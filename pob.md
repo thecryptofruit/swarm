@@ -2,28 +2,36 @@
 
 ## Introduction
 
-In Swarm, uploading new data incurs bandwidth and storage costs, whereas syncing, that is moving chunks to nodes to which they 
-are closer, is necessary for keeping data in Swarm retrievable. Thus, the former needs to be disincentivized in a manner that 
-does not disincentivize the latter. In particular, merely demanding Swap payments for accepting chunks is not incentive compatible 
-with the above objectives, as it would make forwarding chunks to closer nodes costlier than not forwarding.
+In Swarm, uploading new data imposes bandwidth and storage costs on other participants of the network, whereas syncing, that 
+is moving chunks to nodes to which they are closer, is necessary for keeping data in Swarm retrievable. Thus, in order to 
+disincentivize spamming, comparable costs need to be imposed on the uploader but in a way that does not disincentivize 
+forwarding chunks to where they belong. In particular, merely demanding Swap payments for accepting chunks is not incentive 
+compatible with the above objectives, as it would make forwarding chunks to closer nodes costlier than not forwarding.
 
 Furthermore, the finite storage capacity of Swarm necessitates some rent-like payment for keeping a chunk in Swarm that is its 
-storage by the closest nodes and its syncing whenever changes in the structure of the network require it. Thus, from an uploader's 
-perspective, the costs need to be proportional to both the amount of chunks they upload and the amount of time for which they 
-expect them to be retrievable.
+storage by the closest nodes and its syncing whenever changes in the structure of the network require it. Thus, from an 
+uploader's perspective, the costs need to be proportional to both the amount of chunks they upload and the amount of time for 
+which they expect them to be retrievable. In practice, it means that uploading depletes some balance in proportion to the amount 
+of data uploaded to Swarm and the amount of time for which it is expected to be stored. Of course, that same balance can be 
+replenished by sharing one's bandwidth and storage resources with the network.
 
-In this document, a simple construction for this problem is proposed that would both disincentivize spam and provide nodes with 
-an incentive to store and forward chunks for which their respective uploader has paid as well as establishing a pricing mechanism 
-for a fair and efficient pricing of storage.
+In this document, a simple construction for solving this problem is proposed that would both disincentivize spam and provides 
+nodes with an incentive to store and forward chunks for which their respective uploader has paid as well as establishing a 
+pricing mechanism for a fair and efficient pricing of storage.
 
 ## Preliminaries
 
 The solution is modeled after [international mail](https://en.wikipedia.org/wiki/Treaty_of_Bern). Suppose, each chunk is uploaded 
 with a kind of "postage stamp" (technically, a digital signature) attached, proving that its delivery all the way to its 
-neighborhood in the network has been prepaid. Thus, the forwarding of stamped chunks becomes a service similar to retrieving 
-chunks and can thus be included in Swap accounting. Even if nobody eventually receives the Ethers paid for the stamp, the demand 
+neighborhood in the network has been prepaid. Even if nobody eventually receives the Ethers paid for the stamp, the demand 
 and acceptance of stamped chunks becomes a [Nash equilibrium](https://en.wikipedia.org/wiki/Nash_equilibrium) similar to Proof-
 of-Work cryptocurrencies, where also nobody receives the resources spent on mining.
+
+In particular, if every node requires chunks to be stamped in order to store and forward them, it does not pay for one node to 
+attempt syncing chunks with no or insufficient postage. It might be still worth keeping popular chunks without valid stamps in 
+storage expecting Swap payments for their retrieval, but even taking that into account, the only way to make other participants 
+keep chunks in storage is either paying for them via Swap or by affixing prepaid stamps to them. Thus, cheap spamming becomes 
+impossible either way.
 
 Since the actual service provided by the network is not the one-time delivery of the chunk to its neighborhood, but storage for 
 a certain amount of time, unlike postal stamps, Swarm stamps have a validity time period. Their spot value is determined by
@@ -43,8 +51,9 @@ Even though uploaders can manipulate the distribution of chunk hashes, any devia
 actually decrease the average estimated value of these chunks due to 
 [Jensen's inequality](https://en.wikipedia.org/wiki/Jensen%27s_inequality#Finite_form).
 
-Multiple stamps on the same chunk are allowed, as long as all of them are valid. Their spot value estimates are simply 
-arithmetically added. Re-uploads of the same chunk with a different stamp results in the chunk carrying both stamps.
+Stamps are only carried by syncing; responses to retrieval requests only contain chunk data, not stamps. Multiple stamps on the 
+same chunk are allowed, as long as all of them are valid. Their spot value estimates are simply arithmetically added. Re-uploads 
+of the same chunk with a different stamp results in the chunk carrying both stamps.
 
 In order to save on the need to re-upload the same chunks with a different stamps when their current stamp either expires or 
 becomes insufficient, additional "top-up" transactions can be defined. The increase of the Ether value of the stamps is only 
@@ -57,6 +66,10 @@ been paid *X* for a time period *t*, a new payment of *Y* should be accompanied 
 decreasing *t* with a partial refund is a valid operation by the owner, as long as the expiration date remains in the future.
 Valid stamps can be invalidated with immediate effect by the owner through first applying the value-neutral transformation and 
 then refunding the new amount.
+
+In order to allow for the number of chunks stamped with the same key decrease, a cancellation stamp can also be defined that can 
+only be created with the same private key as the stamp it cancels. Honoring cancellation stamps allows Swarm nodes to free up 
+storage space without suffering any monetary loss, thus it can be expected that cancellation stamps will be honored.
 
 Thus, Ether paid for past syncing and storage is irretrievable from the contract and can be considered burned.
 
