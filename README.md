@@ -24,8 +24,8 @@ Swarm incentive system research papers. Call for peer review, proposals for impr
 
 ## Code and status
 
-* [Source](https://github.com/ethereum/go-ethereum/tree/swarm)
-* [Issues on github](https://github.com/ethereum/go-ethereum/labels/swarm)
+* [Source](https://github.com/ethersphere/go-ethereum/tree/master/swarm)
+* [Issues on github](https://github.com/ethersphere/go-ethereum/issues)
 * [Development roadmap](https://github.com/ethereum/go-ethereum/wiki/swarm-roadmap)
 
 ## Follow swarm 
